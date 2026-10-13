@@ -1,0 +1,1445 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Distributed Systems Interview Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, sticky filter bar, questions as divided rows (not cards), answers in disclosure blocks */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --accent-ink:#FFFFFF; --code:#EEF1F7;
+  --basic:#2B7A57; --inter:#2A4BD7; --adv:#7438BF; --lead:#B05E08;
+  --good:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:28px 18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,5vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=search]{flex:1 1 220px}
+select{flex:0 1 220px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.track{flex:1;height:6px;background:var(--soft);border-radius:999px;overflow:hidden;min-width:80px}
+.fill{height:100%;background:var(--good);width:0;transition:width .3s}
+.sep{width:1px;height:18px;background:var(--line)}
+
+ol.qs{list-style:none;margin:0;padding:0}
+li.q{padding-block:22px;border-bottom:1px solid var(--line);display:grid;gap:12px}
+li.q.done .qtext{color:var(--muted)}
+.qhead{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.num{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:4px;min-width:34px}
+.qtext{font-weight:600;font-size:16.5px;line-height:1.45;margin:0;text-wrap:pretty}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.tag{font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.tag.lv{color:var(--surface);font-weight:500}
+.lv-Basic{background:var(--basic)} .lv-Intermediate{background:var(--inter)} .lv-Advanced{background:var(--adv)} .lv-Lead{background:var(--lead)}
+.tag.verify{background:transparent;border:1px solid var(--verify);color:var(--verify)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);cursor:pointer;margin-left:auto}
+.check input{width:16px;height:16px;accent-color:var(--good)}
+.body{padding-left:46px;display:grid;gap:8px;min-width:0}
+details{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details>summary{cursor:pointer;padding:9px 12px;font-size:14px;font-weight:500;list-style:none;display:flex;gap:8px;align-items:baseline}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px;flex:none}
+details[open]>summary::before{content:"−"}
+.dbody{padding:2px 14px 14px;display:grid;gap:10px;min-width:0}
+.dbody p,.dbody ul,.dbody ol{margin:0}
+.dbody ul,.dbody ol{padding-left:20px}
+.dbody li+li{margin-top:3px}
+h4{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:500}
+h4.rf{color:var(--warn)}
+.fu summary{font-weight:400}
+.fu summary .fl{font-family:var(--f-mono);font-size:11px;color:var(--muted);flex:none}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:3px}
+pre{margin:0;background:var(--code);padding:12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5}
+pre code{background:none;padding:0;font-size:inherit}
+.star dt{font-weight:600}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--verify);padding-left:10px}
+@media (max-width:560px){ .body{padding-left:0} .num{min-width:28px} }
+@media (prefers-reduced-motion:reduce){ .fill{transition:none} }
+</style>
+
+<p style="margin:0 auto;max-width:860px;padding:16px 0 0;font-size:14px"><a href="index.html">&larr; All banks</a></p>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Senior TL / EM interview prep</div>
+  <h1>Architecture &amp; Distributed Systems</h1>
+  <p class="lede">Event-driven design, Kafka, SQS, microservices, distributed-systems fundamentals, API design and scaling. Answers are hidden until you open them, so you can answer out loud first.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="bar">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search questions and answers" aria-label="Search">
+    <select id="skill" aria-label="Filter by skill"></select>
+    <select id="status" aria-label="Filter by review status">
+      <option value="all">All questions</option>
+      <option value="todo">Not reviewed</option>
+      <option value="done">Reviewed</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="chips" id="levels" aria-label="Level"></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="chips" id="types" aria-label="Type"></div>
+  </div>
+  <div class="row">
+    <div class="progress" style="flex:1"><span id="ptext">0 / 0 reviewed</span><div class="track"><div class="fill" id="pfill"></div></div></div>
+    <button class="btn" id="toggleAll" type="button">Open all answers</button>
+  </div>
+</div>
+
+<ol class="qs" id="list"></ol>
+</div>
+
+<script>
+const LEVELS=["Basic","Intermediate","Advanced","Lead"];
+const TYPES=["Concept","Scenario","Architecture","Behavioral"];
+const PARTS="Complete: all 4 parts loaded.";
+
+const QS=[
+/* ================= BASIC ================= */
+{id:"A001",skill:"Event-Driven",level:"Basic",type:"Concept",
+q:"What is the difference between an event, a command and a message? Why does the distinction matter in a design?",
+a:`<p>A <b>command</b> expresses intent and is addressed to one owner (<code>ReserveStock</code>). It can be rejected, and its schema is owned by the receiver. An <b>event</b> records a fact that already happened (<code>OrderPlaced</code>). It is immutable, broadcast to zero or more subscribers, and its schema is owned by the publisher, who does not know who consumes it. A <b>message</b> is just the envelope on the wire that carries either one.</p>
+<p>The distinction drives coupling. With commands the sender depends on the receiver. With events the dependency is inverted: consumers depend on the publisher's contract. It also drives failure handling. A failed command is the sender's problem; a failed event handler is the consumer's problem, and the publisher should never roll back because a subscriber failed.</p>`,
+keys:["Command = intent, one handler, can be rejected; event = past-tense fact, many handlers","Who owns the schema differs","Coupling direction is inverted","Publisher is not responsible for consumer failure"],
+fu:[{q:"Should an event carry the full entity state or just an ID?",a:"Thin events (ID only) keep the contract small but force consumers to call back, which reintroduces runtime coupling and load on the source. Fat events (event-carried state transfer) let consumers work offline but enlarge the contract, expose more data (watch PII) and can be stale. A common middle ground: carry the fields consumers actually need plus a version."},
+{q:"Can you send commands over Kafka?",a:"Yes, but treat the topic as point-to-point: one owning consumer group, a topic named for the receiver, and a reply or status event if the sender needs an outcome. Many teams keep commands on queues (SQS) and events on Kafka to keep the semantics obvious."}],
+rf:["Uses the three words interchangeably","Says a publisher should retry or roll back when a consumer fails","Names events in the imperative (\"UpdateInventory\")"]},
+
+{id:"A002",skill:"Event-Driven",level:"Basic",type:"Concept",
+q:"What do you gain and what do you pay when you move from synchronous service calls to event-driven communication?",
+a:`<p><b>Gains:</b> temporal decoupling (the consumer can be down without failing the producer), load levelling through the broker, independent scaling, and extensibility, since new consumers subscribe without changing the producer.</p>
+<p><b>Costs:</b> eventual consistency that the product has to accept, duplicate and out-of-order delivery that every consumer must handle, schema evolution across teams, harder debugging (you need correlation IDs and distributed tracing to follow a flow), and a broker to operate.</p>
+<p>I keep a call synchronous when the caller needs the answer to continue (payment authorisation before confirming an order), when the user is waiting on the result, or when the interaction is simple CRUD where a broker only adds moving parts.</p>`,
+keys:["Temporal decoupling and load levelling","Eventual consistency is a product decision, not just a tech one","Idempotency and ordering become every consumer's job","Observability cost: tracing and correlation IDs","Clear criteria for staying synchronous"],
+fu:[{q:"How do you trace a request that crosses three services and two topics?",a:"Propagate W3C trace context (traceparent) in message headers as well as HTTP headers, and use OpenTelemetry instrumentation for the producer and consumer so spans link across the broker. Log the correlation ID on every line. Without header propagation the trace breaks at the first topic."}],
+rf:["Only lists benefits","Claims event-driven is always more scalable","Doesn't mention duplicates or ordering"]},
+
+{id:"A003",skill:"Event-Driven",level:"Basic",type:"Concept",
+q:"Explain at-most-once, at-least-once and exactly-once delivery. Which do you actually build for?",
+a:`<p><b>At-most-once:</b> acknowledge (or commit the offset) before processing. A crash loses the message, but there are no duplicates. <b>At-least-once:</b> acknowledge after processing. A crash between processing and ack causes redelivery, so duplicates are possible but nothing is lost. <b>Exactly-once:</b> only achievable inside a closed system that controls both the read and the write. Kafka transactions do this for read-process-write from Kafka to Kafka.</p>
+<p>In practice I build for <b>at-least-once delivery plus idempotent processing</b>, which gives "effectively once" side effects. That holds across any broker and any downstream store.</p>`,
+keys:["Ack before vs after processing","Exactly-once is scoped to a closed system","At-least-once + idempotency is the realistic default","Knows external side effects (email, payment) aren't covered by broker guarantees"],
+fu:[{q:"Does Kafka give you exactly-once?",a:"Kafka EOS combines the idempotent producer, transactions and consumers reading with isolation.level=read_committed. It guarantees exactly-once only when input, output and offsets all live in Kafka. Writing to SQL Server or calling an API from the consumer is outside the transaction, unless you store the consumed offsets in the same DB transaction as the write."},
+{q:"Does SQS FIFO remove the need for idempotency?",a:"No. FIFO deduplicates sends with the same deduplication ID within a 5-minute window. If processing exceeds the visibility timeout, or the consumer crashes before deleting the message, it is received again. Consumers still need to be idempotent."}],
+rf:["\"We use Kafka, so we have exactly-once\"","Thinks FIFO means no duplicates ever","Can't explain where the duplicate comes from"]},
+
+{id:"A004",skill:"Event-Driven",level:"Basic",type:"Scenario",
+q:"A consumer handles OrderPlaced and sends a confirmation email. Some customers get two emails. Why, and how do you fix it?",
+a:`<p>The likely cause is at-least-once redelivery. The consumer sent the email, then crashed or timed out before committing the offset or deleting the message. Other causes: a rebalance mid-batch, an SQS visibility timeout shorter than processing time, or the producer publishing twice (retry after an ambiguous timeout, or a dual-write bug).</p>
+<p><b>Fix:</b> make the handler idempotent on the event ID. Record processed IDs in a table with a unique constraint, in the same transaction as any DB side effect:</p>
+<pre><code>INSERT INTO processed_messages (message_id, handler, processed_at)
+VALUES (@id, 'SendConfirmation', SYSUTCDATETIME());
+-- unique violation =&gt; already handled, ack and skip</code></pre>
+<p>Email is an external side effect, so the DB transaction can't cover it. Either pass an idempotency key to the email provider if it supports one, or record "sending" state first and accept a rare duplicate on a crash in that narrow window. Also check the producer: if it publishes after the DB commit, fix that with an outbox.</p>`,
+keys:["Identifies redelivery and producer duplicates as separate causes","Idempotency keyed on a stable event ID, not on payload","Unique constraint, not check-then-insert","Acknowledges the external side effect can't be made perfectly exactly-once"],
+trade:["Dedup table retention vs storage: keep IDs longer than the maximum redelivery window","Provider idempotency keys are cleanest but not every provider has them","For low-stakes side effects a rare duplicate may be acceptable; for payments it is not"],
+fu:[{q:"Why not just check \"have I seen this ID?\" before processing?",a:"Check-then-act races: two consumers (or a redelivery during a slow first attempt) can both pass the check. The unique constraint or a conditional write makes the database arbitrate atomically."}],
+rf:["\"Make the consumer faster\" as the only fix","Deduplicating on message content instead of an ID","No mention of the producer side"]},
+
+{id:"A005",skill:"Kafka",level:"Basic",type:"Concept",
+q:"Explain topics, partitions, offsets and consumer groups in Kafka.",
+a:`<p>A <b>topic</b> is a named stream, split into <b>partitions</b>. Each partition is an ordered, append-only log, and each record gets an <b>offset</b> that is its position in that partition. Ordering is guaranteed only within a partition.</p>
+<p>A <b>consumer group</b> shares the work: each partition is assigned to exactly one consumer in the group, so the maximum parallelism of a group equals the partition count. Different groups read the same topic independently, each with its own committed offsets (stored in the internal <code>__consumer_offsets</code> topic). The record key decides the partition (by hash by default), so records with the same key stay in order.</p>`,
+keys:["Ordering is per partition only","One partition → one consumer per group","Parallelism capped by partition count","Groups are independent readers","Key → partition → per-entity ordering"],
+fu:[{q:"What happens if you run more consumers than partitions?",a:"The extras sit idle with no assignment. They only help as hot standbys that take over during a rebalance."},
+{q:"Can you increase the partition count later?",a:"Yes, but the hash-to-partition mapping changes for existing keys, so new records for a key may land on a different partition than older ones. That breaks per-key ordering across the change. Size partitions up front with headroom, or plan a migration to a new topic."}],
+rf:["Thinks Kafka guarantees global ordering","Believes adding consumers always adds throughput","Confuses consumer groups with partitions"]},
+
+{id:"A006",skill:"Kafka",level:"Basic",type:"Concept",
+q:"How is Kafka different from a traditional queue like SQS or RabbitMQ, and how do you choose?",
+a:`<p>Kafka is a <b>retained log</b>. Records stay for the retention period (time or size based) whether or not anyone has read them. Consumers track their own offsets, so they can replay, and many groups can read the same data. A classic queue <b>deletes on acknowledgement</b>. Consumers compete for messages, each message is acked individually, and replay isn't built in.</p>
+<p>I choose Kafka for high-throughput streams, multiple independent consumers of the same events, per-key ordering, and replay (rebuilding a read model, backfilling a new service). I choose SQS for task queues where each job is handled once with per-message retry and a DLQ, especially on serverless, where there is nothing to operate. Kafka has no per-message DLQ; you build retry and dead-letter topics yourself.</p>`,
+keys:["Retained log vs delete-on-ack","Replay and multiple consumer groups","Per-message ack and DLQ are queue strengths","Operational cost difference (MSK/Confluent vs fully managed SQS)"],
+fu:[{q:"What is log compaction and when would you use it?",a:"Compaction keeps at least the latest record per key instead of deleting by age. A record with a null value (a tombstone) eventually removes the key. Use it for changelog or state topics, such as the latest profile per user, so a new consumer can rebuild current state without reading the full history."},
+{q:"What changed with ZooKeeper?",a:"Kafka moved metadata management into Kafka itself with KRaft (a Raft-based controller quorum). Kafka 4.0 removed ZooKeeper support entirely, so new clusters and upgrades past 3.x must run in KRaft mode."}],
+rf:["\"Kafka is just a faster queue\"","Doesn't know retention is independent of consumption","Assumes Kafka has a built-in DLQ"]},
+
+{id:"A007",skill:"Kafka",level:"Basic",type:"Concept",
+q:"What do acks, replication factor and min.insync.replicas control, and what's a sensible durable setup?",
+a:`<p><b>Replication factor</b> is how many copies of each partition exist. The <b>ISR</b> (in-sync replicas) are those caught up with the leader. <b>acks</b> is how long the producer waits: <code>0</code> means no wait, <code>1</code> means the leader has written it, and <code>all</code> means all current ISR members have it. <b>min.insync.replicas</b> works with <code>acks=all</code>: if the ISR shrinks below that number, writes fail with <code>NotEnoughReplicas</code> rather than silently becoming less durable.</p>
+<p>A typical durable setup is RF=3, <code>min.insync.replicas=2</code>, <code>acks=all</code>, which tolerates one broker loss without losing acknowledged writes. Since Kafka 3.0 the producer defaults to <code>acks=all</code> and <code>enable.idempotence=true</code>.</p>`,
+keys:["acks=all waits for ISR, not all replicas","min.insync.replicas turns shrinking ISR into a visible failure","RF=3 / min ISR=2 reasoning","Knows the 3.0 default change"],
+fu:[{q:"What is unclean leader election?",a:"If enabled, a replica that is not in sync can become leader when no ISR member is available. That restores availability but loses the records it was missing. It is off by default, and should stay off for anything where losing acknowledged data matters."}],
+rf:["Thinks acks=all with RF=3 and min ISR=1 is safe","Confuses replication factor with partition count"]},
+
+{id:"A008",skill:"Kafka",level:"Basic",type:"Scenario",
+q:"Events for the same order must be processed in order, but you also need parallelism across orders. How do you set this up?",
+a:`<p>Use <code>orderId</code> as the message key, so all events for an order land on one partition and are read in order. Parallelism then comes from the partition count: with 12 partitions, up to 12 consumers work in parallel, each owning a subset of orders.</p>
+<p>Inside a consumer, if I want more concurrency than partitions allow, I can fan work out to in-process workers, but only keyed by orderId (one worker per key bucket). Offsets must be committed only up to the lowest record that has fully finished. I also make sure the producer keeps per-key order, which the idempotent producer does by default.</p>`,
+keys:["Key by the entity that needs ordering","Partition count = parallelism ceiling","In-consumer concurrency must stay per-key","Offset commits must not skip unfinished work"],
+trade:["More partitions = more parallelism but more open files, longer rebalances and more end-to-end latency on small clusters","A very hot key (one huge customer) still serialises on one partition"],
+fu:[{q:"What if one key is extremely hot?",a:"Ordering forces it onto one partition, so it caps that key's throughput. Options: check whether strict ordering is really needed for all event types; split the key into finer-grained sub-entities; or keep ordering and scale that consumer vertically. Salting the key breaks the ordering guarantee, so only do it if order doesn't matter."}],
+rf:["Suggests a single partition for everything","Uses a random key and expects ordering","Parallel thread pool inside the consumer with no per-key control"]},
+
+{id:"A009",skill:"SQS",level:"Basic",type:"Concept",
+q:"Compare SQS Standard and FIFO queues. When do you pick each?",
+a:`<p><b>Standard:</b> at-least-once delivery, best-effort ordering, very high throughput. Duplicates and reordering can occur. <b>FIFO:</b> strict ordering within a <b>message group ID</b>, deduplication of sends within a 5-minute window (by explicit deduplication ID or content-based hashing), and lower throughput quotas (higher with high-throughput mode and batching).</p>
+<p>I pick Standard for independent jobs where order doesn't matter and consumers are idempotent. I pick FIFO when per-entity order matters, and I use the entity ID as the message group ID so different entities still process in parallel.</p>`,
+keys:["Ordering scope is the message group","Dedup window is 5 minutes and applies to sends","Throughput trade-off","Group ID choice drives parallelism"],
+fu:[{q:"What happens in FIFO when one message keeps failing?",a:"Its message group is blocked: later messages in that group are not delivered until it succeeds or moves to the DLQ after maxReceiveCount. Other groups keep flowing. A badly chosen single group ID turns this into a full queue stall."}],
+rf:["Thinks Standard is unordered and FIFO is exactly-once end to end","Uses one message group ID for the whole queue without realising it serialises everything"],
+verify:"Exact FIFO throughput quotas change over time; check current AWS quotas before quoting numbers."},
+
+{id:"A010",skill:"SQS",level:"Basic",type:"Concept",
+q:"Explain visibility timeout and dead-letter queues in SQS. How do you set the timeout for a Lambda consumer?",
+a:`<p>When a consumer receives a message, SQS hides it for the <b>visibility timeout</b> (default 30 seconds, maximum 12 hours). If the consumer doesn't delete it before the timeout ends, the message becomes visible again and is redelivered. The timeout must comfortably exceed processing time; long jobs can extend it with <code>ChangeMessageVisibility</code>.</p>
+<p>A <b>redrive policy</b> moves a message to a <b>DLQ</b> after it has been received <code>maxReceiveCount</code> times. That stops a poison message from looping forever. You alarm on DLQ depth, and once the bug is fixed you redrive the messages back.</p>
+<p>For a Lambda event source mapping, AWS recommends setting the queue's visibility timeout to at least six times the function timeout, so retries and batching don't cause early redelivery.</p>`,
+keys:["Timeout too short → duplicate processing","maxReceiveCount + DLQ to contain poison messages","Alarm on DLQ depth","Lambda 6× guidance"],
+fu:[{q:"With Lambda and a batch of 10, one message fails. What happens?",a:"By default the whole batch is treated as failed and all 10 become visible again, including the 9 that succeeded. Enable ReportBatchItemFailures and return only the failed message IDs so just those retry."}],
+rf:["No DLQ, or a DLQ nobody monitors","Sets maxReceiveCount to 1 (any transient error dead-letters)","Doesn't know about partial batch failures"]},
+
+{id:"A011",skill:"Microservices",level:"Basic",type:"Concept",
+q:"What makes something a microservice, and how do you decide where service boundaries go?",
+a:`<p>A microservice is <b>independently deployable</b>, <b>owns its data</b> (no other service reads its tables), and is aligned to a business capability. Size is a side effect, not the definition.</p>
+<p>For boundaries I start from DDD bounded contexts: where the language and the model change. I then check them against team ownership (Conway's law), change cadence (things that always change together belong together), and consistency needs. Data that must be updated atomically should usually live in one service rather than be split and stitched back with a saga.</p>
+<p>Signs the boundaries are wrong: services that always deploy together, chatty synchronous call chains to complete one request, or a shared database.</p>`,
+keys:["Independent deployability + data ownership","Bounded contexts as starting point","Team ownership and change cadence","Transactional consistency keeps things together","Can name smells of bad boundaries"],
+fu:[{q:"Is a shared database between services ever acceptable?",a:"As a transitional step while strangling a monolith, or for a read-only reporting replica, yes. As a steady state it couples schemas and deployments, so you get the operational cost of microservices without the independence."}],
+rf:["Defines microservices by lines of code or \"one table per service\"","Splits by technical layer (an auth DB service, a validation service)","No mention of data ownership"]},
+
+{id:"A012",skill:"Microservices",level:"Basic",type:"Architecture",
+q:"Monolith, modular monolith or microservices: how do you choose for a new product?",
+a:`<p>For a new product with one or two teams I default to a <b>modular monolith</b>. It is one deployable, but modules have explicit boundaries: separate schemas or table ownership, no cross-module table access, and communication through in-process interfaces or in-process events. You get fast iteration and simple transactions, and the boundaries are already drawn if you need to extract services later.</p>
+<p>I move to <b>microservices</b> when specific pressures appear: teams blocking each other on releases, components with very different scaling or availability needs, or a compliance boundary. Even then I extract only the module under pressure. A plain <b>monolith</b> with no internal boundaries is fine for a prototype, but it becomes hard to split.</p>`,
+keys:["Choice driven by team size and organisational pressure, not fashion","Modular monolith as a deliberate default","Extraction triggers named concretely","Recognises the distributed-systems tax"],
+trade:["Microservices buy team autonomy and independent scaling at the cost of network failures, eventual consistency and platform overhead","A modular monolith needs discipline (architecture tests, e.g. NetArchTest/ArchUnit) or boundaries erode","It depends on: team count, deployment frequency, scaling asymmetry, regulatory isolation"],
+fu:[{q:"How do you stop module boundaries eroding in a modular monolith?",a:"Enforce them in CI: architecture tests that fail when one module references another's internals, separate projects with internal visibility, and per-module schemas. Code review alone doesn't hold the line at scale."}],
+rf:["\"Microservices from day one so we can scale\"","Treats monolith as a dirty word","Can't name a concrete trigger for extraction"]},
+
+{id:"A013",skill:"Microservices",level:"Basic",type:"Concept",
+q:"What does an API gateway do, and how is it different from a service mesh?",
+a:`<p>An <b>API gateway</b> handles <b>north-south</b> traffic, from clients into the system: routing, TLS termination, authentication and token validation, rate limiting, request shaping, and sometimes aggregation (a backend-for-frontend). Examples: AWS API Gateway, YARP, Kong.</p>
+<p>A <b>service mesh</b> handles <b>east-west</b> traffic between services, usually with sidecar or node-level proxies: mutual TLS, retries and timeouts, traffic shifting for canaries, and uniform telemetry, without changing application code. Examples: Istio, Linkerd, AWS App Mesh (being retired in favour of ECS Service Connect).</p>
+<p>They overlap on features but solve different problems. Many teams on ECS need a gateway but not a mesh.</p>`,
+keys:["North-south vs east-west","Gateway concerns: auth, rate limit, routing, BFF","Mesh concerns: mTLS, retries, traffic shifting, telemetry","Doesn't add a mesh by default"],
+fu:[{q:"What is the BFF pattern and when do you use it?",a:"A backend-for-frontend is a thin API layer per client type (mobile, web) that aggregates and shapes calls for that client. Use it when clients need very different payloads or call patterns; for a mobile app it cuts round trips. The risk is business logic leaking into it, so keep it to composition."}],
+rf:["Puts business logic in the gateway","Thinks a mesh is required for microservices"],
+verify:"AWS App Mesh end-of-support date: AWS announced retirement (Sept 2026) with ECS Service Connect as the recommended path; confirm current status before citing."},
+
+{id:"A014",skill:"Microservices",level:"Basic",type:"Concept",
+q:"Explain timeout, retry, circuit breaker and bulkhead. How do you apply them in .NET?",
+a:`<p><b>Timeout</b> bounds how long you wait. <b>Retry</b> handles transient faults, with exponential backoff and jitter, and only for idempotent operations. <b>Circuit breaker</b> stops calling a failing dependency once the failure rate crosses a threshold (open), fails fast for a while, then lets a trial request through (half-open). <b>Bulkhead</b> isolates resources, for example a separate connection or concurrency limit per dependency, so one slow dependency can't exhaust everything.</p>
+<p>In .NET 8 the standard route is <code>Microsoft.Extensions.Http.Resilience</code>, built on Polly v8:</p>
+<pre><code>builder.Services.AddHttpClient&lt;PaymentsClient&gt;(c =&gt;
+        c.BaseAddress = new Uri(config["Payments:Url"]!))
+    .AddStandardResilienceHandler(o =&gt;
+    {
+        o.AttemptTimeout.Timeout = TimeSpan.FromSeconds(2);
+        o.TotalRequestTimeout.Timeout = TimeSpan.FromSeconds(6);
+        o.Retry.MaxRetryAttempts = 2;
+    });</code></pre>
+<p>Order matters: the total timeout sits outside retries, and the per-attempt timeout sits inside them.</p>`,
+keys:["Retry only idempotent calls, with backoff + jitter","Breaker states and fail-fast purpose","Bulkhead as resource isolation","Per-attempt vs total timeout","Knows .NET 8 resilience package or Polly"],
+fu:[{q:"How can retries make an outage worse?",a:"Retries multiply load on a dependency that is already struggling. Three layers each retrying three times can turn one request into 27 calls. Retry at one layer only, use backoff with jitter, cap retries with a budget, and let the circuit breaker stop the traffic."}],
+rf:["Retries POSTs blindly","No jitter","Uses the default 100-second HttpClient timeout","Circuit breaker described as a retry"]},
+
+{id:"A015",skill:"Distributed Fundamentals",level:"Basic",type:"Concept",
+q:"Explain the CAP theorem, and what's commonly misunderstood about it.",
+a:`<p>CAP says that during a <b>network partition</b> a distributed data store must choose between <b>consistency</b> (linearizability: every read sees the latest write) and <b>availability</b> (every request to a non-failed node gets a non-error response). Partitions aren't optional on real networks, so the real choice is what to give up when one happens.</p>
+<p>Common misunderstandings: "pick any two of three" (you can't opt out of P); treating it as a permanent system label (many stores are tunable per operation); and ignoring normal operation. <b>PACELC</b> covers that: Else, without a partition, you trade <b>latency</b> against consistency. DynamoDB is an example: reads are eventually consistent by default, and you can ask for strongly consistent reads at higher cost and latency.</p>`,
+keys:["Choice is only forced during a partition","C in CAP = linearizability, not ACID C","PACELC adds latency vs consistency","Tunable consistency per operation"],
+fu:[{q:"Give a product example where you'd choose availability over consistency.",a:"A social feed or like counts: showing a slightly stale count is fine, and refusing to load the feed is not. Account balance or stock reservation goes the other way. You'd rather reject or queue the request than double-spend."}],
+rf:["\"MongoDB is CP, Cassandra is AP\" as the whole answer","Confuses CAP consistency with ACID consistency","Says you can pick CA for a distributed system"]},
+
+{id:"A016",skill:"Distributed Fundamentals",level:"Basic",type:"Concept",
+q:"What does eventual consistency mean for the user, and how do you design around it?",
+a:`<p>Eventual consistency means replicas or read models converge once writes stop, but a read right after a write may return old data. The user-visible symptom is "I saved it and it disappeared", which breaks <b>read-your-writes</b>.</p>
+<p>Design techniques:</p>
+<ul>
+<li>Return the written resource in the write response and update the UI optimistically.</li>
+<li>Route the user's own reads to the primary for a short window after they write (session stickiness).</li>
+<li>Return a version or timestamp and have the client wait until the read model reaches it.</li>
+<li>Be explicit in the UX for long-running work: "Processing", then a push update.</li>
+</ul>
+<p>Other users seeing a change a second later is usually fine. The author not seeing their own change is what generates bug reports.</p>`,
+keys:["Names read-your-writes and monotonic reads","Concrete UX/API techniques","Separates author vs other viewers","Treats staleness tolerance as a product decision"],
+fu:[{q:"In a CQRS setup, the read model lags by 2 seconds after a command. What do you do?",a:"Return enough from the command response for the UI to render immediately. If needed, return the event version and let the query endpoint accept a minimum-version parameter that waits briefly or falls back to the write model."}],
+rf:["Says eventual consistency means data might be wrong forever","Only fix offered is \"add a delay\""]},
+
+{id:"A017",skill:"API Design",level:"Basic",type:"Concept",
+q:"Which HTTP methods are safe and which are idempotent? How do you make a POST safe to retry?",
+a:`<p><b>Safe</b> (no state change): GET, HEAD, OPTIONS. <b>Idempotent</b> (repeating has the same effect as once): the safe methods plus PUT and DELETE. POST is not idempotent, and PATCH isn't guaranteed to be. DELETE is still idempotent even though the second call may return 404: the server state is the same.</p>
+<p>To make a POST retry-safe, the client sends an <b>Idempotency-Key</b> header (a pattern Stripe popularised; there is an IETF draft for it). The server stores key + request fingerprint + response. A repeat with the same key returns the stored response. The same key with a different payload is rejected (422). A concurrent duplicate while the first is still running gets 409. Keys expire after a TTL.</p>`,
+keys:["Correct safe/idempotent sets","Idempotent ≠ same response code","Idempotency key with stored response","Handles payload mismatch and in-flight duplicates"],
+fu:[{q:"Where do you store idempotency keys and for how long?",a:"In a store with an atomic insert-if-absent: a unique-keyed table in the same database as the write (so it can share the transaction), or Redis SET NX. Keep them at least as long as clients may retry, typically 24 hours for payment-style APIs."}],
+rf:["Says PUT and POST are interchangeable","Thinks idempotent means the response must be identical","No handling for concurrent retries"]},
+
+{id:"A018",skill:"API Design",level:"Basic",type:"Concept",
+q:"Offset pagination vs cursor (keyset) pagination: which do you use for a feed, and why?",
+a:`<p><b>Offset</b> (<code>OFFSET 2000 LIMIT 20</code>) is simple and supports "jump to page N". But the database still reads and discards all skipped rows, so deep pages get slow, and inserts while the user scrolls shift rows, causing duplicates or gaps.</p>
+<p><b>Keyset</b> pagination seeks from the last item seen, using an index:</p>
+<pre><code>SELECT id, created_at, body
+FROM posts
+WHERE (created_at, id) &lt; (@lastCreatedAt, @lastId)
+ORDER BY created_at DESC, id DESC
+LIMIT 20;   -- index on (created_at DESC, id DESC)</code></pre>
+<p>It costs the same at any depth and stays stable under inserts. For a feed I use keyset, with an opaque, encoded cursor so clients don't depend on its structure. The cost is no random page access, which a feed doesn't need. (The row-value comparison above works in PostgreSQL; in SQL Server you expand it into <code>created_at &lt; @c OR (created_at = @c AND id &lt; @id)</code>.)</p>`,
+keys:["Offset cost grows with depth","Instability under concurrent inserts","Keyset needs a unique tie-breaker and a matching index","Opaque cursor","Picks per use case (admin grid vs feed)"],
+fu:[{q:"Why include id in the cursor?",a:"created_at isn't unique. Without a tie-breaker, rows with the same timestamp are skipped or repeated at page boundaries. The cursor must be a total order."}],
+rf:["Uses offset for infinite scroll at scale","Cursor on a non-unique column","No supporting index"]},
+
+/* ================= INTERMEDIATE (part 1) ================= */
+{id:"A019",skill:"Kafka",level:"Intermediate",type:"Scenario",
+q:"A Kafka consumer group keeps rebalancing and throughput collapses. What are the likely causes, and how do you fix them?",
+a:`<p>Diagnostic order:</p>
+<ol>
+<li><b>Processing too slow between polls.</b> If handling a batch exceeds <code>max.poll.interval.ms</code> (default 5 minutes), the consumer is evicted. Look for "poll timeout exceeded" in client logs. Fix: lower <code>max.poll.records</code> (default 500), speed up the handler, or raise the interval deliberately.</li>
+<li><b>Missed heartbeats.</b> Long GC pauses, CPU throttling in containers, or network issues exceed <code>session.timeout.ms</code> (default 45s since Kafka 3.0).</li>
+<li><b>Membership churn.</b> Rolling deploys, autoscaling, or crash-looping pods each trigger a rebalance. Fix: static membership (<code>group.instance.id</code>) so restarts within the session timeout don't rebalance.</li>
+<li><b>Eager rebalancing.</b> The old protocol stops every consumer. Use the cooperative-sticky assignor, or the new consumer group protocol (KIP-848, GA in Kafka 4.0), which rebalances incrementally.</li>
+</ol>
+<p>Metrics to check: rebalance rate and join time from consumer metrics, consumer lag per partition, and pod restarts.</p>`,
+keys:["max.poll.interval.ms vs session.timeout.ms distinction","Static membership","Cooperative / incremental rebalancing","Container CPU throttling or GC as a hidden cause","Uses lag and rebalance metrics, not guesses"],
+trade:["Raising max.poll.interval.ms hides stuck consumers for longer","Smaller batches lower throughput per poll","Static membership delays reassignment when a consumer really is dead"],
+fu:[{q:"Can you move processing to a background thread and keep polling?",a:"Yes, but then you must pause() the partitions, keep polling to stay in the group, and commit offsets only for records that have finished. Done carelessly, it commits offsets for unfinished work and loses messages on a crash."}],
+rf:["\"Add more consumers\" as the fix","Doesn't distinguish the two timeouts","Turns on auto-commit with async processing"]},
+
+{id:"A020",skill:"Kafka",level:"Intermediate",type:"Concept",
+q:"How does Kafka's idempotent producer work, and how could ordering break on retries without it?",
+a:`<p>Without idempotence, a producer with several in-flight requests can lose ordering. Batch 1 fails transiently, batch 2 succeeds, then batch 1 is retried and lands after batch 2. A retry after a lost ack can also write a duplicate.</p>
+<p>With <code>enable.idempotence=true</code>, the broker assigns the producer an ID, and each batch carries a per-partition sequence number. The broker rejects duplicates and out-of-sequence batches, so retries neither duplicate nor reorder, with up to 5 in-flight requests per connection. Since Kafka 3.0 it is on by default, provided you haven't set conflicting configs such as <code>acks=1</code>.</p>
+<p>Its scope is one producer session and one partition. It doesn't dedupe across producer restarts (that needs transactions with a <code>transactional.id</code>), and it doesn't stop your application from publishing the same business event twice.</p>`,
+keys:["Explains the reorder-on-retry mechanism","Producer ID + sequence numbers","max.in.flight ≤ 5","Scope limits: session and partition","Default since 3.0, with conflicting-config caveat"],
+fu:[{q:"Before idempotence, how did people keep order?",a:"They set max.in.flight.requests.per.connection=1, which keeps order but cuts throughput because only one request per connection is outstanding."}],
+rf:["Thinks idempotent producer gives end-to-end exactly-once","Doesn't know retries can reorder"]},
+
+{id:"A021",skill:"Event-Driven",level:"Intermediate",type:"Architecture",
+q:"Explain the transactional outbox pattern. Why not just publish to the broker right after the database commit?",
+a:`<p>"Save, then publish" is a <b>dual write</b>. If the process dies between the commit and the publish, the state changed but no event exists. Publishing first and then committing is worse: the event exists for a change that may roll back. You can't wrap a DB and a broker in one transaction (no 2PC in practice).</p>
+<p><b>Outbox:</b> in the same DB transaction as the business change, insert the event into an <code>outbox</code> table. A separate relay reads the outbox and publishes, marking rows sent.</p>
+<pre><code>await using var tx = await db.Database.BeginTransactionAsync();
+order.Place();
+db.Outbox.Add(OutboxMessage.From(new OrderPlaced(order.Id, order.Total)));
+await db.SaveChangesAsync();
+await tx.CommitAsync();
+// relay: SELECT pending rows ORDER BY id → publish → mark sent</code></pre>
+<p>Two relay styles: <b>polling</b> the table (simple, adds latency and DB load) or <b>CDC</b> (Debezium reading the transaction log, low latency, more infrastructure). Both give at-least-once publishing, so consumers must be idempotent. Libraries like MassTransit and NServiceBus ship outbox implementations.</p>`,
+keys:["Names the dual-write failure precisely","Event written in the same transaction","Relay gives at-least-once → consumer idempotency","Polling vs CDC trade-off","Cleanup/retention of outbox rows"],
+trade:["Polling: easy, works anywhere, but adds latency and DB load and needs care for ordering with multiple relay instances","CDC: near-real-time and no polling load, but adds Debezium/Kafka Connect to operate and couples to the DB log format","It depends on: event volume, latency needs, whether Kafka Connect is already run"],
+fu:[{q:"How do you keep event order with several relay instances?",a:"Either run a single active relay (leader election or a lock), or partition the outbox by aggregate ID and have each relay own a partition. Kafka keys on aggregate ID then preserve order per entity."},
+{q:"What's the inbox pattern?",a:"The consumer-side mirror: record each incoming message ID in an inbox table in the same transaction as the handler's DB changes, so redeliveries are detected and skipped."}],
+rf:["\"Wrap it in a TransactionScope\" with the broker","Publishes inside the DB transaction before commit","Assumes the relay delivers exactly once"]},
+
+{id:"A022",skill:"Event-Driven",level:"Intermediate",type:"Architecture",
+q:"Choreography vs orchestration for a saga, such as order → payment → inventory → shipping. How do you choose?",
+a:`<p>A <b>saga</b> replaces a distributed transaction with a sequence of local transactions, each with a <b>compensating action</b> (refund the payment, release the stock) for when a later step fails.</p>
+<p><b>Choreography:</b> each service reacts to events and emits its own. There is no central coordinator and coupling is low, but the overall flow exists only implicitly across services. It gets hard to see, change and debug past three or four steps, and cyclic event dependencies creep in.</p>
+<p><b>Orchestration:</b> a coordinator (AWS Step Functions, Temporal, a MassTransit state machine) sends commands and tracks state. The flow is explicit, timeouts and compensation live in one place, and the status is easy to query. The cost is a central component that knows every step.</p>
+<p>I use choreography for simple fan-out reactions ("order placed → send email, update analytics"). I use orchestration for business processes with ordering, timeouts and compensation, like checkout.</p>`,
+keys:["Saga = local transactions + compensations, not rollback","Choreography's visibility problem","Orchestrator owns state, timeouts, compensation","Picks by process complexity","Names a real orchestrator"],
+trade:["Choreography: loose coupling, no single point of failure, poor visibility","Orchestration: explicit flow and easy monitoring, but central coupling and one more thing to run","Compensations aren't perfect undos (an email can't be unsent), so you design semantic compensation","It depends on: number of steps, need for timeouts, who owns the process"],
+fu:[{q:"What do you do when a compensation itself fails?",a:"Compensations must be idempotent and retried until they succeed. If retries are exhausted, park the saga in a failed state with an alert and a manual-resolution path. You can't compensate the compensation, so make it as simple as possible."}],
+rf:["Proposes 2PC across services","Assumes compensation restores the exact previous state","Can't say how to find where a choreographed order is stuck"]},
+
+{id:"A023",skill:"Microservices",level:"Intermediate",type:"Scenario",
+q:"Service A calls B, which calls C. C slows down, and soon A is timing out and its instances look exhausted. Walk through what's happening and how you'd fix it.",
+a:`<p>This is a <b>cascading failure</b>. C's latency holds B's outbound calls open. B's connection pool, thread pool or concurrency limit fills, so B slows down. Then the same thing happens to A. Callers retry, which adds load to C exactly when it is struggling.</p>
+<p><b>Immediate:</b> confirm with traces where the time goes, then shed load. Open the circuit to C, or switch on a degraded fallback such as cached data or hiding a widget.</p>
+<p><b>Structural fixes:</b></p>
+<ul>
+<li>Timeouts at every hop, set from a budget. A's deadline must exceed B's, which must exceed C's, and the deadline should be propagated.</li>
+<li>Circuit breaker and bulkhead around C in B, so C can't consume all of B's capacity.</li>
+<li>Retries at one layer only, with backoff, jitter and a retry budget.</li>
+<li>In .NET, use <code>IHttpClientFactory</code>. Creating a new <code>HttpClient</code> per call exhausts sockets, and a single static client ignores DNS changes. Avoid sync-over-async (<code>.Result</code>), which starves the thread pool.</li>
+<li>Ask whether A needs C synchronously at all. Can it be async or cached?</li>
+</ul>`,
+keys:["Explains the propagation mechanism (pools fill, retries amplify)","Timeout budgets decreasing down the chain","Breaker + bulkhead placement","Fallback or degradation","Questions whether the sync dependency should exist"],
+trade:["Tight timeouts fail fast but raise error rates under normal tail latency; set them from measured p99, not guesses","Fallbacks show stale data; acceptable for a feed, not for a balance"],
+fu:[{q:"How do you pick the timeout value?",a:"From the dependency's measured latency distribution (for example p99 plus a margin), constrained by the caller's own SLO budget. Revisit when the dependency's performance changes. Defaults like HttpClient's 100 seconds are almost always wrong for service-to-service calls."}],
+rf:["\"Scale C up\" as the only answer","Adds retries at every layer","No mention of timeouts"]},
+
+{id:"A024",skill:"API Design",level:"Intermediate",type:"Concept",
+q:"How do you version and evolve a public or mobile-facing API without breaking clients?",
+a:`<p>First, avoid needing a new version. Make changes <b>additive</b>: new optional fields, new endpoints, new enum values documented as possible. Write clients as <b>tolerant readers</b> that ignore unknown fields and handle unknown enum values. Never rename, remove, or change the meaning or type of a field in place.</p>
+<p>For genuinely breaking changes, introduce a new version. URL versioning (<code>/v2/</code>) is the most visible and cache-friendly. Header or media-type versioning keeps URLs clean but is harder to test and route. I pick one and apply it consistently. Run old and new side by side, measure traffic per version, and announce deprecation with the <code>Deprecation</code> and <code>Sunset</code> response headers plus a dated plan.</p>
+<p>Mobile apps make this harder because old builds live for months. Keep server-side compatibility for the supported app versions, and have a minimum-supported-version check that forces an upgrade as the last resort.</p>`,
+keys:["Additive change and tolerant reader first","Clear list of what counts as breaking","One consistent versioning scheme","Measure usage before removal","Mobile long-tail and forced upgrade"],
+fu:[{q:"Is adding a value to an enum a breaking change?",a:"It can be. Clients that switch exhaustively or deserialize into a strict enum may crash on the unknown value. Document enums as open from day one and make clients map unknown values to a default."}],
+rf:["Versions every endpoint on every change","Considers removing a field non-breaking because \"nobody uses it\" without data","Ignores old mobile builds"]},
+
+{id:"A025",skill:"Distributed Fundamentals",level:"Intermediate",type:"Scenario",
+q:"Two users edit the same record at the same time and one silently overwrites the other. How do you prevent lost updates across the API and the database?",
+a:`<p>This is the lost-update problem: both read version 5, both write, and the last write wins. Fix it with <b>optimistic concurrency</b> end to end:</p>
+<ul>
+<li><b>API:</b> return an <code>ETag</code> (the row version) on GET. Require <code>If-Match</code> on PUT or PATCH. If it doesn't match, return <code>412 Precondition Failed</code>; if it is missing, return <code>428 Precondition Required</code>.</li>
+<li><b>Database:</b> make the update conditional on the version. In EF Core, a concurrency token does this and throws <code>DbUpdateConcurrencyException</code> when zero rows match.</li>
+</ul>
+<pre><code>public class Order
+{
+    public Guid Id { get; set; }
+    [Timestamp] public byte[] RowVersion { get; set; } = default!; // SQL Server rowversion
+}
+// UPDATE ... WHERE Id = @id AND RowVersion = @original</code></pre>
+<p>On PostgreSQL with Npgsql, a <code>uint</code> concurrency token maps to the <code>xmin</code> system column. In DynamoDB, use a <code>ConditionExpression</code> on a version attribute. On conflict, show the user the newer data and let them merge or retry. Use pessimistic locking (<code>SELECT … FOR UPDATE</code> / <code>UPDLOCK</code>) only when conflicts are frequent and the critical section is short.</p>`,
+keys:["Names lost update and last-write-wins","ETag/If-Match with 412","Conditional update on a version","Conflict UX, not just an exception","Optimistic vs pessimistic choice by contention"],
+trade:["Optimistic: no locks held, scales well, but users hit conflicts under high contention","Pessimistic: no conflicts, but blocking, deadlock risk and lock duration tied to user think-time if misused","It depends on: contention rate, cost of a retry, length of the critical section"],
+fu:[{q:"Two requests both decrement stock from 1. Is optimistic concurrency enough?",a:"Yes, if the version check or an atomic conditional update guards it: UPDATE ... SET qty = qty - 1 WHERE id = @id AND qty >= 1, then check rows affected. The atomic conditional statement is often simpler than a version round-trip for counters."}],
+rf:["\"Use a transaction\" (default isolation doesn't stop lost updates in a read-modify-write across requests)","Holds DB locks while the user edits a form","No API-level contract (ETag)"]},
+
+/* ================= INTERMEDIATE (part 2) ================= */
+{id:"A026",skill:"Event-Driven",level:"Intermediate",type:"Scenario",
+q:"One malformed record makes a Kafka consumer throw on every attempt. Lag on that partition keeps growing while the others are fine. What do you do now, and what do you build so it doesn't happen again?",
+a:`<p>This is a <b>poison message</b>. Kafka has no per-message ack, so the consumer can't move past the record without committing its offset, and the whole partition stalls behind it.</p>
+<p><b>Now:</b> find the offset from logs. Either ship a hotfix that tolerates it, or skip it deliberately: copy it somewhere safe, then commit past it (or reset the group's offset to <code>offset+1</code> while the group is stopped). Never skip without keeping a copy.</p>
+<p><b>Then build failure classification into the consumer:</b></p>
+<ul>
+<li><b>Permanent errors</b> (deserialization, validation): send straight to a <b>dead-letter topic</b> with headers for the error, original topic, partition and offset, then continue.</li>
+<li><b>Transient errors</b> (DB timeout): retry in place with backoff a few times. If they persist, either block (keeps order, stalls the partition) or route to <b>retry topics</b> with increasing delays (<code>orders.retry.1m</code>, <code>orders.retry.10m</code>), then to the DLT.</li>
+<li>Alert on DLT growth, and have a tool to inspect and replay DLT records.</li>
+</ul>
+<p>The Confluent .NET client has no built-in retry or DLT, so you write this wrapper yourself (or use a framework such as MassTransit's Kafka rider).</p>`,
+keys:["Explains why one record blocks a partition","Separates permanent from transient failures","DLT with diagnostic headers","Retry topics break ordering; blocking retries keep it","Never silently drops data"],
+trade:["Non-blocking retry topics keep throughput but process the failed record out of order relative to later records for the same key","Blocking retries keep order but one bad dependency stalls the partition","It depends on: whether per-key ordering is a business requirement for this event type"],
+fu:[{q:"How do you replay from the DLT once fixed?",a:"A small tool or job reads the DLT, optionally filters by error type, and republishes to the original topic (or a retry topic). Consumers must be idempotent, because the record may have partially succeeded the first time."}],
+rf:["\"Catch and log the exception, then commit\" (silent data loss)","Infinite in-place retry with no alert","Doesn't realise retry topics affect ordering"]},
+
+{id:"A027",skill:"Event-Driven",level:"Intermediate",type:"Concept",
+q:"How do you evolve event schemas when producers and consumers deploy independently?",
+a:`<p>Treat events as a public contract with compatibility rules, enforced by tooling rather than by convention:</p>
+<ul>
+<li><b>Allowed:</b> add optional fields with defaults.</li>
+<li><b>Breaking:</b> remove or rename a field, change a type, change the meaning of a field, or make an optional field required.</li>
+<li><b>Schema registry</b> (Confluent Schema Registry, AWS Glue Schema Registry) with Avro, Protobuf or JSON Schema checks compatibility at publish or CI time. Confluent's default mode is <code>BACKWARD</code>: a consumer on the new schema can read data written with the old one, so you upgrade consumers first.</li>
+<li>For a genuinely breaking change, publish a new event type or version (<code>OrderPlaced.v2</code>, or a new topic), dual-publish for a period, migrate consumers, then retire v1.</li>
+</ul>
+<p>Because Kafka retains data, remember that a consumer replaying from the start reads <i>old</i> schemas too. Compatibility has to cover what is still in the log, not only the current producer.</p>`,
+keys:["Additive vs breaking changes listed concretely","Registry + compatibility mode, checked in CI","Knows what BACKWARD implies for deploy order","New event type/version for breaking changes","Replay reads old schemas"],
+fu:[{q:"JSON with no registry: how do you stay safe?",a:"Version field in the envelope, tolerant-reader consumers that ignore unknown fields, contract tests in CI against example payloads from each version, and a written rule that fields are never removed or retyped. It works, but nothing enforces it except discipline and tests."}],
+rf:["\"We just update producers and consumers together\"","Renames fields in place","Unaware of compatibility modes"]},
+
+{id:"A028",skill:"Event-Driven",level:"Intermediate",type:"Scenario",
+q:"A consumer receives OrderShipped before OrderPaid and puts the order in an invalid state. Why can this happen, and how do you make the consumer robust?",
+a:`<p><b>Why:</b> the events come from different services or topics, or are keyed differently, so they land on different partitions with no ordering between them. Other causes: a retry topic delivered one late, or two producer instances raced.</p>
+<p><b>Making it robust:</b></p>
+<ul>
+<li>Put a <b>per-aggregate version or sequence number</b> on events. The consumer stores the last version applied per aggregate and ignores anything older (stale or duplicate).</li>
+<li>Model the consumer's view as a <b>state machine that tolerates arrival order</b>. Record "shipped" and "paid" as independent facts and derive the status from both, rather than requiring Paid → Shipped transitions.</li>
+<li>If a step truly needs its predecessor, <b>park</b> the early event (a pending table with retry) and reprocess when the prerequisite arrives, with a timeout and alert.</li>
+<li>If strict order really matters across these events, publish them from one producer keyed by orderId on one topic.</li>
+</ul>`,
+keys:["Ordering only exists within a partition of one topic","Version numbers to drop stale events","Order-tolerant state modelling","Parking with timeout as a fallback","Fix at the source when order is truly required"],
+trade:["Parking adds state and timeouts to manage","A single topic for all order events keeps order but couples event types and consumers","It depends on: whether the domain truly needs order or only needs the final state right"],
+fu:[{q:"Can't you just sort by event timestamp?",a:"Timestamps from different machines are subject to clock skew and don't give a reliable order. Use a sequence assigned by the aggregate's owner (for example a version column incremented in the same transaction as the change)."}],
+rf:["Assumes Kafka orders across topics","Sorts by wall-clock timestamp","Throws and retries forever until the earlier event arrives"]},
+
+{id:"A029",skill:"Event-Driven",level:"Intermediate",type:"Concept",
+q:"What's the difference between event-driven architecture and event sourcing? When is event sourcing worth it?",
+a:`<p><b>Event-driven architecture</b> is about <i>communication</i>: services publish events so others can react. Each service still stores current state however it likes.</p>
+<p><b>Event sourcing</b> is about <i>persistence</i>: the event log <i>is</i> the source of truth for an aggregate. Current state is rebuilt by replaying its events, usually with snapshots for speed. Read models (projections) are built from the same stream.</p>
+<p>It is worth it when the history itself is a requirement: audit (finance, healthcare, compliance), temporal queries ("what did this look like on 1 March?"), or complex domains where the business thinks in events. It is usually not worth it for CRUD-shaped domains. The costs are real: event schema versioning forever, projections to rebuild, eventual consistency on reads, harder ad-hoc querying, and GDPR erasure against an immutable log (often handled by crypto-shredding).</p>`,
+keys:["Communication vs persistence distinction","Snapshots and projections","Concrete fit criteria (audit, temporal queries)","Honest costs incl. versioning and erasure"],
+fu:[{q:"How do you handle a GDPR erasure request in an event-sourced system?",a:"Commonly crypto-shredding: encrypt personal data in events with a per-subject key stored elsewhere, and delete the key on erasure. Alternatively keep PII out of events and reference it by ID from a store that can be deleted. Rewriting history is possible but painful."}],
+rf:["Uses the two terms as synonyms","Recommends event sourcing for every service","Doesn't know about snapshots"]},
+
+{id:"A030",skill:"Event-Driven",level:"Intermediate",type:"Architecture",
+q:"When would you separate read and write models (CQRS), and what does it cost you?",
+a:`<p>CQRS separates the model that handles commands (validation, invariants, a normalised store) from the models that serve queries (denormalised, shaped for each screen or search).</p>
+<p>It pays off when reads and writes have very different shapes or scale: a social feed read thousands of times per write, search over OpenSearch while writes go to PostgreSQL, or dashboards that would need ten-way joins on the write model.</p>
+<p>The cost is that projections are updated asynchronously from events, which brings eventual consistency (read-your-writes needs handling), projection rebuild tooling, more infrastructure, and more code paths to test. A lighter version — separate query classes or a read-only DB replica with the same schema — often gets most of the benefit. Using MediatR commands and queries in one database is a code-organisation pattern, not CQRS's scaling benefit.</p>`,
+keys:["Different shapes/scale of read vs write as the trigger","Projections fed by events","Eventual consistency cost","Lighter variants (replica, query services)","Doesn't confuse MediatR with CQRS"],
+trade:["Big win for read-heavy or search-heavy domains","Pure overhead for simple CRUD","It depends on: read/write ratio, query complexity, tolerance for stale reads"],
+fu:[{q:"A projection has a bug and contains wrong data. How do you fix it?",a:"Fix the projection code, then rebuild it by replaying events into a new table or index (blue-green). Switch reads over once it catches up, then drop the old one. This is why you keep the event history or the ability to re-derive it."}],
+rf:["\"CQRS means two databases\" (it doesn't have to)","Applies CQRS everywhere","No plan for projection rebuilds"]},
+
+{id:"A031",skill:"Kafka",level:"Intermediate",type:"Scenario",
+q:"Consumer lag on a topic has been rising steadily for an hour. How do you diagnose and fix it?",
+a:`<p>Lag means producers are writing faster than the group is committing. Find which side changed:</p>
+<ol>
+<li><b>Produce rate:</b> did inbound traffic spike (a campaign, a backfill job)? Check bytes-in and messages-in per topic.</li>
+<li><b>Lag per partition:</b> <code>kafka-consumer-groups.sh --describe --group g</code>, or MSK's <code>MaxOffsetLag</code>/<code>SumOffsetLag</code> metrics. If lag sits on one or two partitions, you have a <b>hot key</b> or a stuck consumer. If it is spread across all of them, the group as a whole is too slow.</li>
+<li><b>Consumer health:</b> rebalances, restarts, errors and retries in the handler.</li>
+<li><b>Handler latency:</b> usually the real cause is a downstream system (DB writes, an API call) getting slower.</li>
+</ol>
+<p><b>Fixes, in order:</b> fix the slow downstream (batch writes, add an index, add a cache). Scale consumers, but only up to the partition count. Process in batches. Fix the hot key. Add partitions only as a planned change, because it remaps keys.</p>`,
+keys:["Produce-side vs consume-side diagnosis","Per-partition lag to find skew","Downstream latency as the usual cause","Knows scaling stops at partition count","Lag tooling/metrics named"],
+trade:["Adding partitions increases ceiling but breaks key→partition mapping for existing keys","Batching writes improves throughput but widens the reprocessing window on failure"],
+fu:[{q:"How would you alert on lag?",a:"Alert on lag growth or time-lag (how old the oldest unprocessed record is) rather than a raw message count, since a fixed count means different things at different throughputs. Pair it with the consumer's processing rate so you can tell 'slow' from 'stopped'."}],
+rf:["Adds consumers beyond partitions","Doesn't look at per-partition lag","Restarts consumers as the fix"]},
+
+{id:"A032",skill:"Kafka",level:"Intermediate",type:"Concept",
+q:"How should a .NET consumer commit offsets to get at-least-once processing? What goes wrong with the defaults?",
+a:`<p>In the Confluent .NET client, <code>EnableAutoCommit</code> defaults to true (committing every 5 seconds) and <code>EnableAutoOffsetStore</code> also defaults to true. The offset is stored as soon as <code>Consume()</code> returns, before your handler has run. If the process crashes after the background commit but before processing finishes, that message is lost.</p>
+<p>The standard pattern keeps background auto-commit but stores offsets only after processing:</p>
+<pre><code>var config = new ConsumerConfig
+{
+    GroupId = "order-projector",
+    EnableAutoCommit = true,
+    EnableAutoOffsetStore = false   // we decide what is "done"
+};
+while (!ct.IsCancellationRequested)
+{
+    var cr = consumer.Consume(ct);
+    await handler.HandleAsync(cr.Message, ct);   // idempotent
+    consumer.StoreOffset(cr);                    // committed on next auto-commit
+}</code></pre>
+<p>Alternatively, call <code>Commit()</code> explicitly after each batch: synchronous commits are safer but slower. Either way, a crash replays the uncommitted tail, so the handler must be idempotent.</p>`,
+keys:["Default auto offset store marks messages before processing","StoreOffset after handling","Commit frequency vs replay window","Idempotency still required"],
+fu:[{q:"What should happen to offsets on graceful shutdown or rebalance?",a:"Commit what has been processed before releasing partitions: call Close() on shutdown (which commits and leaves the group cleanly), and handle the partitions-revoked callback to finish or abandon in-flight work before the partition moves."}],
+rf:["Assumes auto-commit means at-least-once in .NET","Commits before processing","Never calls Close(), so every deploy causes a session-timeout rebalance"]},
+
+{id:"A033",skill:"Kafka",level:"Intermediate",type:"Scenario",
+q:"A bug corrupted a read model for the last three days. You need to reprocess those events. How?",
+a:`<ol>
+<li><b>Check retention</b> covers the window (and that compaction hasn't removed what you need).</li>
+<li><b>Fix and deploy</b> the handler first.</li>
+<li><b>Choose the replay mechanism:</b>
+  <ul>
+  <li>Reset the existing group: stop all its consumers, then <code>kafka-consumer-groups.sh --reset-offsets --to-datetime &lt;ts&gt; --group g --topic t --execute</code>. Resets only work while the group is inactive.</li>
+  <li>Or start a <b>new consumer group</b> from that timestamp, writing to a new table or index, then switch reads when it catches up. This is safer, since live processing continues untouched.</li>
+  </ul></li>
+<li><b>Guard side effects.</b> A replay must not resend emails or re-charge cards. Either the handler is a pure projection, or you run it with side effects disabled.</li>
+<li>Rely on <b>idempotency</b> for the overlap between replayed and live events.</li>
+</ol>`,
+keys:["Retention check first","Reset requires the group to be stopped","New group + blue-green read model as the safer option","Side-effect suppression during replay","Idempotency for overlap"],
+trade:["Reset in place: simplest, but live processing pauses and the corrupted model is visible during catch-up","New group + new store: no downtime, but needs double storage and a switch-over"],
+fu:[{q:"What if the events have expired from Kafka?",a:"Rebuild from the source of truth (the write database, or an archive such as an S3 sink of the topic). This is why teams archive important topics to S3 with Kafka Connect: Kafka retention isn't a backup."}],
+rf:["Replays through handlers that send emails","Tries to reset offsets while consumers are running","Assumes Kafka keeps data forever"]},
+
+{id:"A034",skill:"Kafka",level:"Intermediate",type:"Concept",
+q:"How do you decide how many partitions a topic needs?",
+a:`<p>Start from throughput and parallelism:</p>
+<ul>
+<li><b>Throughput:</b> partitions ≥ target throughput ÷ what one partition sustains, taking the slower of producer and consumer. Usually the <i>consumer</i> is the limit, because the handler does real work (DB writes).</li>
+<li><b>Parallelism:</b> you can never run more active consumers per group than partitions. Size for peak consumer count, not the average.</li>
+<li><b>Growth:</b> adding partitions later remaps keys, so provision headroom (for example 2–3× today's need) for keyed topics.</li>
+</ul>
+<p>The cost of too many: more files and memory on brokers, more metadata, slower rebalances and leader elections, smaller batches that hurt compression and throughput, and per-broker partition limits on managed services like MSK. For most business-event topics, 6–24 partitions is typical. Hundreds is for genuinely high-volume streams.</p>`,
+keys:["Throughput / per-partition throughput","Consumer is usually the bottleneck","Partitions cap consumer parallelism","Headroom because increase remaps keys","Costs of over-partitioning"],
+fu:[{q:"Can you reduce partitions?",a:"No. Kafka can't decrease a topic's partition count. You'd create a new topic and migrate producers and consumers, which is another reason to size deliberately."}],
+rf:["\"As many as possible\"","Doesn't know increasing partitions affects key ordering","Ignores consumer-side throughput"]},
+
+{id:"A035",skill:"SQS",level:"Intermediate",type:"Scenario",
+q:"A Lambda function consuming an SQS queue scales out during a backlog and exhausts the RDS connection limit, taking down the main API. How do you fix it?",
+a:`<p>Lambda scales SQS pollers up with queue depth, and each concurrent execution opens its own DB connections. A backlog turns into a connection storm against the shared database.</p>
+<p><b>Fixes:</b></p>
+<ul>
+<li>Set <b>maximum concurrency</b> on the SQS event source mapping. This caps concurrent invocations for that queue; excess messages simply wait in the queue.</li>
+<li>Put <b>RDS Proxy</b> in front of the database to pool and multiplex connections across Lambda executions.</li>
+<li>Tune <b>batch size</b> and write in bulk, so each invocation does more work per connection.</li>
+<li>Isolate workloads: give background jobs their own connection budget or a read/write path that can't starve the API.</li>
+</ul>
+<p>Avoid using <b>reserved concurrency</b> alone as the cap. When Lambda is throttled, the poller's messages return to the queue and their receive count rises, which can push healthy messages into the DLQ. The event source maximum concurrency setting exists to solve exactly this.</p>`,
+keys:["Explains the scaling → connection storm mechanism","Event source maximum concurrency","RDS Proxy","Why reserved concurrency alone backfires","Workload isolation"],
+trade:["Capping concurrency protects the DB but increases backlog drain time; check message retention covers worst-case drain","RDS Proxy adds cost and a little latency but makes Lambda + RDS sane"],
+fu:[{q:"How do you know the cap is right?",a:"Size it from the DB's safe connection budget divided by connections per invocation, then verify with load tests and CloudWatch: queue age (ApproximateAgeOfOldestMessage), DB connections, and Lambda throttles."}],
+rf:["\"Increase max_connections\"","Reserved concurrency as the only control","Doesn't consider message retention while draining"]},
+
+{id:"A036",skill:"SQS",level:"Intermediate",type:"Concept",
+q:"SQS, SNS, EventBridge or Kafka: how do you choose for a given messaging need on AWS?",
+a:`<ul>
+<li><b>SQS:</b> a work queue. One logical consumer per message, per-message retry and DLQ, buffering and load levelling.</li>
+<li><b>SNS:</b> simple pub/sub fan-out. Push to many subscribers. The common pattern is <b>SNS → multiple SQS queues</b>, so each consumer gets its own buffered, retryable copy.</li>
+<li><b>EventBridge:</b> event bus with <b>content-based routing rules</b>, many AWS and SaaS sources, schema discovery, and archive and replay. Better than SNS when routing logic depends on event content or crosses accounts. It has higher latency than SNS/SQS and per-target throughput quotas.</li>
+<li><b>Kafka (MSK) or Kinesis:</b> ordered, retained, replayable streams at high throughput with many independent readers. More to run, but the only option here with long retention and per-key ordering at scale.</li>
+</ul>
+<p>I pick by the delivery semantics needed: one consumer vs fan-out, routing complexity, ordering, replay, throughput, and how much operational burden the team can carry.</p>`,
+keys:["Queue vs topic vs bus vs log","SNS→SQS fan-out pattern","EventBridge routing rules and replay","Kafka/Kinesis for ordered high-throughput replay","Decision criteria, not brand preference"],
+fu:[{q:"Why put SQS behind SNS instead of subscribing a Lambda to SNS directly?",a:"The queue gives each consumer its own buffer, retry policy and DLQ, and protects it from bursts. A direct SNS-to-Lambda subscription has limited retry control and no backlog you can inspect."}],
+rf:["Uses SNS as if it stores messages","Picks Kafka for a simple job queue","Doesn't know EventBridge content filtering"]},
+
+{id:"A037",skill:"SQS",level:"Intermediate",type:"Scenario",
+q:"After a bad deploy, 40,000 messages are sitting in a DLQ. The fix is out. How do you redrive them safely?",
+a:`<ol>
+<li><b>Confirm the root cause</b> by sampling DLQ messages and checking they fail for the reason you fixed. Some may be genuinely invalid and should not be redriven.</li>
+<li><b>Check idempotency.</b> Some of these may have partially succeeded before failing.</li>
+<li><b>Check freshness.</b> Are three-hour-old "send reminder" or "price update" messages still valid? Add a business-level staleness check if not.</li>
+<li><b>Redrive at a controlled rate</b> with the SQS DLQ redrive (<code>StartMessageMoveTask</code> with a messages-per-second limit), so you don't recreate a backlog spike or overload downstream systems.</li>
+<li><b>Watch</b> error rate, the DLQ refilling, and downstream latency during the redrive.</li>
+</ol>
+<p>Check retention too. For standard queues, a message's expiry is based on its <i>original</i> enqueue time, so a DLQ needs longer retention than its source queue or messages expire while you investigate.</p>`,
+keys:["Sample and confirm before redrive","Idempotency and staleness checks","Rate-limited redrive","Monitoring during redrive","DLQ retention vs original enqueue time"],
+fu:[{q:"What alerting should have caught this sooner?",a:"An alarm on DLQ depth above zero (or above a small threshold), plus error-rate alarms on the consumer, tied to deploys. A DLQ nobody watches is just slower data loss."}],
+rf:["Redrives everything at full speed immediately","Doesn't sample or check why they failed","DLQ retention equal to or shorter than the source queue"]},
+
+{id:"A038",skill:"Microservices",level:"Intermediate",type:"Scenario",
+q:"You're extracting an Orders service from a monolith, but its tables are read and written by other monolith code. How do you move data ownership without downtime?",
+a:`<p>Do it in phases, so every step is reversible:</p>
+<ol>
+<li><b>Find every access path</b> to the tables (queries, reports, ETL jobs). Usually more exist than you expect.</li>
+<li><b>Route access through one seam.</b> Monolith code stops touching the tables directly and calls an Orders module interface, later backed by the service's API.</li>
+<li><b>Create the new store</b> and keep it in sync. Backfill, then sync ongoing changes from the old tables via CDC (or dual writes, but CDC avoids dual-write inconsistency).</li>
+<li><b>Switch reads</b> to the new service gradually behind a feature flag, comparing results in shadow mode first.</li>
+<li><b>Switch writes</b> so the service becomes the source of truth. Reverse the sync direction if legacy readers (reports) still need the old tables for a while.</li>
+<li><b>Remove</b> the old tables once nothing reads them.</li>
+</ol>
+<p>The hard part is usually the reports and joins across the boundary. Those need an event-fed copy or an API rather than a SQL join.</p>`,
+keys:["Inventory of all access paths","Single seam before moving data","Backfill + CDC sync","Reads before writes, behind flags","Plan for cross-boundary joins and reports"],
+trade:["CDC avoids dual-write bugs but adds infrastructure","Dual writes are simpler but can diverge on partial failure","Shadow reads cost compute but catch mapping bugs before users do"],
+fu:[{q:"How do you know the new store is correct before switching?",a:"Shadow reads: serve from the old path while calling the new one and logging mismatches. Also run reconciliation jobs comparing counts and checksums per entity. Switch only when the mismatch rate is zero or explained."}],
+rf:["Big-bang migration over a weekend","Leaves the monolith reading the service's tables","No rollback path"]},
+
+{id:"A039",skill:"Microservices",level:"Intermediate",type:"Concept",
+q:"How do services find and load-balance across each other on AWS ECS? Compare the options.",
+a:`<ul>
+<li><b>Internal ALB per service:</b> server-side discovery. Callers use a stable DNS name, and the ALB health-checks and balances across tasks. Simple and well understood, but it adds a hop and per-ALB cost.</li>
+<li><b>AWS Cloud Map:</b> DNS or API-based registry that ECS updates as tasks start and stop. Callers resolve task IPs directly (client-side). DNS caching and TTLs can send traffic to stopped tasks briefly.</li>
+<li><b>ECS Service Connect:</b> builds on Cloud Map namespaces and adds a managed proxy per task, giving retries, timeouts, outlier detection and per-connection metrics. It is AWS's recommended path for service-to-service traffic on ECS today.</li>
+</ul>
+<p>For a small number of services I'd use internal ALBs or Service Connect. On Kubernetes, the built-in Service objects plus cluster DNS do this job.</p>`,
+keys:["Client-side vs server-side discovery","ALB, Cloud Map, Service Connect trade-offs","DNS TTL / stale endpoint issue","Health checks drive registration"],
+fu:[{q:"Why can DNS-based discovery send traffic to dead tasks?",a:"Clients and resolvers cache records for the TTL, and some runtimes cache longer than that. A task can stop before every caller re-resolves. Short TTLs, client retries on connection failure, and graceful draining on shutdown reduce the window."}],
+rf:["Hard-coded IPs or config files of hosts","Doesn't know how ECS updates registration","Assumes DNS changes are instant"],
+verify:"ECS Service Connect is AWS's current recommendation over App Mesh; confirm feature set (e.g. outlier detection) for your region and version."},
+
+{id:"A040",skill:"Microservices",level:"Intermediate",type:"Scenario",
+q:"A screen needs data from five services, and the composed endpoint has a p99 of 1.8 seconds. How do you bring it down?",
+a:`<p>First, trace it. Are the calls sequential? Which call dominates the tail?</p>
+<ul>
+<li><b>Parallelise independent calls</b> (<code>Task.WhenAll</code>). Sequential calls add latencies together; parallel calls cost the slowest one.</li>
+<li><b>Fan-out amplifies the tail.</b> If each call has a 1% chance of hitting its p99, a five-way fan-out hits at least one slow call about 5% of the time. So reduce fan-out and set per-call timeouts with partial responses: render the screen without the reviews widget rather than wait.</li>
+<li><b>Cache</b> slow-changing pieces (product details, user profile) with a sensible TTL.</li>
+<li><b>Precompute a read model.</b> If this screen is hot, maintain a denormalised view fed by events, so the request is one read instead of five calls.</li>
+<li>Check each service's own slow path (N+1 queries, cold starts).</li>
+</ul>`,
+keys:["Trace before fixing","Sequential vs parallel latency","Tail-latency amplification in fan-out","Partial responses with timeouts","Read model or cache for hot screens"],
+trade:["A precomputed read model is fastest but adds eventual consistency and another projection to maintain","Partial responses need product agreement on which parts are optional"],
+fu:[{q:"How do you serve partial data without confusing clients?",a:"Make optional sections explicitly nullable in the contract, and include a per-section status (ok, unavailable) so the client can render a placeholder instead of an error. Decide with product which sections are must-have."}],
+rf:["\"Add more instances\"","Doesn't know parallel calls are still bounded by the slowest","No measurement step"]},
+
+{id:"A041",skill:"Microservices",level:"Intermediate",type:"Architecture",
+q:"How do you handle authentication and authorization across microservices: user identity and service-to-service?",
+a:`<p><b>User identity:</b> the client gets an access token (JWT) from the identity provider. The gateway validates it, but each service <b>also validates</b> it (signature, issuer, audience, expiry), so a compromised internal network doesn't mean full trust. Pass the original token, or exchange it for a narrower downstream token (OAuth token exchange), rather than inventing internal headers like <code>X-User-Id</code> that any caller could forge.</p>
+<p><b>Authorization:</b> coarse checks (scopes, roles) can happen at the gateway. Resource-level checks ("can this user edit <i>this</i> group?") belong in the service that owns the data, because only it has the context.</p>
+<p><b>Service-to-service:</b> workloads authenticate as themselves via the OAuth client-credentials flow, mutual TLS, or cloud identity (IAM roles with SigV4 on AWS). Each service then authorises which callers may use which operations.</p>`,
+keys:["Validate in every service (zero trust)","Don't trust forgeable identity headers","Resource-level authz in the owning service","Separate workload identity for service calls","Token exchange or audience scoping"],
+trade:["Validating JWTs everywhere costs a little CPU but removes the 'trusted network' assumption","Passing the user token everywhere is simple but gives each service the token's full scope; token exchange limits it at the cost of an extra call","It depends on: number of services, compliance needs, identity provider support"],
+fu:[{q:"How do you revoke access quickly if JWTs are stateless?",a:"Keep access-token lifetimes short (minutes) and rely on refresh tokens, which can be revoked server-side. For urgent cases, keep a small deny-list of token IDs or user IDs checked by services, accepting the extra lookup."}],
+rf:["Gateway validates, services trust everything behind it","Uses a user-id header with no signature","Long-lived access tokens with no revocation story"]},
+
+{id:"A042",skill:"Microservices",level:"Intermediate",type:"Scenario",
+q:"You need to change a field in a service contract that three other services consume. How do you roll it out without breaking anyone?",
+a:`<p>Use <b>expand and contract</b> (parallel change):</p>
+<ol>
+<li><b>Expand:</b> the provider adds the new field alongside the old one and populates both. Nothing breaks.</li>
+<li><b>Migrate:</b> each consumer switches to the new field in its own release, on its own schedule.</li>
+<li><b>Verify:</b> confirm nobody reads the old field, using logs, metrics on field usage, or contract tests.</li>
+<li><b>Contract:</b> remove the old field.</li>
+</ol>
+<p><b>Consumer-driven contract tests</b> (Pact, for example) make step 3 reliable. Each consumer publishes what it actually uses, and the provider's CI fails if a change breaks a consumer. The same approach applies to event payloads, with the schema registry enforcing compatibility.</p>`,
+keys:["Expand/contract with independent deploys","Never assumes lockstep deploys","Evidence of no remaining usage before removal","Consumer-driven contract tests"],
+trade:["Expand/contract takes several releases and temporarily duplicates data","Contract tests need buy-in from every consumer team to be useful"],
+fu:[{q:"Who should own the contract test, provider or consumer?",a:"The consumer writes the expectations (it knows what it uses), and the provider runs them in its pipeline (it's the one who can break them). A broker such as Pact Broker shares them between repos."}],
+rf:["\"Coordinate a release where all four deploy together\"","Removes the old field as soon as the new one ships","No way to know who uses the field"]},
+
+{id:"A043",skill:"Distributed Fundamentals",level:"Intermediate",type:"Concept",
+q:"When do you need a distributed lock, how would you implement one, and why are they risky?",
+a:`<p>You need mutual exclusion across processes for things like a scheduled job that must run on only one instance, or serialised access to an external resource.</p>
+<p>A common implementation is Redis <code>SET key token NX PX 30000</code>, with release only if the token still matches (a Lua compare-and-delete). The risk: a lock with a TTL is a <b>lease</b>. If the holder pauses (GC, network delay) longer than the TTL, the lock expires, another process takes it, and now two believe they hold it. Redlock across several Redis nodes doesn't fix the pause problem.</p>
+<p>The safe pattern is a <b>fencing token</b>: an increasing number issued with the lock that the protected resource checks, rejecting writes from older tokens. Better still, avoid the lock. Use a DB unique constraint or conditional write, give one partition to a single consumer (Kafka assignment), or use a DB-level lock (<code>sp_getapplock</code> in SQL Server, <code>pg_advisory_lock</code> in PostgreSQL) when the work is in that database anyway.</p>`,
+keys:["Locks with TTL are leases","Process pause breaks correctness","Fencing tokens","Prefer constraints, conditional writes or partition ownership","Knows DB advisory locks"],
+fu:[{q:"For 'run this cron job on only one of four instances', what would you use?",a:"Usually a scheduler that runs it once (EventBridge Scheduler triggering one task), which avoids the problem entirely. If it must be in-app, a DB lock or a lease in DynamoDB with a conditional write, and the job itself made idempotent in case two runs overlap."}],
+rf:["Treats a Redis lock as a correctness guarantee","Releases a lock without checking ownership","No TTL, so a crash holds the lock forever"]},
+
+{id:"A044",skill:"Distributed Fundamentals",level:"Intermediate",type:"Scenario",
+q:"An audit timeline merges events from several services ordered by timestamp, and users see effects before their causes. What's wrong, and how do you fix it?",
+a:`<p>Wall clocks on different machines drift and are corrected by NTP, so skew of milliseconds (or worse on a misconfigured host) is normal. Timestamps from different machines can't establish ordering, and causally related events can appear reversed.</p>
+<p><b>Fixes, depending on what you need:</b></p>
+<ul>
+<li><b>Order within one entity:</b> use a sequence or version assigned by the entity's owner in the same transaction as the change.</li>
+<li><b>Causal order across services:</b> carry the cause's ID or version in the effect event (<code>causationId</code>), and order by that relationship. Logical clocks (Lamport, or hybrid logical clocks) encode it more generally.</li>
+<li><b>A single total order:</b> append everything to one ordered log (one partition), at the cost of throughput.</li>
+<li>For display, a timestamp is fine as long as you also show ties and causal links consistently.</li>
+</ul>`,
+keys:["Clock skew is normal","Per-entity sequence from the owner","Causation IDs or logical clocks","Total order only via a single log"],
+trade:["A single ordered log gives a total order but limits throughput","Hybrid logical clocks keep timestamps human-readable while respecting causality, at implementation cost"],
+fu:[{q:"Does using UTC solve it?",a:"No. UTC removes time-zone confusion, but different machines still disagree about the current UTC time by their skew."}],
+rf:["\"Use DateTime.UtcNow everywhere\" as the fix","Assumes NTP gives perfect sync"]},
+
+{id:"A045",skill:"Distributed Fundamentals",level:"Intermediate",type:"Concept",
+q:"Why do consensus-based systems (Kafka KRaft, etcd, ZooKeeper) run 3 or 5 nodes and not 4? What is split brain?",
+a:`<p>Consensus protocols such as Raft need a <b>majority quorum</b> to elect a leader and commit writes. With n nodes, they tolerate ⌊(n−1)/2⌋ failures: 3 nodes tolerate 1, 4 nodes still tolerate only 1 (a majority of 4 is 3), and 5 tolerate 2. An even count adds cost and coordination without adding fault tolerance.</p>
+<p><b>Split brain</b> is when a network partition leaves two groups that each believe they're in charge and accept conflicting writes. A majority quorum prevents it: only one side can hold a majority, so the minority side refuses to make progress. That is the "C over A during a partition" choice from CAP, made concretely.</p>`,
+keys:["Majority quorum","Failures tolerated formula","Even counts add no tolerance","Split brain defined","Quorum prevents it by sacrificing minority availability"],
+fu:[{q:"Why not run 7 or 9 nodes for more safety?",a:"Every write must reach a majority, so more nodes mean more latency and more network traffic per commit. 3 or 5 is the usual balance; 5 when you want to survive one failure during maintenance on another."}],
+rf:["Thinks more nodes always improves availability linearly","Can't explain why 4 isn't better than 3"]},
+
+{id:"A046",skill:"API Design",level:"Intermediate",type:"Architecture",
+q:"REST, gRPC or GraphQL: how do you choose for an API?",
+a:`<ul>
+<li><b>REST over HTTP/JSON:</b> the default for public and partner APIs. Universal tooling, HTTP caching, easy debugging. Weakness: over- and under-fetching for varied clients.</li>
+<li><b>gRPC:</b> strong fit for internal service-to-service calls. A Protobuf contract with codegen, compact binary payloads, HTTP/2 multiplexing, and streaming. Weaknesses: browsers need gRPC-Web or a proxy, payloads are harder to inspect, and HTTP caching doesn't apply.</li>
+<li><b>GraphQL:</b> fits client-driven aggregation across many resources, especially when several frontends need different shapes. Costs: N+1 resolver problems (needs DataLoader-style batching), query cost limiting and depth limits for security, harder HTTP caching, and authorization at field level.</li>
+</ul>
+<p>Common combination: REST or GraphQL at the edge for clients, gRPC or events internally.</p>`,
+keys:["Fit by consumer: public, internal, multi-client","gRPC browser limitation","GraphQL N+1 and query-cost security","Caching differences","Combinations are normal"],
+trade:["REST: simple and cacheable, chatty for complex screens","gRPC: fast and typed, poorer for browsers and ad-hoc debugging","GraphQL: flexible for clients, more server-side complexity and security work","It depends on: who the clients are, payload diversity, team familiarity"],
+fu:[{q:"What security issues are specific to GraphQL?",a:"Deeply nested or very wide queries that are expensive to resolve (denial of service), introspection exposing the schema in production, and authorization that has to be enforced per field or per resolver rather than per endpoint. Mitigate with depth and cost limits, persisted queries, and resolver-level authz."}],
+rf:["\"GraphQL replaces REST\"","Proposes gRPC directly to browsers with no mention of gRPC-Web","No mention of N+1 for GraphQL"]},
+
+{id:"A047",skill:"API Design",level:"Intermediate",type:"Concept",
+q:"How should an API report errors so clients can handle them consistently?",
+a:`<p>Use <b>Problem Details</b> (RFC 9457, which replaced RFC 7807): a JSON body with <code>type</code>, <code>title</code>, <code>status</code>, <code>detail</code> and <code>instance</code>, plus extension fields such as a machine-readable <code>errorCode</code>, field-level validation errors, and a <code>traceId</code>.</p>
+<ul>
+<li>Use status codes for the category: 400 validation, 401 not authenticated, 403 not allowed, 404, 409 conflict, 412 precondition, 422 semantic error, 429 throttled, 5xx server faults.</li>
+<li>Clients branch on <code>errorCode</code>, never on message text.</li>
+<li>Never return stack traces or internal details. Log them server-side under the trace ID.</li>
+</ul>
+<p>In ASP.NET Core, <code>AddProblemDetails()</code> (.NET 7+) standardises error output, and .NET 8's <code>IExceptionHandler</code> maps exceptions to Problem Details in one place.</p>`,
+keys:["RFC 9457 Problem Details","Stable machine-readable error codes","Correct status code categories","Trace ID for support","No internals leaked"],
+fu:[{q:"401 or 403 when a user requests another user's private resource?",a:"403 is correct if they're authenticated but not allowed. Many APIs return 404 instead, so the response doesn't reveal that the resource exists. Choose deliberately and be consistent."}],
+rf:["200 with an error flag in the body","Different error shapes per endpoint","Exception messages or stack traces returned to clients"]},
+
+{id:"A048",skill:"API Design",level:"Intermediate",type:"Scenario",
+q:"An endpoint generates a report that takes about 3 minutes, and clients are timing out. How do you redesign it?",
+a:`<p>Make it an <b>asynchronous operation</b>:</p>
+<ol>
+<li><code>POST /reports</code> validates the request, enqueues a job and returns <code>202 Accepted</code> with a <code>Location</code> header pointing to <code>/reports/{id}</code>. Accept an idempotency key so a retried POST doesn't start a second job.</li>
+<li>A worker (SQS + Lambda or an ECS worker) generates the report and stores it in S3.</li>
+<li>The client <b>polls</b> <code>GET /reports/{id}</code> for status (<code>queued</code>, <code>running</code>, <code>succeeded</code>, <code>failed</code>), with a <code>Retry-After</code> hint. Or the server <b>pushes</b> completion via a webhook, WebSocket or push notification.</li>
+<li>On success the status resource returns a time-limited pre-signed S3 URL for download.</li>
+</ol>
+<p>Also support cancellation and job expiry, and cap concurrent jobs per user so one client can't flood the workers.</p>`,
+keys:["202 + status resource","Idempotency key on creation","Worker + queue + object storage","Poll vs push trade-off","Pre-signed URL, limits and cancellation"],
+trade:["Polling is simple and firewall-friendly but adds request load","Webhooks/push are efficient but need delivery retries, signatures and a reachable client","It depends on: client type (mobile, browser, partner backend) and how quickly completion must be noticed"],
+fu:[{q:"Why not just raise the timeouts to 5 minutes?",a:"Load balancers, gateways (API Gateway's integration timeout is limited) and mobile networks will cut long requests anyway. A retry then starts the work again, and you hold server resources for the whole duration. It fails under load."}],
+rf:["Increase every timeout","No idempotency, so retries create duplicate jobs","Streams the report through the API server instead of object storage"]},
+
+{id:"A049",skill:"Rate Limiting & Scaling",level:"Intermediate",type:"Concept",
+q:"Compare rate-limiting algorithms: fixed window, sliding window and token bucket. What does .NET give you out of the box?",
+a:`<ul>
+<li><b>Fixed window:</b> N requests per clock window. Cheap, but allows a burst of 2N across a window boundary.</li>
+<li><b>Sliding window:</b> a log of timestamps (exact, memory-heavy) or weighted counters of the current and previous window (approximate, cheap). It smooths the boundary problem.</li>
+<li><b>Token bucket:</b> tokens refill at a steady rate up to a capacity, and each request spends one. It allows controlled bursts up to the capacity while enforcing the average rate. AWS API Gateway throttling uses this model.</li>
+<li><b>Leaky bucket:</b> processes at a constant output rate, smoothing bursts by queueing them.</li>
+</ul>
+<p>ASP.NET Core (.NET 7+) ships rate-limiting middleware: <code>AddRateLimiter</code> with fixed window, sliding window, token bucket and concurrency limiters, and partitioning by key (user, API key, IP). Its state is <b>in-process</b>, so on several instances each enforces its own limit.</p>`,
+keys:["Boundary burst in fixed window","Token bucket allows bounded bursts","Partition key choice","Built-in limiter is per instance"],
+fu:[{q:"What should a throttled response look like?",a:"429 Too Many Requests with a Retry-After header, and optionally headers telling clients their limit and remaining quota. Clients should back off with jitter rather than retry immediately."}],
+rf:["Doesn't know the boundary problem","Assumes the in-process limiter is global across instances"]},
+
+{id:"A050",skill:"Rate Limiting & Scaling",level:"Intermediate",type:"Scenario",
+q:"Your API runs on 10 instances and must enforce 100 requests per minute per user. The built-in limiter lets users exceed it. How do you implement a global limit?",
+a:`<p>Each instance counts separately, so a user spread across 10 instances can get up to 10× the limit. Options:</p>
+<ul>
+<li><b>Shared counter in Redis:</b> an atomic operation per request. A Lua script that increments and sets expiry for a fixed window, or maintains a sorted set or weighted counters for a sliding window. This adds one Redis round trip per request.</li>
+<li><b>At the edge:</b> API Gateway usage plans with API keys, or AWS WAF rate-based rules, enforce limits before traffic reaches your instances. They suit coarse per-key or per-IP limits.</li>
+<li><b>Approximate local limits:</b> limit ÷ instance count, with sticky routing by user. Cheap, but inaccurate as instances scale.</li>
+</ul>
+<p>Decide <b>fail-open or fail-closed</b> when Redis is unavailable. For abuse protection, failing open (serving traffic) is usually right; for paid quota enforcement you may fail closed. Return 429 with <code>Retry-After</code>.</p>`,
+keys:["Explains why per-instance limits multiply","Atomic shared counter (Lua/INCR+EXPIRE)","Edge enforcement options","Fail-open vs fail-closed decision","Per-user key choice"],
+trade:["Redis gives accuracy at the cost of latency and a dependency","Edge limits are cheap and protect your compute, but are coarse and not user-aware unless keyed","It depends on: whether the limit is for abuse protection or billing, and accuracy needed"],
+fu:[{q:"Why must the Redis increment be atomic?",a:"A GET-then-SET from two instances can both read 99 and both allow the request. INCR is atomic, and a Lua script keeps multi-step logic (increment, set expiry, check) atomic in one round trip."}],
+rf:["Doesn't realise in-process limits don't add up","GET then SET in Redis without atomicity","No decision on Redis failure behaviour"]},
+
+/* ================= ADVANCED ================= */
+{id:"A051",skill:"Event-Driven",level:"Advanced",type:"Scenario",
+q:"Your outbox table has grown to 30 million rows, the relay is 20 minutes behind, and database CPU is high. Diagnose it and fix it.",
+a:`<p>Likely causes, roughly in order of frequency:</p>
+<ul>
+<li><b>No cleanup.</b> Sent rows are never deleted, so the table and its indexes keep growing and the "pending" query scans more and more.</li>
+<li><b>Poor polling query.</b> <code>WHERE sent_at IS NULL ORDER BY id</code> without a filtered or partial index on unsent rows does a large scan on every poll.</li>
+<li><b>Relay concurrency.</b> Several relay instances fight over the same rows with row locks, or one relay publishes one message at a time with a synchronous round trip each.</li>
+<li><b>Large transactions</b> marking rows as sent, which hold locks against the business writes inserting new outbox rows.</li>
+</ul>
+<p><b>Fixes:</b></p>
+<ul>
+<li>Add a partial index (PostgreSQL <code>WHERE sent_at IS NULL</code>) or a filtered index (SQL Server).</li>
+<li>Claim batches with <code>FOR UPDATE SKIP LOCKED</code> (PostgreSQL) or <code>READPAST, UPDLOCK</code> (SQL Server), so relay instances don't block each other.</li>
+<li>Publish batches asynchronously and await them together.</li>
+<li>Delete sent rows in small batches on a schedule, or partition the table by day and drop old partitions.</li>
+<li>If volume justifies it, move to CDC (Debezium outbox event router), which removes polling load entirely.</li>
+</ul>
+<p>Meanwhile, publish lag is now a data-freshness incident for every downstream consumer, so communicate it.</p>`,
+keys:["Cleanup/retention as root cause","Index for the pending query","SKIP LOCKED / READPAST for concurrent relays","Batch async publishing","CDC as the structural fix with its cost"],
+trade:["Several relays with SKIP LOCKED increase throughput but weaken global ordering; keep per-aggregate order by partitioning claims","Partition-drop cleanup is cheap but needs partitioning set up","CDC removes polling but adds Kafka Connect/Debezium operations"],
+fu:[{q:"How do you keep per-aggregate order with parallel relays?",a:"Assign each relay a subset of aggregates (hash of aggregate ID modulo relay count, or an outbox partition column), so a given aggregate's events are always published by one relay in sequence."}],
+rf:["\"Add more relay instances\" without a locking strategy","Deletes millions of rows in one transaction","Doesn't treat the lag as a consumer-facing incident"]},
+
+{id:"A052",skill:"Event-Driven",level:"Advanced",type:"Architecture",
+q:"A consumer must capture a payment by calling a provider API that has no idempotency support. How do you design it so redelivery never double-charges?",
+a:`<p>If the provider can't deduplicate, your side must make the outcome of every attempt knowable before any retry.</p>
+<ol>
+<li><b>Record intent first.</b> In your DB, create a capture record keyed by the business ID (order ID) with a unique constraint, in state <code>PENDING</code>, and generate a merchant reference you send to the provider.</li>
+<li><b>Call the provider.</b> On a clear success, set <code>SUCCEEDED</code> with the provider's transaction ID. On a clear rejection, set <code>FAILED</code>.</li>
+<li><b>On an ambiguous result</b> (timeout, 5xx, crash mid-call), do <b>not</b> retry the capture. Set <code>UNKNOWN</code>, then <b>query the provider by merchant reference</b> to learn what happened. Retry only once the provider confirms no charge exists.</li>
+<li><b>Redelivery</b> of the event finds the existing record and follows its state instead of calling again.</li>
+<li><b>Reconciliation:</b> a scheduled job compares your records with the provider's settlement reports and alerts on mismatches.</li>
+</ol>`,
+keys:["Durable intent record before the external call","Unique business key","Ambiguous outcome handled by lookup, not retry","State machine drives redelivery behaviour","Reconciliation as the backstop"],
+trade:["Lookup-before-retry adds latency and depends on the provider having a search API; if it doesn't, route UNKNOWN to manual review","Strict sequential handling per order reduces throughput but avoids racing attempts"],
+fu:[{q:"What if the provider has no way to look up a charge?",a:"Then you can't safely automate retries of ambiguous attempts. Park them for human review, rely on settlement-file reconciliation, and push the provider (or switch provider) for idempotency keys. Say this plainly to stakeholders: the risk is in the dependency."}],
+rf:["Retries on timeout","Relies on Kafka exactly-once to protect an external API","No reconciliation process"]},
+
+{id:"A053",skill:"Event-Driven",level:"Advanced",type:"Scenario",
+q:"In an orchestrated checkout saga, payment succeeded but inventory reservation timed out. Meanwhile another order reserved the last unit. What went wrong, and how do you design against it?",
+a:`<p>Sagas have <b>no isolation</b> between steps. Other transactions can see and act on intermediate state, which causes lost updates and dirty reads at the business level. Here, payment was taken before stock was secured, and the timeout left the outcome ambiguous.</p>
+<p><b>Design responses:</b></p>
+<ul>
+<li><b>Order steps by risk.</b> Do the step most likely to fail and cheapest to compensate first: reserve stock (with an expiry), then capture payment. Authorise rather than capture until the end.</li>
+<li><b>Semantic locks:</b> represent in-progress state explicitly (<code>RESERVED_PENDING</code>) so other sagas see it and act accordingly.</li>
+<li><b>Ambiguous step outcome:</b> the orchestrator queries the inventory service for the reservation's real status before deciding to compensate. The reservation may have succeeded late.</li>
+<li><b>Compensation:</b> void the authorisation, or refund if captured. Notify the user with a clear status. Compensations are idempotent and retried.</li>
+<li><b>Timeouts</b> are explicit saga states with defined next steps, not exceptions.</li>
+</ul>`,
+keys:["Saga lack of isolation named","Step ordering by failure likelihood and compensation cost","Authorise vs capture","Semantic lock / pending states","Resolve ambiguous outcomes before compensating"],
+trade:["Reservation expiries free stock but can cancel slow customers","Authorise-then-capture reduces refunds but authorisations expire (often days), so the saga needs a deadline","It depends on: stock contention, payment provider capabilities, customer experience priorities"],
+fu:[{q:"Why not hold a database lock across the saga?",a:"The steps span services and possibly seconds to minutes. Locks across that span kill throughput and can't be held across service boundaries anyway. Sagas accept the lack of isolation and handle it with countermeasures."}],
+rf:["Suggests a distributed transaction","Compensates immediately on timeout without checking status","Captures payment as the first step by default"]},
+
+{id:"A054",skill:"Event-Driven",level:"Advanced",type:"Architecture",
+q:"Design notification fan-out for a social app: when someone posts in a private group, up to 5,000 members get an in-app notification and a push notification.",
+a:`<p>Flow:</p>
+<ol>
+<li>The post service writes the post and an outbox event <code>PostCreated(groupId, postId, authorId)</code>.</li>
+<li>A <b>fan-out worker</b> consumes it, pages through group membership in batches of 500, and emits one <b>notification job per batch</b> to a queue. It does not create 5,000 messages synchronously in one handler.</li>
+<li><b>Batch workers</b> apply each recipient's preferences (muted group, quiet hours), write in-app notification rows in bulk, and send push via the provider's batch API (FCM, APNs through SNS, or a provider like OneSignal).</li>
+<li>Deduplicate by <code>(recipientId, postId)</code> so retries don't double-notify.</li>
+</ol>
+<p>Concerns to cover:</p>
+<ul>
+<li><b>Priority:</b> direct messages go to a separate, faster queue than group posts, so a big group doesn't delay DMs.</li>
+<li><b>Very large groups:</b> for in-app, store the notification once per group and resolve it on read (fan-out on read) rather than 5,000 writes.</li>
+<li><b>Provider limits:</b> respect push rate limits, and clean up invalid device tokens from provider responses.</li>
+<li><b>Aggregation:</b> "12 new posts in Design Club" instead of 12 pushes.</li>
+</ul>`,
+keys:["Async fan-out in batches, not one giant handler","Preference filtering in workers","Idempotency per recipient","Priority separation","Fan-out on write vs read for large groups","Token hygiene and aggregation"],
+trade:["Fan-out on write: fast reads, write amplification for big groups","Fan-out on read: cheap writes, more expensive reads and harder per-user read state","Hybrid by group size is common","It depends on: group size distribution, read/write ratio, latency target for notifications"],
+fu:[{q:"How do you handle a user who is in the group but just blocked the author?",a:"Apply block and mute rules at delivery time in the batch worker, not at fan-out start, since state may change between the two. The same check runs again when rendering in-app notifications."}],
+rf:["Loops over 5,000 members inside the post request","No dedup, so retries spam users","DMs and group posts share one queue"]},
+
+{id:"A055",skill:"Event-Driven",level:"Advanced",type:"Concept",
+q:"A team proposes publishing CDC (Debezium) change events straight from their tables for other teams to consume. What are the risks, and what would you recommend?",
+a:`<p>Raw table CDC exposes the <b>internal schema as a public contract</b>. Renaming a column, splitting a table or changing a type now breaks other teams. Row changes also lack business meaning: consumers reconstruct "order was cancelled" from a status column flip, and logic leaks into every consumer. A single business operation spanning several tables arrives as several unrelated row events. PII in columns flows everywhere by default.</p>
+<p><b>Recommendation:</b> use CDC as the <i>transport</i> for an <b>outbox</b>. The service writes explicit domain events to its outbox table in the same transaction, and Debezium's outbox event router publishes them. Consumers get stable, intentional, versioned events with zero-polling latency. Raw table CDC is fine for internal uses that the owning team controls: replication into its own analytics, a search index it owns, or cache invalidation.</p>`,
+keys:["Internal schema becomes a contract","Loss of business intent","Multi-table operations split apart","PII leakage","Outbox + CDC as the combined answer"],
+fu:[{q:"When is raw CDC to other teams acceptable?",a:"For a data platform ingesting into a lake or warehouse, where the consumer explicitly accepts schema drift and handles it in a staging layer, with the source team notified of changes. Not for operational services reacting to business events."}],
+rf:["\"CDC is free events, ship it\"","Doesn't see the coupling problem","Doesn't know outbox + CDC can be combined"]},
+
+{id:"A056",skill:"Event-Driven",level:"Advanced",type:"Scenario",
+q:"You need to emit OrderReadyToShip only when both OrderPaid and AddressVerified have arrived for an order. They come from different topics, in any order, sometimes hours apart. How do you build it?",
+a:`<p>This is a <b>stateful join</b> across streams. Two practical approaches:</p>
+<ul>
+<li><b>Database-backed aggregator (common in .NET):</b> a consumer for each topic upserts into a <code>order_readiness</code> row keyed by orderId: <code>paid_at</code>, <code>address_verified_at</code>, and the source event versions. In the same transaction, if both are set and <code>ready_emitted = false</code>, flip it and write <code>OrderReadyToShip</code> to the outbox. Upserts must be idempotent and ignore stale versions.</li>
+<li><b>Stream processor:</b> Kafka Streams, ksqlDB or Flink, with a keyed state store and a join window. Very scalable, but Kafka Streams is JVM-only (Streamiz is a .NET port of varying maturity), and windowed joins need a defined window length. "Hours apart" means a large window and a lot of state.</li>
+</ul>
+<p>Either way, decide what happens if the second event never arrives: a timeout that emits <code>OrderStuck</code> for operations or customer follow-up.</p>`,
+keys:["Recognises a stateful join","Keyed state with idempotent, version-aware upserts","Emit-once guard in the same transaction (outbox)","Window/timeout for the missing event","Picks tooling for the stack honestly"],
+trade:["DB aggregator: simple, transactional, uses existing skills; limited by DB write throughput","Stream processor: high throughput and built-in state, but new runtime and expertise","It depends on: volume, team skills, how long the join window must be"],
+fu:[{q:"Two consumers for the two topics update the same row at the same time. Is that safe?",a:"Only if the check-and-emit is atomic. Use a conditional update (UPDATE … SET ready_emitted = true WHERE order_id = @id AND ready_emitted = false AND paid_at IS NOT NULL AND address_verified_at IS NOT NULL) and emit only if one row was affected, or rely on row locking with SELECT … FOR UPDATE."}],
+rf:["Keeps the join state in process memory","Emits twice when both handlers see 'both present'","No plan for a missing event"]},
+
+{id:"A057",skill:"Kafka",level:"Advanced",type:"Concept",
+q:"How do you get exactly-once results when a Kafka consumer writes to PostgreSQL or SQL Server?",
+a:`<p>Kafka transactions don't cover an external database. The standard technique is to <b>store the consumed offsets in the same DB transaction</b> as the business write, and treat the database, not Kafka, as the source of truth for progress:</p>
+<pre><code>// on partition assignment: resume from the DB, not from Kafka's committed offset
+.SetPartitionsAssignedHandler((c, parts) =&gt;
+    parts.Select(tp =&gt; new TopicPartitionOffset(tp, offsetStore.GetNext(tp))))
+
+// per record
+await using var tx = await db.Database.BeginTransactionAsync();
+await ApplyAsync(cr.Message.Value);                       // business change
+await offsetStore.SaveAsync(cr.TopicPartition, cr.Offset.Value + 1); // same tx
+await tx.CommitAsync();</code></pre>
+<p>A crash before commit rolls back both, and the record is reprocessed. A crash after commit resumes past it. Alternatively use an idempotent upsert keyed by a natural ID with version checks, which gives the same effect without managing offsets. You can still commit to Kafka for lag monitoring, but it isn't authoritative.</p>`,
+keys:["Kafka EOS doesn't extend to external DBs","Offsets stored atomically with the write","Seek on assignment from the DB","Idempotent upsert as an alternative"],
+fu:[{q:"What breaks if you forget the assignment handler?",a:"The consumer resumes from Kafka's committed offset, which may be ahead of (lost records) or behind (reprocessing) what the DB recorded, so the guarantee disappears exactly when partitions move: during rebalances and restarts."}],
+rf:["\"Enable Kafka transactions\" for a DB sink","Commits Kafka offsets and DB separately and calls it exactly-once"]},
+
+{id:"A058",skill:"Kafka",level:"Advanced",type:"Concept",
+q:"How do Kafka transactions work internally, and what does 'zombie fencing' mean?",
+a:`<p>A transactional producer has a <code>transactional.id</code>. On <code>InitTransactions</code>, the <b>transaction coordinator</b> (a broker owning that ID's slice of the <code>__transaction_state</code> log) bumps the producer's <b>epoch</b>. The producer then writes to several partitions and can add consumed offsets (<code>SendOffsetsToTransaction</code>). On commit or abort, the coordinator writes <b>control markers</b> into each partition involved.</p>
+<p>Consumers with <code>isolation.level=read_committed</code> only read up to the <b>last stable offset</b>, skipping aborted data. So an open transaction delays downstream visibility.</p>
+<p><b>Zombie fencing:</b> if an old instance (for example one paused by GC and replaced) wakes up and writes with the same transactional ID, its epoch is older, so the broker rejects it. That stops two instances believing they own the same work.</p>
+<p>Costs: extra round trips per transaction, added end-to-end latency for read_committed consumers, and the need for stable transactional IDs per logical producer.</p>`,
+keys:["Coordinator and transaction log","Epoch-based fencing","Control markers","read_committed and last stable offset","Latency costs"],
+fu:[{q:"What happens to read_committed consumers if a producer opens a transaction and hangs?",a:"Consumers can't read past the last stable offset on those partitions until the transaction completes or times out (transaction.timeout.ms), and then it is aborted. Long transactions directly increase consumer lag."}],
+rf:["Thinks transactions make consumers' DB writes atomic","No idea what fencing protects against"]},
+
+{id:"A059",skill:"Kafka",level:"Advanced",type:"Scenario",
+q:"A broker died during peak traffic. Some producers got NotEnoughReplicas errors, and an audit later found a few acknowledged messages missing. Explain both.",
+a:`<p><b>NotEnoughReplicas:</b> producers using <code>acks=all</code> with <code>min.insync.replicas=2</code> on RF=3 partitions whose ISR had already shrunk (one replica lagging) lost a second replica with the broker. ISR fell below 2, so writes were refused. That is the intended behaviour: durability over availability.</p>
+<p><b>Missing acknowledged messages:</b> look for</p>
+<ul>
+<li>Producers or topics using <code>acks=1</code> (or older clients with that default). The leader acked, then died before followers copied the data, and a follower became leader without it.</li>
+<li><code>unclean.leader.election.enable=true</code> letting an out-of-sync replica become leader.</li>
+<li><code>min.insync.replicas=1</code>, which makes <code>acks=all</code> behave like <code>acks=1</code> once the ISR shrinks.</li>
+</ul>
+<p><b>Metrics to check:</b> <code>UnderReplicatedPartitions</code>, <code>UnderMinIsrPartitionCount</code>, <code>OfflinePartitionsCount</code>, and ISR shrink and expand rates before the failure. A lagging follower before the crash is the real early warning.</p>`,
+keys:["Explains NotEnoughReplicas as correct behaviour","acks=1 / unclean election / min ISR=1 as data-loss paths","Pre-failure ISR shrink as the warning sign","Names the broker metrics"],
+trade:["Strict durability (acks=all, min ISR 2) refuses writes during double failures","Relaxed settings stay writable but lose acknowledged data","It depends on: which topics carry money or audit data vs telemetry; set per topic"],
+fu:[{q:"How should producers handle NotEnoughReplicas?",a:"It is retriable. Let the producer retry within delivery.timeout.ms, and if it still fails, surface the error to the caller or buffer to a durable local fallback. Never drop silently. Alert on the error rate."}],
+rf:["Blames Kafka as 'losing data' without checking configs","Suggests lowering min ISR to stop the errors"]},
+
+{id:"A060",skill:"Kafka",level:"Advanced",type:"Scenario",
+q:"One tenant generates 60% of traffic. Keyed by tenantId, its partition is permanently lagging while the others idle. What are your options?",
+a:`<ol>
+<li><b>Re-examine the ordering requirement.</b> Usually order is needed per <i>entity</i> (order, account), not per tenant. Key by <code>tenantId:entityId</code> and the big tenant spreads across all partitions with per-entity order intact.</li>
+<li><b>Dedicated topic</b> for the big tenant, with its own partitions and consumer group. This isolates noisy neighbours and lets you scale it independently.</li>
+<li><b>Custom partitioner</b> that spreads known large tenants over a set of partitions by sub-key. It works, but adds hidden logic that every producer must share.</li>
+<li><b>Faster consumer</b> for that partition: batch writes, or parallelise per entity within the consumer. This buys time; it doesn't fix the skew.</li>
+</ol>
+<p>Whatever you choose, changing keys on a live topic breaks per-key ordering during the transition. Drain or cut over deliberately, for example by starting a new topic and migrating consumers.</p>`,
+keys:["Challenges the key choice first","Entity-level vs tenant-level ordering","Tenant isolation via dedicated topic","Partitioner option and its cost","Cutover impact on ordering"],
+trade:["Compound key: fixes skew cheaply but loses tenant-wide ordering","Dedicated topic: strong isolation, more topics and config to manage","It depends on: true ordering scope, number of large tenants, contractual isolation (SLA tiers)"],
+fu:[{q:"How would you detect skew before it becomes an incident?",a:"Monitor bytes-in and lag per partition, not just per topic, and alert when one partition's share deviates from the mean by a large factor. Review key cardinality and distribution when onboarding big tenants."}],
+rf:["\"Add partitions\" (the hot key still maps to one)","Random key, losing all ordering without checking requirements"]},
+
+{id:"A061",skill:"Kafka",level:"Advanced",type:"Architecture",
+q:"The business wants Kafka-based services to survive a full AWS region outage. Design the multi-region approach.",
+a:`<p>First agree <b>RPO and RTO</b>. Cross-region replication is asynchronous, so some recent data can be lost (RPO > 0) unless you accept synchronous cross-region latency on every write.</p>
+<p><b>Active-passive</b> (most common): replicate topics to the standby region with MirrorMaker 2 or Amazon MSK Replicator. On failover, producers and consumers switch to the standby. The hard part is <b>consumer offsets</b>: offsets differ between clusters, so you need offset translation (MM2 checkpoints, or the replicator's offset sync) or else consumers resume from a timestamp and rely on idempotency for duplicates.</p>
+<p><b>Active-active:</b> both regions take writes. Topics are prefixed by origin region to avoid replication loops, and consumers read local plus remote topics. Ordering and conflicts across regions become an application problem. Only worth it with a hard availability requirement and region-aware data ownership.</p>
+<p>Also replicate schemas (registry), ACLs and configs, and <b>rehearse failover</b>. An untested runbook is not a DR plan.</p>`,
+keys:["Starts from RPO/RTO","Async replication implies data loss window","Offset translation as the hard part","Active-active loop avoidance and conflict ownership","Schemas/ACLs and failover drills"],
+trade:["Active-passive: simpler, idle cost, recovery takes minutes, small data loss","Active-active: no failover pause, but conflict handling, double cost and complex consumers","It depends on: RTO/RPO, regulatory needs, budget, whether data can be partitioned by region"],
+fu:[{q:"How do consumers avoid reprocessing too much after failover?",a:"Use translated offsets where available. Otherwise reset to a timestamp slightly before the failure and accept duplicates, which idempotent consumers absorb. Measure how long that catch-up takes as part of the drill."}],
+rf:["Assumes replication is synchronous","Ignores consumer offsets","No failover testing"],
+verify:"MSK Replicator capabilities (offset sync, supported cluster types) evolve; confirm current feature set before quoting."},
+
+{id:"A062",skill:"Kafka",level:"Advanced",type:"Concept",
+q:"Producers need to send events with 5–20 MB payloads (images, documents). How do you handle large messages in Kafka?",
+a:`<p>Kafka's default maximum message size is about 1 MB (broker <code>message.max.bytes</code>, producer <code>max.request.size</code>, and topic <code>max.message.bytes</code>). You can raise them, but large messages hurt broker memory, replication, and consumer fetch sizes, and they slow everyone sharing the partition.</p>
+<p>The standard answer is the <b>claim check</b> pattern: upload the payload to S3, then publish an event containing the object key, size, content type and checksum. Consumers fetch from S3 when they need the bytes. Use S3 lifecycle rules for retention that matches the topic's, and make sure consumers have read permissions.</p>
+<p>For payloads only slightly over the limit, compression (<code>zstd</code> or <code>lz4</code>) or trimming fields may be enough. Chunking a message across several records is possible but complicates ordering and reassembly, so I avoid it.</p>`,
+keys:["Knows the ~1 MB default and the configs involved","Claim check with object storage","Retention alignment and access control","Compression as a small-overage fix","Avoids chunking unless forced"],
+fu:[{q:"What new failure modes does claim check introduce?",a:"The event can arrive before the object is readable, or after it has expired, and S3 becomes a dependency of every consumer. Upload before publishing, set lifecycle rules longer than topic retention plus replay needs, and handle missing objects explicitly."}],
+rf:["Raises the limits to 50 MB everywhere","Base64-encodes files into events"]},
+
+{id:"A063",skill:"SQS",level:"Advanced",type:"Scenario",
+q:"A FIFO queue processes orders far below expected throughput, and sometimes everything seems to stop for minutes. What's going on?",
+a:`<p>FIFO delivers messages within a <b>message group</b> one batch at a time: while one is in flight, the rest of that group waits. Likely causes:</p>
+<ul>
+<li><b>Too few message groups</b>, for example a single constant group ID, or one per tenant when one tenant dominates. Throughput then equals a single consumer's speed.</li>
+<li><b>A failing message at the head of a group</b> blocks that group for the whole visibility timeout on each attempt, until maxReceiveCount sends it to the DLQ. With few groups, that looks like everything stopped.</li>
+<li><b>Long visibility timeout</b> combined with crashed consumers: the message stays invisible and its group is blocked until the timeout ends.</li>
+<li><b>Quota limits:</b> high-throughput mode isn't enabled, or you aren't batching.</li>
+</ul>
+<p><b>Fixes:</b> use a finer-grained group ID (per order or per account), tune visibility timeout to real processing time and extend it while working, keep maxReceiveCount low enough that poison messages leave quickly, and enable high-throughput FIFO (per-message-group dedup scope and throughput limit).</p>`,
+keys:["Ordering unit = message group = concurrency unit","Head-of-line blocking per group","Visibility timeout interaction","High-throughput mode","Group ID granularity as the main lever"],
+trade:["Finer groups increase parallelism but narrow the ordering guarantee","Short visibility timeouts recover faster from crashes but risk duplicates on slow processing"],
+fu:[{q:"Would switching to a Standard queue fix it?",a:"It would fix throughput but drop ordering and add duplicates. That's right only if consumers can handle both, for example with version checks per entity. Often a finer group ID gets the throughput while keeping the order you actually need."}],
+rf:["Adds more consumers expecting it to help with one group","Doesn't know ordering is per group"]},
+
+{id:"A064",skill:"SQS",level:"Advanced",type:"Concept",
+q:"How do you make an SQS consumer effectively exactly-once when its side effect is a DynamoDB update?",
+a:`<p>Combine the dedup record and the business update in one <b>DynamoDB transaction</b>, so either both happen or neither does:</p>
+<pre><code>TransactWriteItems:
+  1. Put   { pk: "MSG#" + messageId, ttl: now + 7d }
+           ConditionExpression: attribute_not_exists(pk)
+  2. Update { pk: "ACCOUNT#" + accountId }
+           SET balance = balance + :amt, version = version + 1
+           ConditionExpression: version = :expected   (optional)</code></pre>
+<p>If the message ID already exists, the transaction is cancelled with a condition failure: treat it as already processed, delete the message and move on. Use the producer's business event ID, not the SQS <code>MessageId</code>, if the producer may send the same event twice.</p>
+<p>TTL deletion isn't immediate (it can lag considerably), so the TTL only reclaims space. Correctness comes from the condition. Keep the TTL longer than the possible redelivery window. A DynamoDB transaction can include up to 100 items and costs double the write capacity of plain writes.</p>`,
+keys:["Dedup record + update atomically","attribute_not_exists condition","Business event ID vs SQS MessageId","TTL is cleanup, not correctness","Transaction cost awareness"],
+fu:[{q:"Why not just make the update itself idempotent, like SET status = 'PAID'?",a:"When the operation is naturally idempotent (setting a value), that is better and cheaper, with no dedup table needed. The dedup record is for non-idempotent operations like increments or appends."}],
+rf:["Uses SQS MessageId for business dedup with a duplicating producer","Separate writes for dedup and update","Relies on TTL timing"]},
+
+{id:"A065",skill:"Microservices",level:"Advanced",type:"Scenario",
+q:"A dependency was down for 10 minutes. When it recovered, it immediately fell over again, and this repeated three times. What's happening, and how do you break the cycle?",
+a:`<p>A <b>thundering herd</b> or retry storm. During the outage, clients queued work, kept retrying, and circuit breakers all opened. On recovery, every client's half-open probe and backlog hit the service at once, often with cold caches and cold connection pools. It falls over again, and the cycle repeats.</p>
+<p><b>Breaking it now:</b> shed or block traffic at the edge (gateway throttle, WAF rule, scale callers down), restore traffic gradually, warm caches and pools first, and pause queue consumers or cap their concurrency, then ramp up.</p>
+<p><b>Structural fixes:</b></p>
+<ul>
+<li><b>Jittered backoff</b> everywhere, so retries spread out instead of synchronising.</li>
+<li><b>Retry budgets:</b> for example, retries at most 10% of requests. Plus circuit breakers whose half-open state admits only a few probes.</li>
+<li><b>Server-side load shedding</b> (concurrency limits returning 503 early), so the service stays partly up rather than collapsing.</li>
+<li><b>Queue consumers</b> with capped concurrency, so backlogs drain at a controlled rate.</li>
+</ul>`,
+keys:["Names thundering herd / synchronised retries","Cold caches and pools on recovery","Gradual traffic restoration","Jitter, retry budgets, limited half-open probes","Server-side shedding"],
+trade:["Retry budgets reduce success during brief blips but prevent amplification","Load shedding rejects some users to keep the rest served"],
+fu:[{q:"Why does jitter matter if everyone already uses exponential backoff?",a:"Clients that failed at the same moment back off by the same intervals and retry in synchronised waves. Random jitter spreads the attempts over time. Full jitter (a random delay between zero and the backoff ceiling) is a common choice."}],
+rf:["\"Scale the dependency\" alone","Unbounded retries in clients","Doesn't recognise the synchronisation"]},
+
+{id:"A066",skill:"Microservices",level:"Advanced",type:"Architecture",
+q:"You're building a B2B SaaS on microservices. How do you isolate tenants: data, compute and noisy neighbours?",
+a:`<p>There are three isolation models, usually mixed by tier:</p>
+<ul>
+<li><b>Pool:</b> shared services and databases, with a tenant ID on every row. Cheapest and simplest to operate. Isolation depends entirely on code: every query filters by tenant. Back that with database enforcement such as PostgreSQL row-level security tied to a session variable, so a missed filter can't leak data.</li>
+<li><b>Bridge:</b> shared compute, separate schema or database per tenant. Stronger data isolation, per-tenant backup and restore, but migrations run N times and connection management gets harder.</li>
+<li><b>Silo:</b> a dedicated stack per tenant, for enterprise tiers or regulatory needs. Strongest isolation, highest cost and operational effort.</li>
+</ul>
+<p>Cross-cutting needs:</p>
+<ul>
+<li>Tenant context is taken from the authenticated token and propagated through calls and events, never from client-supplied input.</li>
+<li>Per-tenant rate limits and quotas.</li>
+<li>Per-tenant metrics, so you can spot the noisy neighbour.</li>
+<li>Tests that try to read across tenants.</li>
+</ul>`,
+keys:["Pool/bridge/silo and tiering","Tenant context from identity, propagated","DB-level enforcement (RLS) as a backstop","Noisy neighbour controls and per-tenant metrics","Operational cost of each model"],
+trade:["Pool: low cost, highest blast radius for bugs","Bridge: better isolation, N× migration effort","Silo: strongest isolation and simplest compliance story, highest cost","It depends on: tenant size distribution, compliance, pricing tiers"],
+fu:[{q:"How does PostgreSQL row-level security fit with connection pooling?",a:"Set the tenant in a session variable at the start of each transaction (SET LOCAL app.tenant_id = …), with policies referencing current_setting('app.tenant_id'). SET LOCAL scopes it to the transaction, so a pooled connection never carries another tenant's value into the next request."}],
+rf:["Relies only on developers remembering WHERE tenant_id","Takes tenant ID from a request header","One model for every customer regardless of tier"]},
+
+{id:"A067",skill:"Microservices",level:"Advanced",type:"Concept",
+q:"How do you protect a service when it hits saturation, so it degrades gracefully instead of falling over?",
+a:`<p>Past saturation, accepting more work makes <i>every</i> request slower until all of them time out. The goal is to keep serving some requests well by rejecting the excess early.</p>
+<ul>
+<li><b>Concurrency limits:</b> cap in-flight requests per instance (ASP.NET Core's concurrency limiter, or an adaptive limiter that adjusts to latency). Excess gets a fast <code>503</code> with <code>Retry-After</code>.</li>
+<li><b>Bounded queues:</b> short internal queues. Drop requests that have already waited longer than the client's timeout, since nobody is waiting for that answer.</li>
+<li><b>Prioritisation:</b> shed low-value traffic first (analytics, prefetch, batch) and protect critical paths (checkout, login).</li>
+<li><b>Degraded modes:</b> feature flags that turn off expensive features (recommendations, live counts) under load.</li>
+<li><b>Deadline propagation:</b> stop work whose caller has already given up (cancellation tokens through the stack).</li>
+</ul>`,
+keys:["Rejecting early beats slow failure","Concurrency limits over rate limits for saturation","Drop already-expired work","Priority-based shedding","Cancellation propagation"],
+fu:[{q:"Why is a concurrency limit often better than a requests-per-second limit for self-protection?",a:"Capacity depends on how expensive requests are right now. A fixed RPS limit is wrong when requests get slower (a DB slowdown), while a concurrency limit adapts automatically: slow requests hold slots longer, so fewer are admitted."}],
+rf:["Unbounded queues","Relies only on autoscaling","No distinction between critical and optional traffic"]},
+
+{id:"A068",skill:"Microservices",level:"Advanced",type:"Scenario",
+q:"A distributed trace shows 400 ms of unexplained gap between service A's outgoing span and service B's incoming span under load. Nothing is logged. What could it be, and how do you find it?",
+a:`<p>The gap is time spent <i>before</i> B's handler span starts, or before A's HTTP call actually leaves. Candidates:</p>
+<ul>
+<li><b>Thread pool starvation</b> in A or B (.NET), from sync-over-async (<code>.Result</code>, <code>.Wait()</code>) or blocking calls. Queued work waits for threads. Check <code>dotnet-counters monitor</code> for ThreadPool queue length and thread count growth.</li>
+<li><b>Connection pool waits:</b> A's HTTP handler has no free connection to B. Check <code>MaxConnectionsPerServer</code>, connection lifetime, and the System.Net.Http metrics.</li>
+<li><b>New connections each time:</b> DNS, TCP and TLS handshakes from disposing <code>HttpClient</code> per call, or keep-alive disabled.</li>
+<li><b>Load balancer or sidecar queueing:</b> ALB target response time vs app time. ALB access logs split request, target and response processing times.</li>
+<li><b>GC pauses</b> (look at gen2 GC counts and pause time), or CPU throttling from container CPU limits.</li>
+</ul>
+<p>Approach: compare A's client-side timing with B's server-side timing and the LB logs to find which side the gap belongs to. Then use runtime counters on that side.</p>`,
+keys:["Locates the gap side by side (client, LB, server)","Thread pool starvation and sync-over-async","Connection pool exhaustion / handshake churn","Uses dotnet-counters and LB logs","Container CPU throttling"],
+trade:["Raising the minimum thread count masks starvation briefly; removing blocking calls fixes it","Larger connection pools help until the downstream is the real limit"],
+fu:[{q:"How do you confirm thread pool starvation in production?",a:"dotnet-counters shows ThreadPool Queue Length rising and the thread count climbing slowly (the pool injects threads gradually). A dump (dotnet-dump) shows many threads blocked in .Result or Wait on async code."}],
+rf:["\"Network latency\" with no evidence","Increases the HttpClient timeout","Doesn't know about thread pool starvation"]},
+
+{id:"A069",skill:"Microservices",level:"Advanced",type:"Architecture",
+q:"Teams want a shared NuGet package with common domain models (Order, Customer) used by all services. What's your view?",
+a:`<p>Sharing <b>domain models</b> across services couples them. A change to the shared <code>Order</code> class forces coordinated upgrades, every service sees fields that don't concern it, and you drift toward a distributed monolith. Each bounded context should own its model of "Order", even if the names match.</p>
+<p>What I would share:</p>
+<ul>
+<li><b>Platform concerns</b> as a thin "service chassis": logging and OpenTelemetry setup, auth middleware, resilience defaults, health checks, configuration conventions.</li>
+<li><b>Contracts</b> (event and API schemas), generated from the schema source of truth (Protobuf, Avro, OpenAPI), versioned and backward compatible.</li>
+</ul>
+<p>Even the chassis needs discipline: semantic versioning, no forced simultaneous upgrades, minimal dependencies (so it doesn't pin everyone's framework version), and an owning team.</p>`,
+keys:["Shared domain models = coupling","Bounded contexts own their models","Share platform concerns and generated contracts","Versioning and dependency-pinning risks of the chassis"],
+trade:["A shared chassis gives consistency and speed but can pin framework versions and create upgrade waves","Duplicated small types cost a little repetition but buy independent evolution","It depends on: number of teams, platform team capacity, release cadence"],
+fu:[{q:"How do you roll out a security fix in the chassis to 30 services?",a:"Automated dependency updates (Dependabot or Renovate) opening PRs, CI that verifies them, a deadline tracked per service, and a tool listing which services are on which version. If the chassis is truly thin, the upgrade is usually a non-event."}],
+rf:["Shares entity classes with EF mappings across services","Mandatory lockstep upgrades","No owner for shared libraries"]},
+
+{id:"A070",skill:"Distributed Fundamentals",level:"Advanced",type:"Concept",
+q:"What's the difference between linearizability and serializability? Why does it matter in practice?",
+a:`<p><b>Serializability</b> is a property of <i>transactions</i>: concurrent transactions produce a result equal to <i>some</i> serial order. That order needn't match real time. A transaction that committed earlier can appear to come later.</p>
+<p><b>Linearizability</b> is a property of <i>single operations on single objects</i>: each operation appears to take effect instantly at some point between its start and end, in a way consistent with real time. Once a write completes, every later read sees it.</p>
+<p><b>Strict serializability</b> combines both. It's what people often assume they have.</p>
+<p>In practice: reading from an async replica isn't linearizable even if the primary is serializable. A "check balance, then withdraw" across two requests isn't protected by per-statement atomicity. Distributed locks and leader election need linearizable storage (etcd, ZooKeeper), not an eventually consistent cache. And "SERIALIZABLE" isolation in a database doesn't make your replicas or caches linearizable.</p>`,
+keys:["Transactions vs single-object operations","Real-time ordering is the linearizability addition","Strict serializability","Practical traps: replicas, caches, locks"],
+fu:[{q:"Is SQL Server SNAPSHOT isolation serializable?",a:"No. Snapshot isolation allows write skew: two transactions read overlapping data, write different rows, and both commit, breaking an invariant. SERIALIZABLE isolation (or explicit locking) is needed for that class of problem. PostgreSQL's SERIALIZABLE uses SSI to detect it."}],
+rf:["Uses the two words as synonyms","Thinks a serializable primary makes replica reads current"]},
+
+{id:"A071",skill:"Distributed Fundamentals",level:"Advanced",type:"Scenario",
+q:"Your service writes to PostgreSQL and then updates an OpenSearch index. Over weeks, search results drift from the database: missing items, stale prices. How do you fix it properly?",
+a:`<p>This is the dual-write problem again. The index update fails after the DB commit, or two updates for the same document arrive out of order and an older version overwrites a newer one.</p>
+<p><b>Fix the write path:</b></p>
+<ul>
+<li>Drive indexing from the DB's changes: outbox events or CDC feeding an indexer consumer. Never write to the index inline in the request.</li>
+<li>Make index writes <b>version-aware</b>. Pass the row version and use OpenSearch external versioning (<code>version_type=external</code>), so an older update is rejected instead of overwriting a newer one.</li>
+<li>Handle deletes explicitly (tombstone events).</li>
+</ul>
+<p><b>Fix the drift that already exists:</b> run a <b>reconciliation job</b> that compares IDs and versions or checksums between DB and index, and reindexes the differences. For a large drift, rebuild into a new index and swap an alias.</p>`,
+keys:["Names dual write and reordering","Outbox/CDC-driven indexing","External versioning to reject stale writes","Reconciliation job as ongoing safety net","Alias swap for full rebuild"],
+trade:["Async indexing adds seconds of search staleness in exchange for correctness","Reconciliation costs compute but catches drift from any cause","It depends on: how fresh search must be (inventory vs blog posts)"],
+fu:[{q:"How do you rebuild a large index with zero downtime?",a:"Create a new index with the right mappings, bulk load from the DB while also applying live change events to it, wait until it catches up, then atomically switch the read alias to it. Keep the old index until you're sure."}],
+rf:["\"Wrap both in a try/catch and retry\"","Last-write-wins with no versioning","No plan for existing drift"]},
+
+{id:"A072",skill:"Distributed Fundamentals",level:"Advanced",type:"Concept",
+q:"Explain quorum reads and writes (N, R, W). Does R + W > N guarantee you always read the latest write?",
+a:`<p>In leaderless (Dynamo-style) replication, each item is on N replicas. A write succeeds when W replicas acknowledge, and a read queries R replicas and takes the newest version. If <b>R + W &gt; N</b>, the read and write sets overlap in at least one replica, so a read should see the latest successful write. Typical setting: N=3, W=2, R=2.</p>
+<p>It is <b>not</b> a full guarantee of linearizability:</p>
+<ul>
+<li><b>Sloppy quorums / hinted handoff:</b> writes accepted by nodes outside the usual N break the overlap.</li>
+<li><b>Concurrent writes</b> resolved by last-write-wins timestamps can drop one write (and clocks skew).</li>
+<li>A write that fails on some replicas but succeeded on fewer than W isn't rolled back, so it may surface later.</li>
+<li>A read concurrent with a write may or may not see it.</li>
+</ul>
+<p>Tuning: lower R or W for latency and availability, higher for consistency. Managed services hide most of this. DynamoDB, for example, offers eventually consistent or strongly consistent reads.</p>`,
+keys:["Overlap reasoning for R+W>N","Typical N=3/W=2/R=2","Sloppy quorum and LWW caveats","Not equal to linearizability","Latency/availability tuning"],
+fu:[{q:"Why choose W=1, R=3 or W=3, R=1?",a:"W=3, R=1 makes reads fast but any replica outage blocks writes. W=1, R=3 makes writes fast and available but reads slow and fragile. You tune toward the operation that must stay available or fast."}],
+rf:["Says R+W>N gives strong consistency with no caveats","Can't explain the overlap argument"]},
+
+{id:"A073",skill:"Distributed Fundamentals",level:"Advanced",type:"Scenario",
+q:"During an Aurora or RDS primary failover, the API returned errors for about 40 seconds, and afterwards a few orders were duplicated. Explain both and harden the system.",
+a:`<p><b>The errors:</b> during failover the old primary stops accepting connections and in-flight transactions are rolled back. Clients hold dead pooled connections and keep resolving the cluster endpoint's DNS to the old host until the TTL expires and their resolver refreshes. Failover itself typically takes tens of seconds; DNS and pool behaviour add to it.</p>
+<p><b>The duplicates:</b> some commits succeeded just before the failover, but the client got a connection error instead of the acknowledgement (an ambiguous outcome), and the client or the user retried. A naive retry of the whole operation creates a second order.</p>
+<p><b>Hardening:</b></p>
+<ul>
+<li>Use idempotency keys or natural unique constraints for order creation, so a retry finds the existing order.</li>
+<li>In EF Core, enable retry on transient failures (<code>EnableRetryOnFailure</code>) and wrap explicit transactions in the execution strategy, so the whole unit retries.</li>
+<li>Use the AWS JDBC/ODBC wrappers or RDS Proxy, which handle failover faster than DNS. For .NET, RDS Proxy is the practical option.</li>
+<li>Run failover drills (Aurora can fail over on command) and measure the real impact.</li>
+</ul>`,
+keys:["Rolled-back in-flight transactions and stale connections","DNS TTL effect","Ambiguous commit → duplicate on retry","Idempotency/unique constraints","EF Core execution strategy + RDS Proxy + drills"],
+trade:["RDS Proxy shortens failover impact and pools connections, with added cost and a small latency hop","Automatic retries reduce errors but require idempotent operations to be safe"],
+fu:[{q:"Why must EF Core's retry wrap the whole transaction?",a:"If only the failing statement were retried, earlier statements in the same transaction would already have been rolled back by the failover. The execution strategy re-runs the entire delegate, which is why it refuses user-initiated transactions unless you wrap them in strategy.ExecuteAsync."}],
+rf:["Calls it an AWS bug","Retries without idempotency","Never tests failover"]},
+
+{id:"A074",skill:"API Design",level:"Advanced",type:"Concept",
+q:"You're adding outbound webhooks for partners. What makes a webhook system reliable and secure?",
+a:`<ul>
+<li><b>Security:</b> sign every payload with HMAC-SHA256 over the timestamp plus body, using a per-endpoint secret. Receivers verify with a constant-time comparison and reject old timestamps (for example older than 5 minutes) to stop replays. Only allow HTTPS endpoints, and validate endpoint URLs against SSRF (no internal IPs).</li>
+<li><b>Delivery:</b> send from a queue, not inline. Retry non-2xx responses and timeouts with exponential backoff over hours, then mark the endpoint failing and notify the partner. Auto-disable endpoints that fail persistently.</li>
+<li><b>Semantics:</b> at-least-once delivery, an event ID in every payload so receivers deduplicate, no ordering guarantee (include a version or timestamp), and short timeouts (receivers should ack fast and process async).</li>
+<li><b>Operability:</b> a delivery log partners can see, manual redelivery, secret rotation supporting two active secrets, and an events API to fetch missed events.</li>
+</ul>`,
+keys:["HMAC with timestamp and replay window","SSRF protection on partner URLs","Queue-based delivery with backoff and disabling","At-least-once with event IDs","Secret rotation and delivery logs"],
+fu:[{q:"A partner says they missed events during their outage. How should the system help?",a:"Retries over a long enough window cover short outages. For longer ones, provide a list-events endpoint with a cursor so they can backfill, plus manual redelivery from the delivery log."}],
+rf:["Sends webhooks synchronously in the request path","No signature, or signature without timestamp","Promises exactly-once or ordering"]},
+
+{id:"A075",skill:"API Design",level:"Advanced",type:"Scenario",
+q:"Clients want flexible filtering and sorting on a large list endpoint. A previous attempt exposed generic query parameters, and someone's query took down the database. How do you design it?",
+a:`<p>Generic filtering (passing arbitrary fields and operators straight into LINQ or SQL, or a wide-open OData endpoint) lets any client build an unindexed query. The fix is to design the query surface deliberately:</p>
+<ul>
+<li><b>Allowlist</b> filterable and sortable fields and operators. Each one is backed by an index or a search engine.</li>
+<li><b>Mandatory narrowing:</b> require a selective filter (tenant, date range with a maximum span) for expensive collections.</li>
+<li><b>Cap page size</b> and use cursor pagination. No unbounded "export everything" through the list API.</li>
+<li><b>Sparse fieldsets</b> (<code>?fields=id,name</code>) to cut payload size, without letting clients request expensive joins.</li>
+<li><b>Server-side protection:</b> statement timeouts and a read replica for list queries. Monitor slow queries by endpoint and parameters.</li>
+<li>For genuinely ad-hoc search, route to OpenSearch, not the transactional DB.</li>
+</ul>`,
+keys:["Allowlisted, index-backed filters","Required selective filters and max ranges","Page size caps and cursors","Query timeouts and replicas","Search engine for ad-hoc needs"],
+trade:["A tight allowlist protects the DB but needs product negotiation for each new filter","Search engine flexibility costs a second store and eventual consistency"],
+fu:[{q:"A client needs a full export of 2 million rows. What do you offer?",a:"An async export job (202 + status resource) that streams results to a file in S3 and returns a pre-signed URL, run against a replica, rather than paging through the online API."}],
+rf:["Exposes IQueryable or raw OData to the internet","No page size limit","Relies on clients behaving"]},
+
+{id:"A076",skill:"Rate Limiting & Scaling",level:"Advanced",type:"Scenario",
+q:"Marketing will launch a campaign expected to bring 10× normal traffic in the first 15 minutes. Autoscaling is configured. Are you ready? What do you do?",
+a:`<p>Not necessarily. Autoscaling is reactive and slow relative to a 15-minute spike: a target-tracking alarm needs a few minutes of breached metrics, tasks take time to pull images, start and pass health checks, and the database doesn't autoscale at that speed. By the time capacity arrives, the spike may already have caused failures.</p>
+<p><b>Preparation:</b></p>
+<ul>
+<li><b>Load test</b> the critical journeys at 10× and find the first bottleneck. It is usually the DB, a third-party API, or connection limits, not the app tier.</li>
+<li><b>Pre-scale:</b> scheduled scaling to raise minimum capacity before launch, and pre-warm caches.</li>
+<li><b>Protect the DB:</b> cache hot reads (landing pages, product data, or CDN for anything cacheable), and add read replicas or RDS Proxy.</li>
+<li><b>Buffer non-critical work</b> through queues (emails, analytics).</li>
+<li><b>Degradation plan:</b> feature flags to switch off expensive features, plus rate limits per client.</li>
+<li><b>Check quotas</b> (Lambda concurrency, API Gateway, third-party limits).</li>
+<li>Staff the launch window with dashboards ready.</li>
+</ul>`,
+keys:["Autoscaling lag vs spike duration","Load test to find the real bottleneck","Scheduled pre-scaling and cache warming","DB and third-party limits","Degradation flags and quota checks"],
+trade:["Pre-scaling costs money for capacity that may go unused, which is cheap insurance against a failed launch","Aggressive caching risks showing stale prices; agree what may be cached"],
+fu:[{q:"How do you know the load test is realistic?",a:"Model it from real traffic: the same endpoint mix, real data volume, cache hit ratios, and think-time, from production logs or analytics. Testing one endpoint with uniform requests usually misses the real bottleneck."}],
+rf:["\"Autoscaling will handle it\"","Only scales the app tier","No load test"]},
+
+{id:"A077",skill:"Rate Limiting & Scaling",level:"Advanced",type:"Architecture",
+q:"What metric should you autoscale on for an HTTP API service versus a queue worker on ECS, and why?",
+a:`<p><b>HTTP API:</b> scale on a signal that tracks load per task. <code>ALBRequestCountPerTarget</code> is good when requests have similar cost. CPU utilisation works for CPU-bound services. For I/O-bound services, CPU stays low while latency climbs, so add a latency-based step policy or use concurrency per task. Keep scale-in slow and scale-out fast.</p>
+<p><b>Queue worker:</b> CPU and queue depth alone are misleading. The useful metric is <b>backlog per task</b>: <code>ApproximateNumberOfMessagesVisible</code> ÷ running tasks, compared with how many messages one task can process within your latency target. Publish it as a custom CloudWatch metric and target-track it. Also watch <code>ApproximateAgeOfOldestMessage</code> as the SLO signal.</p>
+<p>For workers running long jobs, use ECS task scale-in protection so scale-in doesn't kill tasks mid-job, and handle SIGTERM to finish or release the current message.</p>`,
+keys:["Requests per target vs CPU vs latency for APIs","Backlog per task for workers","Age of oldest message as SLO","Asymmetric scale-out/in","Scale-in protection and SIGTERM handling"],
+trade:["CPU is easy but misses I/O-bound saturation","Backlog per task needs a custom metric but matches the real goal (drain time)","It depends on: request cost uniformity, job length, latency SLO"],
+fu:[{q:"Why is raw queue depth a poor target?",a:"A depth of 1,000 is fine with 50 tasks and a crisis with 2. Target tracking needs a value that scales inversely with task count, which backlog per task does, so the policy can compute how many tasks it needs."}],
+rf:["Scales workers on CPU only","Same policy for API and workers","No handling for in-flight work on scale-in"]},
+
+/* ================= LEAD ================= */
+{id:"A078",skill:"Event-Driven",level:"Lead",type:"Architecture",
+q:"A senior engineer proposes making the whole platform event-driven, with every service communicating only through Kafka. How do you evaluate the proposal, and what do you decide?",
+a:`<p>I'd treat it as a hypothesis to test against our actual problems, not a style to adopt wholesale.</p>
+<ol>
+<li><b>What problem does it solve for us?</b> Cascading failures from sync chains, teams blocked on each other, or a need for replay and audit are good reasons. "It's more modern" isn't.</li>
+<li><b>Which interactions fit?</b> Fact broadcasts (order placed, user signed up) and long-running workflows fit well. Queries and user-facing request/response, where the user waits for an answer, usually don't. Forcing them through Kafka adds request-reply plumbing and latency.</li>
+<li><b>Are we ready to run it?</b> Distributed tracing across topics, schema governance, consumer idempotency as a team habit, on-call skills for lag and rebalances, and a budget for MSK or Confluent. If those aren't in place, the first incidents will be painful.</li>
+<li><b>Pilot:</b> pick one bounded flow with a clear benefit, define success metrics (failure isolation, lead time for adding a consumer), and review after a quarter.</li>
+</ol>
+<p>The likely decision: <b>events for integration between bounded contexts, synchronous calls for queries and user-facing commands</b>, written up as an ADR with the criteria, so future choices don't need to be argued from scratch.</p>`,
+keys:["Ties the decision to concrete problems","Distinguishes which interactions fit events","Assesses operational readiness, not just design","Pilot with success metrics","Records the decision rule (ADR)"],
+trade:["All-in event-driven: maximum decoupling, highest operational and cognitive cost","Hybrid: matches tool to interaction, needs a clear rule so it doesn't become arbitrary","It depends on: team experience with async systems, observability maturity, domain shape"],
+fu:[{q:"The engineer is passionate and feels you're blocking innovation. How do you handle that?",a:"Give them ownership of the pilot with the success criteria they help define, so the outcome is decided by evidence rather than by seniority. Make clear that a well-run pilot that shows limits is also a success. If it works, they lead the wider rollout."}],
+rf:["Approves or rejects based on preference","No operational readiness check","All-or-nothing framing"]},
+
+{id:"A079",skill:"Event-Driven",level:"Lead",type:"Scenario",
+q:"After two years there are 140 topics, unclear ownership, undocumented payloads, and consumers regularly break when producers change events. How do you bring order without killing team autonomy?",
+a:`<p>The aim is guardrails that are automatic and cheap to follow, not a central committee that approves every event.</p>
+<ul>
+<li><b>Inventory and ownership first:</b> map every topic to an owning team using producer client IDs, ACLs and traffic. Topics with no producer for months are candidates for deletion after notice.</li>
+<li><b>Contracts in a schema registry</b> with compatibility enforced in CI. A breaking change then fails the build instead of breaking a consumer at 2 am.</li>
+<li><b>Discoverability:</b> an event catalogue (AsyncAPI specs or the registry UI) listing owner, purpose, schema, retention and known consumers.</li>
+<li><b>A light standard</b> covering naming, an envelope with event ID, type, version, time, trace context and producer, PII rules, and a deprecation process with notice periods.</li>
+<li><b>Make the paved road easy:</b> a template or library that already sets up the envelope, registry and tracing.</li>
+</ul>
+<p>Roll it out by fixing the topics that cause incidents first, so teams see the value before being asked to change. Measure consumer breakages per month before and after.</p>`,
+keys:["Ownership inventory before rules","Automated enforcement (registry + CI) over meetings","Catalogue for discoverability","Envelope standard incl. trace context and PII","Incremental rollout with a measurable outcome"],
+trade:["Strict gates prevent breakage but slow teams if tooling is clumsy","Pure autonomy keeps speed until breakages cost more than the coordination","It depends on: number of teams, incident cost, platform team capacity"],
+fu:[{q:"A team refuses to adopt the registry because it slows them down. What do you do?",a:"Find out what specifically slows them and fix the tooling if it's a fair complaint. If they're producing events others consume, compatibility checking isn't optional, and I'd make that call explicitly with their manager, framed around the incidents it prevents. Purely internal topics can be exempt."}],
+rf:["Creates an architecture review board approving every event","Big-bang mandate across all teams","No measure of whether it worked"]},
+
+{id:"A080",skill:"Event-Driven",level:"Lead",type:"Architecture",
+q:"For .NET messaging, would you build on raw client libraries (Confluent.Kafka, AWS SDK) or adopt a framework like MassTransit or NServiceBus? How do licensing changes affect that call?",
+a:`<p>Frameworks give you, on day one, things teams otherwise rebuild badly: retries and redelivery, outbox and inbox, sagas and state machines, consistent serialisation, and test harnesses. Raw clients give full control and one fewer abstraction, but every team reinvents error handling.</p>
+<p>How I decide:</p>
+<ul>
+<li><b>Scope:</b> one or two simple consumers → raw client with a small internal wrapper. Many services with sagas and outbox → a framework pays for itself.</li>
+<li><b>Abstraction fit:</b> frameworks sometimes hide Kafka specifics (partitions, offsets, keys) that you need to reason about. Check they don't fight your model.</li>
+<li><b>Licensing and vendor risk:</b> the .NET ecosystem has seen widely used libraries move to commercial licences, including MediatR and AutoMapper in 2025 and MassTransit's next major version. Check the licence terms, cost at your scale, and support model, and keep the framework behind your own thin interfaces so a future switch is bounded work.</li>
+<li><b>Team skills:</b> who can debug it at 2 am?</li>
+</ul>
+<p>Make this an ADR with a review date. Licences and roadmaps change.</p>`,
+keys:["Concrete list of what frameworks provide","Scope-based decision","Abstraction leakage risk","Licensing/vendor risk handled deliberately","Isolation behind own interfaces + ADR"],
+trade:["Framework: faster delivery and consistency, plus dependency, licence cost and abstraction risk","Raw client: control and no licence risk, plus rebuilding resilience per team","It depends on: number of services, saga needs, budget, team expertise"],
+fu:[{q:"Your codebase uses MediatR heavily and the licence changed. What do you do?",a:"Assess it first: does our organisation fall under the free tier or need a paid licence, and what does that cost against the effort of replacing it? Options are paying, pinning the last open-source version (accepting no future fixes), or replacing it with a small in-house mediator, since the core pattern is simple. I'd present the cost and risk of each rather than react immediately."}],
+rf:["Chooses on popularity alone","Unaware of licence changes in common .NET libraries","Leaks framework types throughout the domain"],
+verify:"Exact licensing terms and free-tier thresholds for MediatR, AutoMapper and MassTransit v9 change; check current terms before citing specifics."},
+
+{id:"A081",skill:"Kafka",level:"Lead",type:"Architecture",
+q:"A 15-engineer company is choosing between self-managed Kafka, Amazon MSK (provisioned or serverless), Confluent Cloud, and not using Kafka at all. How do you decide?",
+a:`<p>Start with whether the requirements need Kafka at all. Do we need replay, many independent consumers of the same stream, per-key ordering at high throughput, or stream processing? If the real need is "background jobs and some fan-out", SNS+SQS or EventBridge cover it with almost no operations. For a 15-person company that is often the right answer.</p>
+<p>If Kafka is justified:</p>
+<ul>
+<li><b>Self-managed (EC2/Kubernetes):</b> cheapest infrastructure and the most expensive in people. Upgrades, broker failures, rebalancing partitions and security patching are all yours. Rarely right at this size.</li>
+<li><b>MSK provisioned:</b> AWS runs the brokers, you size and scale them. A good middle ground if you're AWS-native.</li>
+<li><b>MSK Serverless:</b> no sizing, but per-cluster and per-partition limits and some feature gaps. Fine for moderate, spiky workloads.</li>
+<li><b>Confluent Cloud:</b> most managed, with the richest ecosystem (schema registry, connectors, ksqlDB, Flink). Usually the highest bill, and a second vendor relationship.</li>
+</ul>
+<p>Compare the <b>total</b> cost: infrastructure plus engineer time plus the cost of incidents. Choose the option that lets a small team run it without a dedicated Kafka expert.</p>`,
+keys:["Questions whether Kafka is needed","Total cost of ownership including people","Managed options' real differences and limits","Ecosystem needs (registry, connectors) as a factor","Sized to the organisation"],
+trade:["Self-managed: control and lower infrastructure cost, highest people cost and risk","Fully managed: lowest effort, highest bill and some lock-in","It depends on: throughput, ecosystem needs, in-house skills, cloud commitment"],
+fu:[{q:"How would you make the decision reversible?",a:"Keep producers and consumers behind a thin internal messaging interface, use standard Kafka protocol features rather than vendor extensions where possible, and keep schemas in a portable format. Then moving between MSK and Confluent is mostly configuration and migration work, not a rewrite."}],
+rf:["Self-hosts Kafka 'because it's cheaper' with no ops capacity","Chooses Kafka because it's on everyone's CV","Ignores engineer time in cost"],
+verify:"MSK Serverless and MSK Express broker limits and features evolve; check current quotas before relying on them."},
+
+{id:"A082",skill:"Kafka",level:"Lead",type:"Scenario",
+q:"A team wants to use Kafka as the system of record: infinite retention, compacted topics, and services building state only from Kafka, with no database. What's your position?",
+a:`<p>It can work. Some companies run it successfully with compacted topics and stream processors holding state. But I'd push back unless the team can answer these:</p>
+<ul>
+<li><b>Querying:</b> how do support, reporting and ad-hoc investigations ask "show me all orders for customer X"? You will build a queryable store anyway.</li>
+<li><b>Correcting bad data:</b> an immutable log needs compensating events and rebuilds for every fix, rather than an UPDATE.</li>
+<li><b>Erasure:</b> GDPR deletes against an infinite log need crypto-shredding or tombstones on compacted topics, designed in from day one.</li>
+<li><b>Operations:</b> infinite retention costs storage (tiered storage helps), and rebuilding state for a new service from years of events takes time.</li>
+<li><b>Backup and DR:</b> Kafka replication isn't a backup. Accidental topic deletion or a bad producer is unrecoverable without archives.</li>
+</ul>
+<p>My usual position: the database is the system of record for current state, and Kafka is the system of record for <i>what happened</i>, connected by an outbox. If the team has a domain where the event log genuinely is the business record and they've answered the above, I'd support a scoped trial.</p>`,
+keys:["Doesn't dismiss outright; tests against concrete concerns","Query, correction, erasure, backup gaps","Kafka replication ≠ backup","Clear default position plus conditions for exceptions"],
+trade:["Log as source of truth: full history and replay, but hard querying, correction and erasure","DB + outbox: familiar operations and queries, with events derived from state changes","It depends on: audit needs, team stream-processing skill, compliance"],
+fu:[{q:"How do you disagree without simply overruling a capable team?",a:"Turn the concerns into acceptance criteria. If they can show how they'd handle a GDPR delete, a data fix and a support query in a prototype, the risk is addressed. That keeps the decision about evidence and leaves them ownership."}],
+rf:["\"Kafka isn't a database\" with no reasoning","Accepts without considering erasure or backup"]},
+
+{id:"A083",skill:"SQS",level:"Lead",type:"Scenario",
+q:"A workflow built from 12 chained SQS queues with state in DynamoDB has become hard to change, and retry bugs keep appearing. Someone proposes rewriting it on Step Functions. How do you decide?",
+a:`<p>The symptoms suggest the workflow logic is implicit: spread across queue handlers, with retries and state transitions reimplemented in each one. An orchestrator makes the flow explicit, with built-in retries, timeouts, catch and compensation, and a visual history of every execution. That fits the pain.</p>
+<p>Before agreeing to a rewrite, I'd check:</p>
+<ul>
+<li><b>Cost model:</b> Standard workflows bill per state transition. At high volume with many steps that can exceed the SQS cost by a lot. Express workflows are cheaper per execution but run at most 5 minutes with at-least-once semantics. Model it with real volumes.</li>
+<li><b>Fit:</b> waits for human approval, long timers and branching fit Standard well. Very high-throughput, short pipelines may not.</li>
+<li><b>Migration risk:</b> migrate <b>incrementally</b>, starting with the steps that cause the most incidents, with an orchestrator calling the existing handlers (now as Lambdas or ECS tasks). In-flight executions finish on the old path.</li>
+<li><b>Alternatives:</b> Temporal, or a framework state machine (MassTransit), if you want the logic in code and portable.</li>
+</ul>
+<p>Decision criteria: fewer incidents, faster changes, and cost within budget, measured for the first migrated slice before committing to the rest.</p>`,
+keys:["Diagnoses implicit workflow as the root problem","Real cost modelling (transitions vs duration)","Standard vs Express semantics","Incremental migration, not big-bang rewrite","Measured success criteria"],
+trade:["Step Functions: visibility and built-in retries, AWS lock-in and per-transition cost","Temporal/code-based: portable and testable in code, more infrastructure","Keep and refactor SQS: lowest change risk, keeps implicit flow","It depends on: volume, workflow duration, team preference for code vs config"],
+fu:[{q:"How do you handle executions in flight when you switch?",a:"Route only new workflows to the new path behind a flag, and let existing ones drain through the old queues. Keep the old handlers until the last in-flight execution finishes or times out, then remove them."}],
+rf:["Approves a full rewrite without cost modelling","Doesn't know the Standard vs Express differences","No plan for in-flight work"]},
+
+{id:"A084",skill:"Microservices",level:"Lead",type:"Architecture",
+q:"Leadership says: 'Split the monolith into microservices so we can move faster.' How do you respond?",
+a:`<p>I'd agree with the goal and question whether the proposed means fits. Microservices speed teams up only when the bottleneck is <b>coordination between teams</b>, not when it's code quality, test speed or deployment process.</p>
+<ol>
+<li><b>Measure first:</b> the DORA metrics (deploy frequency, lead time, change failure rate, recovery time), plus where lead time actually goes. Is it waiting on other teams' releases, a slow test suite, manual QA, or merge conflicts?</li>
+<li><b>Fix what the data shows.</b> Often that's CI speed, test reliability and deployment automation, which help immediately and are needed for microservices anyway.</li>
+<li><b>If coupling between teams is the bottleneck,</b> go to a modular monolith with enforced boundaries, then extract the one or two modules where independent deployment or scaling clearly pays off.</li>
+<li>Present the <b>costs</b> honestly: platform work, observability, on-call, data consistency. Agree success metrics before the first extraction.</li>
+</ol>`,
+keys:["Identifies the real bottleneck before choosing the solution","Uses DORA-style metrics","Lower-cost fixes first","Incremental, selective extraction","Communicates costs and success criteria to leadership"],
+trade:["Microservices: team autonomy, at the price of distributed-systems cost","Modular monolith: most of the boundary benefit, little of the operational cost","It depends on: team count, coupling evidence, platform maturity"],
+fu:[{q:"Leadership has already announced it publicly. Now what?",a:"Support the direction while shaping the execution: propose a first extraction with clear metrics, and sequence the enabling work (CI, observability) as part of the programme. Report results honestly, including if the data says to slow down."}],
+rf:["Agrees immediately and plans a full rewrite","Refuses without data","No success metrics"]},
+
+{id:"A085",skill:"Microservices",level:"Lead",type:"Scenario",
+q:"You join a team of 15 engineers running 40 microservices. Changes routinely touch five services, local development is painful, and incidents are hard to trace. What do you do?",
+a:`<p>The symptoms point to service boundaries that don't match how the product changes. The organisation pays the full distributed-systems cost without the autonomy benefit.</p>
+<ol>
+<li><b>Gather evidence:</b> which services change together (commit and deploy co-occurrence), which call each other synchronously per request, and which teams own what. Services that always change together and share one owner are merge candidates.</li>
+<li><b>Fix the urgent pain first:</b> distributed tracing and correlation IDs so incidents can be followed, and a local dev setup (compose files, or test environments with shared dependencies).</li>
+<li><b>Consolidate deliberately:</b> merge the most tightly coupled clusters into a few larger services aligned to bounded contexts, one cluster at a time, with data ownership merged too.</li>
+<li><b>Communicate it</b> as an improvement grounded in data, not a reversal of someone's past decision. The people who built it often feel the pain most.</li>
+</ol>
+<p>Target ownership of maybe a handful of services per team, with success measured by change lead time and incident resolution time.</p>`,
+keys:["Uses change-coupling data to find merge candidates","Observability and dev experience first","Consolidation is a legitimate move","Careful communication about past decisions","Measurable outcomes"],
+trade:["Merging reduces operational overhead but creates larger deployables to manage","Leaving it as-is avoids migration risk but keeps the drag on every change","It depends on: team growth plans, change patterns, scaling differences between services"],
+fu:[{q:"An engineer who designed the original split strongly objects. How do you handle it?",a:"Bring them in to analyse the data together, since they know the history and may know why boundaries were drawn where they were. Frame it as the system's needs having changed, not their decision being wrong. Their input often makes the consolidation better."}],
+rf:["Proposes more services to fix it","Rewrites everything at once","Blames the previous team"]},
+
+{id:"A086",skill:"Microservices",level:"Lead",type:"Architecture",
+q:"How much should you standardise across teams (language, frameworks, deployment, observability) versus leaving choices to each team?",
+a:`<p>I'd split decisions into three tiers:</p>
+<ul>
+<li><b>Non-negotiable</b> (they affect everyone or carry risk): security baseline (authentication, secrets handling, dependency scanning), observability conventions (OpenTelemetry, trace propagation, log format), deployment through the standard pipeline, API and event contract standards, and data protection rules.</li>
+<li><b>Paved road</b> (default, strongly supported, deviation allowed with justification): language and framework (.NET or Node), service template, database choices, messaging library. Make it the easiest path, with templates and platform support.</li>
+<li><b>Team choice:</b> internal code structure, test frameworks, internal tooling.</li>
+</ul>
+<p>Deviation from the paved road requires a short ADR covering who supports it and what the exit plan is. Revisit the standards yearly, since today's deviation may be tomorrow's better default. The test for a standard: does deviating impose cost on <i>other</i> teams (on-call, hiring, platform support)? If not, leave it to the team.</p>`,
+keys:["Tiered approach with clear criteria","Paved road made the easiest option","Deviation via ADR with ownership","Test: cost to other teams","Periodic review"],
+trade:["Heavy standardisation: easier hiring, mobility and support, slower adoption of better tools","High autonomy: local optimisation and innovation, fragmented operations and on-call","It depends on: organisation size, platform team capacity, regulatory requirements"],
+fu:[{q:"A team wants to write one service in Go for performance. How do you decide?",a:"Ask for the evidence that .NET can't meet the requirement (benchmarks, not intuition), who will maintain it when the author moves on, and how it fits the pipeline and observability standards. If the case holds and there's a support plan, approve it as a documented exception."}],
+rf:["Mandates everything centrally","No standards at all","Approves exceptions with no support plan"]},
+
+{id:"A087",skill:"Distributed Fundamentals",level:"Lead",type:"Architecture",
+q:"Product insists every screen must be real-time and fully consistent. How do you handle that requirement?",
+a:`<p>I'd turn the blanket requirement into specific decisions per flow, because the costs differ by orders of magnitude.</p>
+<ol>
+<li><b>List the flows</b> and ask, for each: what goes wrong for the user, or the business, if this is 2 seconds or 2 minutes stale? Balance, stock and permissions often need strong consistency. Likes, feeds, analytics and search usually don't.</li>
+<li><b>Price the options:</b> strong consistency typically means synchronous paths, primary-only reads, locks or conditional writes, which cost latency, availability and infrastructure. "Real-time" means push infrastructure (WebSockets), which costs connections and operations.</li>
+<li><b>Show examples</b> of what slight staleness looks like in their own product. It's often invisible to users.</li>
+<li><b>Agree a consistency budget per flow</b> and write it into the requirements and SLOs, so it becomes testable rather than a vague promise.</li>
+</ol>
+<p>The outcome is usually: strong consistency for the few flows where money, safety or trust is at stake, read-your-writes for a user's own actions, and eventual consistency elsewhere.</p>`,
+keys:["Refuses a blanket rule, works per flow","Ties consistency to user and business impact","Puts cost on each option","Makes the outcome testable (SLOs)","Common outcome pattern"],
+trade:["Strong everywhere: simplest mental model, worst latency, availability and cost","Per-flow budget: efficient, requires clear documentation and team discipline","It depends on: domain risk, scale, latency targets"],
+fu:[{q:"Product pushes back: 'Users will notice and complain.' What now?",a:"Run a small experiment: ship a flow with read-your-writes guaranteed and slight staleness elsewhere, then measure complaints and behaviour. Data from our own users settles it faster than argument."}],
+rf:["Says yes to everything","Says no without offering a path","Speaks only in CAP jargon to product"]},
+
+{id:"A088",skill:"Distributed Fundamentals",level:"Lead",type:"Scenario",
+q:"A postmortem finds that a race condition caused incorrect balances for a small number of accounts for about a year. How do you lead the response and prevent this class of bug?",
+a:`<p><b>Immediate:</b></p>
+<ol>
+<li>Fix the race, with a conditional update or the right isolation, and verify the fix under concurrency.</li>
+<li>Size the blast radius with data: which accounts and amounts, back to the start.</li>
+<li>Repair the data with an audited, reviewed script, and agree customer communication with business, legal and compliance.</li>
+</ol>
+<p><b>Preventing the class:</b></p>
+<ul>
+<li><b>Invariant checks and reconciliation:</b> a scheduled job that recomputes balances from source records and alerts on mismatch. The bug went unseen for a year because nothing checked the invariant.</li>
+<li><b>Design review checklist</b> for money and state changes: what happens with two concurrent requests? Is the operation idempotent? What is the isolation level?</li>
+<li><b>Tests:</b> concurrency tests that hammer the same entity in parallel. Property-based tests on invariants where practical.</li>
+<li><b>Patterns:</b> standard library code or templates for safe counters and transfers, so teams don't reimplement them.</li>
+</ul>
+<p>Run it blameless: the system allowed a subtle bug to pass review and testing and go undetected, and that's what needs changing.</p>`,
+keys:["Fix, blast radius, audited repair, communication","Detection gap as a key finding","Reconciliation and invariant monitoring","Review checklist and concurrency tests","Blameless framing with systemic fixes"],
+trade:["Reconciliation jobs cost compute and maintenance but catch unknown bugs too","Stricter isolation prevents races at some throughput cost; apply it to money paths, not everywhere"],
+fu:[{q:"Leadership wants to know whether other bugs like this exist. What do you tell them?",a:"Honestly, we can't prove there are none, but we can bound the risk. Add invariant checks for the critical data (balances, inventory, entitlements), review the money and state paths with the new checklist, and report findings. That turns an open question into a monitored state."}],
+rf:["Fixes the line of code and closes it","Blames the engineer","No detection improvement"]},
+
+{id:"A089",skill:"API Design",level:"Lead",type:"Architecture",
+q:"Your public API has 200 partner integrations and needs a breaking redesign. Plan the transition.",
+a:`<ol>
+<li><b>Justify the break.</b> Confirm the change can't be made additively. Every breaking change costs every partner real engineering time.</li>
+<li><b>Know who uses what:</b> per-partner usage telemetry by endpoint and field, so you know the actual impact and can segment partners.</li>
+<li><b>Ship v2 alongside v1,</b> ideally with v1 implemented as an adapter over v2 internals, so you maintain one core.</li>
+<li><b>Make migration cheap:</b> a migration guide with field-by-field mapping, updated SDKs, a sandbox, and a compatibility checker.</li>
+<li><b>Timeline and communication:</b> an announced deprecation date (often 6–12 months for partners, or per contract), <code>Deprecation</code> and <code>Sunset</code> headers, reminders, and direct outreach to the top partners by traffic.</li>
+<li><b>Track progress</b> partner by partner, and escalate the long tail through account managers. Expect to extend for a few large partners. Decide up front who can approve an extension.</li>
+<li><b>Retire</b> v1 in stages: brownouts (short scheduled outages) to surface forgotten integrations, then shutdown.</li>
+</ol>`,
+keys:["Challenges whether the break is necessary","Usage telemetry per partner","v1 as an adapter over v2","Migration tooling and SDKs","Timeline, brownouts and long-tail management"],
+trade:["Long support windows protect partners but double maintenance cost","Short windows cut cost but risk churn and contract issues","It depends on: partner contracts, revenue concentration, team capacity"],
+fu:[{q:"Your largest partner says they can't migrate for 18 months. What do you do?",a:"Quantify the cost of keeping v1 for them and compare it with their revenue and relationship value. Options: an extended paid support arrangement, our engineers helping them migrate, or a narrowed v1 supporting only the endpoints they use. It's a business decision I'd bring to leadership with numbers."}],
+rf:["Announces a cutoff with no telemetry","Maintains two separate codebases","No plan for the long tail"]},
+
+{id:"A090",skill:"API Design",level:"Lead",type:"Architecture",
+q:"Eight teams build APIs and every one looks different: naming, errors, pagination, auth. How do you get consistency without creating a bottleneck?",
+a:`<ul>
+<li><b>Write a short API style guide,</b> starting from a published one (Zalando's or Microsoft's REST guidelines) rather than from scratch. It covers naming, versioning, error format (Problem Details), pagination (cursor), idempotency keys, dates and time zones, and auth scopes.</li>
+<li><b>Automate it:</b> OpenAPI-first design with a linter (Spectral, with custom rules) in CI. Most consistency comes from the build failing, not from review comments.</li>
+<li><b>Provide building blocks:</b> shared middleware for errors, pagination helpers, and service templates, so the right thing is the easy thing.</li>
+<li><b>Lightweight review</b> only for new public or partner-facing APIs: a short design review with a rotating group of senior engineers from different teams, not a standing committee.</li>
+<li><b>Existing APIs:</b> don't force a rewrite. Bring them in line when they're next changed or versioned.</li>
+</ul>
+<p>Measure lint violations over time and partner or front-end complaints about inconsistency.</p>`,
+keys:["Adopt and adapt a published guide","Automated linting in CI","Shared middleware/templates","Reviews only where the stakes justify them","Incremental alignment of existing APIs"],
+trade:["Strict linting gives consistency but can annoy teams if rules are noisy; start with the high-value rules","A review board improves quality but becomes a bottleneck if it reviews everything","It depends on: number of public APIs, team count, partner sensitivity"],
+fu:[{q:"How do you get teams to actually adopt it?",a:"Involve a senior engineer from each team in writing the guide, roll out lint rules as warnings before errors, and fix the shared templates first so new services comply by default. Adoption follows when compliance costs less than deviation."}],
+rf:["A 60-page standard nobody reads","Every API needs committee approval","Forces rewrites of all existing APIs"]}
+];
+
+/* ---------- state ---------- */
+const KEY="arch-bank-reviewed-v1";
+let reviewed={};
+try{reviewed=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){reviewed={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(reviewed))}catch(e){}}
+
+const state={text:"",skill:"all",status:"all",levels:new Set(),types:new Set()};
+const $=s=>document.querySelector(s);
+
+/* ---------- controls ---------- */
+const skills=[...new Set(QS.map(x=>x.skill))];
+$("#skill").innerHTML=`<option value="all">All skills</option>`+skills.map(s=>`<option value="${s}">${s}</option>`).join("");
+function chipRow(el,items,set){
+  el.innerHTML=items.map(i=>`<button type="button" class="chip" aria-pressed="false" data-v="${i}">${i}</button>`).join("");
+  el.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+    if(set.has(v)){set.delete(v);b.setAttribute("aria-pressed","false")}else{set.add(v);b.setAttribute("aria-pressed","true")}render()});
+}
+chipRow($("#levels"),LEVELS,state.levels);
+chipRow($("#types"),TYPES,state.types);
+$("#q").addEventListener("input",e=>{state.text=e.target.value.trim().toLowerCase();render()});
+$("#skill").addEventListener("change",e=>{state.skill=e.target.value;render()});
+$("#status").addEventListener("change",e=>{state.status=e.target.value;render()});
+let allOpen=false;
+$("#toggleAll").addEventListener("click",()=>{allOpen=!allOpen;
+  document.querySelectorAll("details.ans").forEach(d=>d.open=allOpen);
+  $("#toggleAll").textContent=allOpen?"Close all answers":"Open all answers"});
+
+/* ---------- stats ---------- */
+function count(key,vals){return vals.map(v=>`${v} <b>${QS.filter(x=>x[key]===v).length}</b>`).join(" · ")}
+$("#stats").innerHTML=`<span><b>${QS.length}</b> questions loaded</span><span>${count("level",LEVELS)}</span><span>${count("type",TYPES.filter(t=>t!=="Behavioral"))}</span><span>${PARTS}</span>`;
+
+/* ---------- render ---------- */
+const strip=h=>h.replace(/<[^>]+>/g," ");
+function matches(x){
+  if(state.skill!=="all"&&x.skill!==state.skill)return false;
+  if(state.levels.size&&!state.levels.has(x.level))return false;
+  if(state.types.size&&!state.types.has(x.type))return false;
+  if(state.status==="done"&&!reviewed[x.id])return false;
+  if(state.status==="todo"&&reviewed[x.id])return false;
+  if(state.text){const hay=(x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
+    if(!hay.includes(state.text))return false}
+  return true;
+}
+const ul=arr=>`<ul>${arr.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+function item(x,i){
+  const done=!!reviewed[x.id];
+  return `<li class="q${done?" done":""}" id="${x.id}">
+    <div class="qhead"><span class="num">${x.id}</span><div>
+      <p class="qtext">${x.q}</p>
+      <div class="tags"><span class="tag">${x.skill}</span><span class="tag lv lv-${x.level}">${x.level}</span><span class="tag">${x.type}</span>${x.verify?`<span class="tag verify">VERIFY</span>`:""}
+        <label class="check"><input type="checkbox" data-id="${x.id}" ${done?"checked":""}> Reviewed</label></div>
+    </div></div>
+    <div class="body">
+      <details class="ans"><summary>Model answer, key points and red flags</summary><div class="dbody">
+        ${x.a}
+        <h4>What the interviewer listens for</h4>${ul(x.keys)}
+        ${x.trade?`<h4>Trade-offs and "it depends on"</h4>${ul(x.trade)}`:""}
+        <h4 class="rf">Red flags</h4>${ul(x.rf)}
+        ${x.verify?`<p class="note">[VERIFY] ${x.verify}</p>`:""}
+      </div></details>
+      ${(x.fu||[]).map(f=>`<details class="fu ans"><summary><span class="fl">FOLLOW-UP</span><span>${f.q}</span></summary><div class="dbody"><p>${f.a}</p></div></details>`).join("")}
+    </div></li>`;
+}
+function render(){
+  const list=QS.filter(matches);
+  $("#list").innerHTML=list.length?list.map(item).join(""):`<li class="empty">No questions match these filters.</li>`;
+  if(allOpen)document.querySelectorAll("details.ans").forEach(d=>d.open=true);
+  const n=QS.filter(x=>reviewed[x.id]).length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${list.length} shown`;
+  $("#pfill").style.width=(QS.length?n/QS.length*100:0)+"%";
+}
+$("#list").addEventListener("change",e=>{const c=e.target.closest("input[data-id]");if(!c)return;
+  const id=c.dataset.id;if(c.checked)reviewed[id]=1;else delete reviewed[id];save();
+  c.closest("li.q").classList.toggle("done",c.checked);
+  const n=QS.filter(x=>reviewed[x.id]).length;const shown=document.querySelectorAll("li.q").length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${shown} shown`;$("#pfill").style.width=(n/QS.length*100)+"%";});
+render();
+</script>
+
+</html>

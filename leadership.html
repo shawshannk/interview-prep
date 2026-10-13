@@ -1,0 +1,1430 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Leadership &amp; Behavioral Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, sticky filter bar, questions as divided rows (not cards), answers in disclosure blocks */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --accent-ink:#FFFFFF; --code:#EEF1F7;
+  --basic:#2B7A57; --inter:#2A4BD7; --adv:#7438BF; --lead:#B05E08;
+  --good:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:28px 18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,5vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=search]{flex:1 1 220px}
+select{flex:0 1 220px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.track{flex:1;height:6px;background:var(--soft);border-radius:999px;overflow:hidden;min-width:80px}
+.fill{height:100%;background:var(--good);width:0;transition:width .3s}
+.sep{width:1px;height:18px;background:var(--line)}
+
+ol.qs{list-style:none;margin:0;padding:0}
+li.q{padding-block:22px;border-bottom:1px solid var(--line);display:grid;gap:12px}
+li.q.done .qtext{color:var(--muted)}
+.qhead{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.num{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:4px;min-width:34px}
+.qtext{font-weight:600;font-size:16.5px;line-height:1.45;margin:0;text-wrap:pretty}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.tag{font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.tag.lv{color:var(--surface);font-weight:500}
+.lv-Basic{background:var(--basic)} .lv-Intermediate{background:var(--inter)} .lv-Advanced{background:var(--adv)} .lv-Lead{background:var(--lead)}
+.tag.verify{background:transparent;border:1px solid var(--verify);color:var(--verify)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);cursor:pointer;margin-left:auto}
+.check input{width:16px;height:16px;accent-color:var(--good)}
+.body{padding-left:46px;display:grid;gap:8px;min-width:0}
+details{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details>summary{cursor:pointer;padding:9px 12px;font-size:14px;font-weight:500;list-style:none;display:flex;gap:8px;align-items:baseline}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px;flex:none}
+details[open]>summary::before{content:"−"}
+.dbody{padding:2px 14px 14px;display:grid;gap:10px;min-width:0}
+.dbody p,.dbody ul,.dbody ol{margin:0}
+.dbody ul,.dbody ol{padding-left:20px}
+.dbody li+li{margin-top:3px}
+h4{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:500}
+h4.rf{color:var(--warn)}
+.fu summary{font-weight:400}
+.fu summary .fl{font-family:var(--f-mono);font-size:11px;color:var(--muted);flex:none}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:3px}
+pre{margin:0;background:var(--code);padding:12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5}
+.body table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0;display:block;overflow-x:auto}
+.body th,.body td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+pre code{background:none;padding:0;font-size:inherit}
+.star dt{font-weight:600}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--verify);padding-left:10px}
+@media (max-width:560px){ .body{padding-left:0} .num{min-width:28px} }
+@media (prefers-reduced-motion:reduce){ .fill{transition:none} }
+</style>
+
+<p style="margin:0 auto;max-width:860px;padding:16px 0 0;font-size:14px"><a href="index.html">&larr; All banks</a></p>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Senior TL / EM interview prep</div>
+  <h1>Leadership &amp; Behavioral</h1>
+  <p class="lede">Technical decisions, conflict, mentoring, hiring, estimation, incidents, stakeholder pushback, underperformance, tech debt, delivery under pressure and EM fundamentals. Each answer shows what the question probes and a sample STAR story: these are templates, so replace every story with a true one of your own before interviews.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="bar">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search questions and answers" aria-label="Search">
+    <select id="skill" aria-label="Filter by skill"></select>
+    <select id="status" aria-label="Filter by review status">
+      <option value="all">All questions</option>
+      <option value="todo">Not reviewed</option>
+      <option value="done">Reviewed</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="chips" id="levels" aria-label="Level"></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="chips" id="types" aria-label="Type"></div>
+  </div>
+  <div class="row">
+    <div class="progress" style="flex:1"><span id="ptext">0 / 0 reviewed</span><div class="track"><div class="fill" id="pfill"></div></div></div>
+    <button class="btn" id="toggleAll" type="button">Open all answers</button>
+  </div>
+</div>
+
+<ol class="qs" id="list"></ol>
+</div>
+
+<script>
+const LEVELS=["Basic","Intermediate","Advanced","Lead"];
+const TYPES=["Concept","Scenario","Architecture","Behavioral"];
+const PARTS="Complete: all 4 parts loaded.";
+
+const QS=[
+{id:"B001",skill:"Technical Decisions",level:"Basic",type:"Behavioral",
+q:"Tell me about a technical decision you made that you'd make differently today.",
+a:`<p><b>What it probes:</b> self-awareness, whether you learn from outcomes, and whether you can separate a bad decision from a bad outcome. Interviewers distrust candidates who claim no regrets.</p>
+<p><b>Sample STAR answer</b> <i>(template: replace with your own story)</i></p>
+<p><b>S:</b> We were building a reporting module for a healthcare client and needed background processing for report generation.</p>
+<p><b>T:</b> I owned the design and chose to run jobs inside the web API process using hosted background services, to avoid adding infrastructure.</p>
+<p><b>A:</b> It worked in testing. In production, long reports competed with API requests for CPU and memory, deployments killed in-flight jobs, and we had no visibility into stuck jobs. I led the fix: we moved jobs to an SQS queue with a separate worker service, added idempotent job records and a status page.</p>
+<p><b>R:</b> API p95 latency during report peaks dropped back to normal, and failed jobs became visible and retryable. What I'd do differently: given what I knew then (reports up to several minutes long, frequent deploys), I should have separated the workload from the start. The lesson I apply now is to ask "what happens during a deploy?" and "how will we see failures?" for every background process.</p>`,
+keys:["Pick a real decision with real consequences","Separate what you knew then from hindsight","Own it without excessive self-criticism","Show what you changed and the result","Name the lesson as a habit you apply now"],
+fu:[{q:"Why did you make the original decision?",a:"Give the genuine reasons (time pressure, simplicity, unknown load) to show the decision was reasonable at the time, then what signal you missed."},{q:"How did you communicate the change to the team/client?",a:"Explain the cost of the change, the risk of not changing, and how you planned it without disrupting delivery."}],
+rf:["'I can't think of one'","Blames others for the decision","A trivial example (naming, formatting)","No lesson or behaviour change"]},
+
+{id:"B002",skill:"Technical Decisions",level:"Basic",type:"Behavioral",
+q:"Walk me through how you chose a technology or library for a recent project.",
+a:`<p><b>What it probes:</b> whether you decide with criteria and evidence or by preference and hype, and whether you consider the team and long-term cost.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> We needed a vector store for a RAG feature on AWS. Options were OpenSearch Serverless, Aurora PostgreSQL with pgvector (we already ran Postgres), and a hosted vector database.</p>
+<p><b>T:</b> As the lead, I had to recommend one within two weeks without stalling the feature work.</p>
+<p><b>A:</b> I wrote down criteria with the team: retrieval quality, hybrid search support, operational burden, cost at our expected volume, data residency and security review effort, and team familiarity. We built a small spike with real documents and 50 real questions, measuring recall and latency on two options. I wrote a short ADR with the comparison and the conditions under which we'd revisit.</p>
+<p><b>R:</b> We chose OpenSearch for hybrid search quality, accepting the higher baseline cost, and documented that we'd revisit if usage stayed small after six months. The ADR helped later when a new engineer questioned the choice: the reasoning was already there.</p>`,
+keys:["Explicit criteria agreed with the team","Evidence from a spike on real data","Considered ops burden, cost, security, team skills","Recorded decision (ADR) with revisit conditions","Time-boxed so it didn't stall delivery"],
+fu:[{q:"What would have changed your decision?",a:"Name concrete conditions (volume below X, a security constraint, team skills) to show the decision was evidence-based and reversible."}],
+rf:["'It's the industry standard'","No alternatives considered","Ignored operations or cost","Decided alone with no record"]},
+
+{id:"B003",skill:"Conflict",level:"Basic",type:"Behavioral",
+q:"Tell me about a time you disagreed with a teammate about a technical approach. How did you resolve it?",
+a:`<p><b>What it probes:</b> whether you can disagree respectfully, argue from evidence, and commit once a decision is made, even when it isn't yours.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A senior colleague wanted to introduce a generic repository layer over EF Core for a new service. I thought it added abstraction without value.</p>
+<p><b>T:</b> We needed a decision before the first sprint, and I didn't want it to become a personal argument.</p>
+<p><b>A:</b> I asked him to walk me through the problems he wanted to solve. His real concern was testability and keeping query logic consistent. I proposed we each write the same two use cases our way and compare readability, tests and query control. We reviewed them together with another engineer. His version did make some tests easier; mine kept query shape visible and avoided leaking IQueryable.</p>
+<p><b>R:</b> We agreed on a middle ground: no generic repository, but query objects for complex reads and integration tests with a real database. We wrote it into the team's guidelines. Our working relationship got better because we'd solved his actual concern instead of debating patterns.</p>`,
+keys:["Understood the other person's underlying concern","Moved the debate to evidence (spike, comparison)","Involved a neutral reviewer","Reached a decision and documented it","Relationship intact or improved"],
+fu:[{q:"What if you'd been overruled?",a:"Say you would disagree and commit: support the decision fully, and agree in advance how you'd know if it wasn't working."}],
+rf:["Story where you were simply right and they were wrong","Escalated immediately to a manager","Personal criticism of the colleague","No resolution"]},
+
+{id:"B004",skill:"Conflict",level:"Basic",type:"Behavioral",
+q:"Tell me about a time you received critical feedback. What did you do with it?",
+a:`<p><b>What it probes:</b> coachability and emotional maturity. Leaders who can't take feedback can't build a feedback culture.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> After I became tech lead, my manager told me in a one-to-one that two engineers felt I rewrote their PRs instead of letting them learn, and that design discussions felt like I'd already decided.</p>
+<p><b>T:</b> It stung, because I thought I was helping by keeping quality high. I needed to understand whether it was accurate and change if it was.</p>
+<p><b>A:</b> I thanked him and asked for specific examples. Looking at my recent reviews, I'd pushed commits to others' branches several times. I talked to both engineers, acknowledged it, and asked what would help. I changed my habits: comments with questions instead of commits, and in design meetings I asked others to present options first and spoke last.</p>
+<p><b>R:</b> Over the next two months, both engineers led designs for their features. In the next feedback round, the comments were about clarity of direction, not control. I still check myself in reviews: if I'm about to rewrite, I ask whether it's a must-fix or my preference.</p>`,
+keys:["Real, non-trivial feedback","Sought specifics rather than defending","Verified against evidence","Concrete behaviour change","Followed up and measured whether it worked"],
+fu:[{q:"Have you received feedback you disagreed with?",a:"Show you can disagree respectfully: you considered it, explained your view, and still looked for the part that was valid."}],
+rf:["Fake weakness ('I work too hard')","Defensive or blaming tone","No change afterwards"]},
+
+{id:"B005",skill:"Mentoring & Growth",level:"Basic",type:"Behavioral",
+q:"Tell me about someone you helped grow in their career. What did you do specifically?",
+a:`<p><b>What it probes:</b> whether you develop people deliberately (goals, stretch work, feedback) or just answer questions. Central for TL and EM roles.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A mid-level engineer on my team was strong at coding but avoided design discussions and was passed over for a senior role.</p>
+<p><b>T:</b> I wanted to help her reach senior level within a year.</p>
+<p><b>A:</b> In our one-to-one we agreed on a concrete gap: owning design end to end and communicating trade-offs. I gave her ownership of a medium-sized feature (a notification service), asked her to write the design doc, and reviewed drafts with questions rather than answers. I had her present it at the architecture review, rehearsed it with her once, and stayed quiet in the meeting unless she asked. Afterwards we did a short retrospective on what went well.</p>
+<p><b>R:</b> The design went through with minor changes, the service shipped on time, and she led two more designs that year. She was promoted to senior the next cycle. She now mentors a junior using the same approach.</p>`,
+keys:["Identified a specific growth gap with the person","Stretch assignment with real ownership","Coaching through questions; rehearsal; stepping back","Feedback loop after the work","Measurable outcome (promotion, ownership)"],
+fu:[{q:"How do you mentor someone who doesn't ask for help?",a:"Regular one-to-ones with specific questions, pairing sessions, and noticing signals in reviews; make help easy and normal."}],
+rf:["Mentoring = answering questions","Takes credit for the person's work","No measurable outcome"]},
+
+{id:"B006",skill:"Mentoring & Growth",level:"Basic",type:"Behavioral",
+q:"Tell me about a code review where you had to give difficult feedback.",
+a:`<p><b>What it probes:</b> whether you can maintain standards while keeping people motivated, and how you separate must-fix issues from preference.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A junior engineer submitted a large PR for a payment-status feature. It worked but had a race condition, swallowed exceptions, and mixed business logic into the controller.</p>
+<p><b>T:</b> It had to change significantly, and I didn't want him to feel his two weeks were wasted.</p>
+<p><b>A:</b> Instead of 40 written comments, I asked for a 30-minute call. I started with what was good (thorough tests for the happy path, clear naming), then explained the race condition with a concrete sequence of events and let him find the fix. I labelled my remaining comments as "must fix" (exceptions, concurrency) and "suggestion" (structure). Afterwards I added a section to our review checklist about concurrency and error handling.</p>
+<p><b>R:</b> He fixed it in two days and later caught a similar race condition in someone else's PR. We also agreed he'd share designs for larger features before writing code, which avoided big rewrites later.</p>`,
+keys:["Talked live for big feedback rather than a comment flood","Specific, explained impact, let them find the fix","Separated must-fix from preference","Prevented recurrence (checklist, early design check)","Person grew; relationship intact"],
+fu:[{q:"How do you handle someone who argues with every review comment?",a:"Distinguish valid debate from defensiveness; agree on team standards in writing so reviews reference shared rules, not personal taste; talk one-to-one about the pattern."}],
+rf:["Approves to avoid conflict","Harsh public comments","Rewrites the code themselves"]},
+
+{id:"B007",skill:"Hiring",level:"Basic",type:"Behavioral",
+q:"How do you run a technical interview? Tell me about the last one you conducted and what you were looking for.",
+a:`<p><b>What it probes:</b> whether you assess real skills fairly and consistently, rather than trivia or "would I like to work with them".</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> We were hiring a senior .NET engineer; I was on the panel for the technical round.</p>
+<p><b>T:</b> My job was to assess design ability, coding quality and how the candidate reasons, within an hour.</p>
+<p><b>A:</b> I used our structured format: a short introduction, then a practical problem close to our work (design an endpoint that reserves stock, then add concurrency and failure cases). I asked follow-ups based on their answers rather than a fixed list, and noted evidence against a rubric (problem decomposition, correctness, trade-off awareness, communication) during the interview. I left 10 minutes for their questions. I wrote my feedback within the hour, separating evidence from my overall recommendation, before reading other interviewers' notes.</p>
+<p><b>R:</b> The candidate struggled with syntax but reasoned very well about concurrency and failure modes; my evidence-based notes helped the panel see that. We hired him, and he became one of the strongest engineers on the team.</p>`,
+keys:["Structured format and rubric","Realistic problem with depth via follow-ups","Evidence-based notes during interview","Independent feedback before seeing others'","Candidate experience matters too"],
+fu:[{q:"How do you reduce bias in interviews?",a:"Same questions and rubric for all candidates, written evidence, independent feedback before debrief, diverse panels, and focusing on job-relevant skills rather than background or style."}],
+rf:["Trivia questions","'I go with my gut'","Reads others' feedback first"]},
+
+{id:"B008",skill:"Hiring",level:"Basic",type:"Behavioral",
+q:"Tell me about onboarding a new engineer onto your team. How did you get them productive?",
+a:`<p><b>What it probes:</b> whether you treat onboarding as deliberate work. Good onboarding is one of the most effective things a lead can do for retention and output.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A new senior engineer joined our team mid-project, working on a complex domain (lab orders and results) with little documentation.</p>
+<p><b>T:</b> I wanted her shipping meaningful changes within two weeks and owning a feature within six.</p>
+<p><b>A:</b> Before she joined, I prepared access, a local setup guide tested by another engineer, and a list of three starter tasks of increasing size. I assigned a buddy for daily questions. In week one I gave her a one-hour domain walkthrough with real examples, and she paired on a bug fix. I asked her to update the setup guide and write down anything confusing, which also improved our docs. We had weekly check-ins for the first two months with clear expectations for 30/60/90 days.</p>
+<p><b>R:</b> She deployed her first change on day four and led a feature by week five. Her notes became our onboarding page, which cut setup time for the next two joiners from two days to half a day.</p>`,
+keys:["Prepared before day one","Buddy + structured starter tasks","Domain walkthrough, not just code","30/60/90 expectations and check-ins","Onboarding feedback improves the process"],
+fu:[{q:"How do you onboard someone remotely?",a:"More deliberate structure: scheduled pairing, explicit communication norms, recorded walkthroughs, and frequent short check-ins."}],
+rf:["'They read the code and figured it out'","No buddy or plan","No measure of time to productivity"]},
+
+{id:"B009",skill:"Estimation & Planning",level:"Basic",type:"Behavioral",
+q:"Tell me about a time your estimate was badly wrong. What happened and what did you learn?",
+a:`<p><b>What it probes:</b> honesty, how early you communicate slippage, and whether you improve your estimation approach.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> I estimated three weeks to integrate a third-party lab analyser interface. It took seven.</p>
+<p><b>T:</b> I owned the estimate and the delivery commitment to the client.</p>
+<p><b>A:</b> By the end of week one I realised the vendor's documentation didn't match the device's actual messages. I told my manager and the client project lead the same day, with what we knew, what we didn't, and a revised range (5–8 weeks) rather than a single date. I proposed spending three days on a spike with a real device to reduce uncertainty, then re-estimated. We also delivered a partial integration (orders only) earlier so the client could start validation.</p>
+<p><b>R:</b> We delivered in seven weeks, within the revised range, and the client appreciated the early warning. Since then, for integrations with external systems, I estimate in ranges, run a spike against the real system before committing, and list explicit assumptions in the estimate.</p>`,
+keys:["Owned the miss honestly","Communicated early with a range","Reduced uncertainty with a spike","Delivered partial value early","Changed the estimation approach afterwards"],
+fu:[{q:"Why did your original estimate miss?",a:"Name the specific cause (unknown external system, assumed documentation was accurate) to show you understand estimation risk, not just bad luck."}],
+rf:["Blames others entirely","Communicated the slip at the deadline","No change in approach"]},
+
+{id:"B010",skill:"Estimation & Planning",level:"Basic",type:"Scenario",
+q:"How do you estimate a feature your team has never built before, when the product manager needs a date for a customer?",
+a:`<p><b>What it probes:</b> handling uncertainty honestly while still giving the business something usable.</p>
+<p><b>Approach:</b></p>
+<ol>
+<li><b>Clarify the decision behind the date:</b> is it a contract commitment, a sales conversation, or planning? A rough range may be enough.</li>
+<li><b>Break it down</b> into parts the team understands and parts it doesn't. Estimate known parts with the team (relative sizing or by comparison with past work).</li>
+<li><b>Reduce the biggest unknown</b> with a time-boxed spike (2–5 days) before committing.</li>
+<li><b>Give a range with confidence</b> ("6–9 weeks, 80% confident"), plus the assumptions and what would change it.</li>
+<li><b>Offer scope options:</b> a smaller first version by an earlier date, with the rest later.</li>
+<li><b>Re-estimate at milestones</b> and communicate changes as soon as they appear.</li>
+</ol>
+<p>Example phrasing to a PM: "We can commit to the date for the core flow after a one-week spike. Today I can say 6–9 weeks; if the customer needs a firm date now, I'd commit to the core scope by week 8 and treat reporting as a follow-up."</p>`,
+keys:["Understand what the date is for","Separate known from unknown work","Spike the biggest risk","Ranges with assumptions; scope options","Re-estimate and communicate continuously"],
+trade:["Firm date early: helps sales vs high risk of breaking trust","Range with spike: honest vs PM must manage expectations"],
+fu:[{q:"The PM insists on a single date today. What do you do?",a:"Give a date at a conservative confidence level, clearly tied to a defined scope and assumptions in writing, and agree when it will be revisited."}],
+rf:["Gives an optimistic single date to please","Refuses to estimate","Padding silently without explaining"]},
+
+{id:"B011",skill:"Incidents & Ownership",level:"Basic",type:"Behavioral",
+q:"Tell me about a production incident you handled. What was your role?",
+a:`<p><b>What it probes:</b> calm under pressure, structured troubleshooting, communication, and follow-through after the fix.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> On a Monday morning, users of a clinic portal reported that test results weren't showing. Results were arriving from labs but not being published.</p>
+<p><b>T:</b> I was the on-call lead and needed to restore service and keep the client informed.</p>
+<p><b>A:</b> I opened an incident channel, asked one engineer to handle client updates every 30 minutes, and investigated with another. Metrics showed the result-processing queue growing since Saturday. Logs showed the worker failing on a message with an unexpected character encoding, retrying forever and blocking the queue. We moved the poison message aside, restarted processing, and verified results were flowing and the backlog cleared within 40 minutes.</p>
+<p><b>R:</b> Service was restored in about an hour from detection. In the postmortem we found two gaps: no dead-letter queue, and no alert on queue age, which is why it went unnoticed for two days. We added both, plus a test for the encoding case, and the same class of problem hasn't recurred.</p>`,
+keys:["Clear role and structure (comms vs investigation)","Methodical diagnosis using data","Restored service first, then root cause","Regular stakeholder updates","Postmortem with concrete prevention"],
+fu:[{q:"What would you have done if you couldn't find the cause quickly?",a:"Focus on mitigation (rollback, failover, manual workaround), escalate for help early, and keep communicating; root cause can wait until service is restored."}],
+rf:["Hero story with no process","No communication with users/stakeholders","Fixed it but no follow-up"]},
+
+{id:"B012",skill:"Incidents & Ownership",level:"Basic",type:"Behavioral",
+q:"Tell me about a mistake you made that affected production or customers.",
+a:`<p><b>What it probes:</b> accountability. Interviewers want to see you own mistakes quickly and openly and fix the system, not hide or blame.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> I wrote a database migration that added a NOT NULL column with a default to a large table.</p>
+<p><b>T:</b> I'd tested it on a small staging database and deployed it during working hours.</p>
+<p><b>A:</b> On the production SQL Server version and table size, it held locks long enough to block writes for several minutes, causing timeouts for users. I recognised it from the blocking reports, told the team and my manager immediately that my migration was the cause, and we waited for it to finish rather than killing it mid-way (which would have meant a long rollback). Afterwards I wrote the incident summary myself.</p>
+<p><b>R:</b> About eight minutes of degraded service. I proposed and implemented changes: migrations tested against a production-sized database copy, a checklist for risky schema changes (expand/contract, batched backfills), and running them in low-traffic windows. We haven't had a migration-caused outage since.</p>`,
+keys:["Owned it immediately and openly","Made a reasoned decision during the incident","Wrote the summary yourself","Fixed the process, not just the instance","Measurable change since"],
+fu:[{q:"How did your manager react, and how did you feel?",a:"Be honest; show that a blameless culture helps people report mistakes fast, and that you now support others the same way."}],
+rf:["Picks a mistake that was really someone else's","Downplays impact","No systemic fix"]},
+
+{id:"B013",skill:"Stakeholder Pushback",level:"Basic",type:"Behavioral",
+q:"Tell me about a time you said no (or 'not yet') to a product manager or stakeholder.",
+a:`<p><b>What it probes:</b> whether you protect quality and the team while staying a partner to the business, and whether you offer alternatives rather than just refusing.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Two weeks before a release, a product manager asked us to add bulk editing of patient appointments because a key customer had requested it.</p>
+<p><b>T:</b> The team was already at capacity, and bulk edits touched scheduling rules where mistakes would be serious.</p>
+<p><b>A:</b> I didn't say no outright. I asked what problem the customer was solving: they needed to move a doctor's whole day when the doctor was absent. I explained the risk (double bookings, notifications to patients) and gave options: (1) add it now and drop another feature from the release, (2) a narrower "reschedule all appointments for a doctor on a date" action, which we could build safely in a week after the release, or (3) a support-run script as a stopgap.</p>
+<p><b>R:</b> The PM chose option 2 and told the customer the date. It shipped a week after the release, and the customer was satisfied because it solved their actual need. The PM later started bringing us problems instead of solutions earlier.</p>`,
+keys:["Understood the underlying need","Explained risk in business terms","Offered options with trade-offs","Let the stakeholder choose; kept the relationship","Outcome improved collaboration"],
+fu:[{q:"What if the PM had insisted on the full feature now?",a:"Make the trade-off explicit (what drops or what risk increases), escalate together if needed, and document the decision."}],
+rf:["Flat refusal","Said yes and burned out the team","Frames PM as the enemy"]},
+
+{id:"B014",skill:"Stakeholder Pushback",level:"Basic",type:"Behavioral",
+q:"Tell me about a time you had to explain a complex technical issue to a non-technical stakeholder.",
+a:`<p><b>What it probes:</b> communication: translating technical detail into impact, options and decisions.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our client's operations director wanted to know why we needed six weeks for "upgrading the framework" (moving from an unsupported .NET version) instead of building features.</p>
+<p><b>T:</b> I had to get approval without drowning him in technical detail.</p>
+<p><b>A:</b> I framed it in terms he cared about: risk and cost. I explained that the current version stops receiving security fixes on a known date, so after that any vulnerability found would stay open, which their compliance auditors would flag. I used an analogy he used himself, servicing lab equipment before warranty ends. I showed one page: the deadline, the risk, the effort, and what we'd gain (faster pages, lower hosting cost from the newer runtime). I offered to do it in two phases alongside small features.</p>
+<p><b>R:</b> He approved the plan in that meeting. The upgrade finished before the support deadline, and the hosting cost reduction gave him a figure to report to his management.</p>`,
+keys:["Started from what the stakeholder cares about","Risk, cost and dates instead of jargon","Analogy from their world","One-page summary with options","Clear decision and outcome"],
+fu:[{q:"How do you check they actually understood?",a:"Ask them to state the decision or risk in their own words, and follow up in writing with the summary and next steps."}],
+rf:["Technical jargon","Talks down to the stakeholder","No decision requested"]},
+
+{id:"B015",skill:"Underperformance",level:"Basic",type:"Behavioral",
+q:"Tell me about a teammate who wasn't pulling their weight. What did you do?",
+a:`<p><b>What it probes:</b> whether you address problems directly and with empathy, and look for causes, rather than complaining or silently covering.</p>
+<p><b>Sample STAR answer</b> <i>(template; as a tech lead without formal management authority)</i></p>
+<p><b>S:</b> An engineer who had been reliable started missing sprint commitments and was slow to respond in reviews.</p>
+<p><b>T:</b> As tech lead, I wasn't his line manager, but it was affecting the team's delivery and others were starting to complain.</p>
+<p><b>A:</b> I asked him for a private chat, described what I'd observed with specific examples (not judgements), and asked how things were going. He explained he was struggling with a part of the codebase he'd never worked on and was embarrassed to ask, and also had some personal pressure at home. We agreed on pairing sessions for two weeks, smaller tasks, and I suggested he speak to his manager about flexibility, which I also mentioned to the manager with his agreement.</p>
+<p><b>R:</b> Within a month he was back to his usual pace and later became the go-to person for that module. I learned to check in early when I notice a change in someone's work, instead of waiting for the problem to grow.</p>`,
+keys:["Direct, private, specific observations","Asked about causes before judging","Practical support with clear agreements","Involved the line manager appropriately","Followed up; noted outcome"],
+fu:[{q:"What if support hadn't worked?",a:"Make expectations explicit and time-bound, document them, and work with the line manager on a formal process if needed."}],
+rf:["Covered for them silently","Complained to others","Went straight to the manager without talking to the person"]},
+
+{id:"B016",skill:"Tech Debt",level:"Basic",type:"Behavioral",
+q:"Tell me about a time you convinced your team or management to invest in technical debt.",
+a:`<p><b>What it probes:</b> whether you can connect technical work to business outcomes and win support with data, not frustration.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our test suite and deployment for a core service were slow and fragile: deployments took 2 hours of manual steps and were done every two weeks, with frequent hotfixes.</p>
+<p><b>T:</b> I wanted a month of capacity to automate deployment and stabilise tests, but the roadmap was full.</p>
+<p><b>A:</b> I collected data for one quarter: hours spent on manual deployments, number of hotfixes and their causes, and time features waited to be released. I estimated about 15% of team capacity went to deployment and firefighting. I proposed the work in stages, each with a measurable result, using 20% of each sprint instead of stopping features.</p>
+<p><b>R:</b> Management approved it. After two months, deployments were automated and took 15 minutes, we moved to weekly releases, and hotfixes dropped by more than half. That freed more capacity than we had spent.</p>`,
+keys:["Data on the cost of the debt","Translated to capacity, risk, speed","Incremental plan with measurable milestones","Didn't stop feature delivery","Reported results afterwards"],
+fu:[{q:"How do you avoid tech debt work becoming endless?",a:"Each item has a clear goal and a measurable 'done', and you review whether it delivered the expected benefit."}],
+rf:["'The code is ugly' as the argument","Asked to stop all features","No measurement of results"]},
+
+{id:"B017",skill:"Tech Debt",level:"Basic",type:"Scenario",
+q:"You have a long list of tech-debt items and limited capacity. How do you decide what to pay down first?",
+a:`<p><b>What it probes:</b> prioritisation judgement: treating debt as an investment decision, not a clean-up list.</p>
+<p><b>Approach:</b></p>
+<ul>
+<li><b>Interest rate:</b> how much each item costs us today: incidents, slowed delivery in frequently changed areas, onboarding pain, on-call load. Debt in code nobody touches has little interest.</li>
+<li><b>Risk:</b> security exposure, unsupported versions with an end-of-support date, single points of failure, knowledge held by one person.</li>
+<li><b>Upcoming work:</b> pay down debt in areas the roadmap will change soon (cheapest time to fix is when you're touching it anyway).</li>
+<li><b>Cost to fix and reversibility.</b></li>
+</ul>
+<p>Score items roughly (impact × likelihood vs effort), agree priorities with product, and reserve a regular capacity slice (e.g. 15–20%) plus "boy scout" fixes during feature work. Track a short list (top 5), not a graveyard of 200 tickets.</p>`,
+keys:["Prioritise by interest (ongoing cost), not ugliness","Risk items with deadlines first","Tie to upcoming roadmap work","Rough scoring agreed with product","Regular capacity slice; short visible list"],
+trade:["Dedicated debt sprints: focus vs disrupts feature flow","Continuous slice: steady progress vs slower big fixes"],
+fu:[{q:"How do you handle debt that nobody wants to own?",a:"Assign an owner with the time to do it, make the risk visible to leadership, and if it's truly not worth fixing, decide explicitly to live with it and document why."}],
+rf:["Fix whatever annoys the team most","No product involvement","Huge untriaged backlog"]},
+
+{id:"B018",skill:"Delivery Under Pressure",level:"Basic",type:"Behavioral",
+q:"Tell me about a time you had to deliver under a very tight deadline.",
+a:`<p><b>What it probes:</b> prioritisation, scope negotiation, protecting quality where it matters, and how you treat the team under pressure.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A regulatory change required our clinic software to produce a new report format within four weeks; our normal estimate was eight.</p>
+<p><b>T:</b> As the lead, I had to deliver something compliant on time without burning the team out.</p>
+<p><b>A:</b> I worked with the product owner and the client's compliance lead to separate what the regulation required from nice-to-haves (formatting options, history views). That cut scope roughly in half. I split the work so two engineers could work in parallel, front-loaded the riskiest part (data mapping), and set up a daily 10-minute check on blockers. We kept testing on the compliance-critical calculations and deferred UI polish. I took on reviews and client communication so engineers could focus.</p>
+<p><b>R:</b> We delivered the compliant version three days before the deadline without weekend work. The deferred features shipped three weeks later. The client used the scope-split approach as a template for later regulatory changes.</p>`,
+keys:["Separated must-have from nice-to-have with stakeholders","Front-loaded risk; parallelised work","Protected quality where it mattered","Shielded the team; sustainable pace","Delivered, then completed deferred scope"],
+fu:[{q:"What did you cut, and how did you decide?",a:"Name concrete items and the rule used (required by regulation vs convenience), and who agreed."}],
+rf:["Heroic overtime as the solution","Cut testing across the board","No stakeholder involvement in scope"]},
+
+{id:"B019",skill:"Technical Decisions",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a significant decision you had to make with incomplete information.",
+a:`<p><b>What it probes:</b> judgement under uncertainty: whether you distinguish reversible from irreversible decisions, gather just enough information, and set checkpoints.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> We had to choose how to host a new set of services on AWS: ECS Fargate or EKS. Traffic projections were uncertain, and the team had little Kubernetes experience.</p>
+<p><b>T:</b> I had to recommend a platform within a sprint so the infrastructure work could start.</p>
+<p><b>A:</b> I asked what would be expensive to reverse: the container images, CI/CD and observability would carry over either way; the orchestration layer was the main switching cost. I gathered the information I could get quickly: team skills, expected number of services (under ten for the next year), and operations capacity (no platform team). I chose ECS Fargate, wrote down the assumptions and the triggers to revisit (more than 30 services, a dedicated platform team, or a need for Kubernetes-only tooling), and kept the deployment definitions in Terraform modules so a later move would be contained.</p>
+<p><b>R:</b> We were in production in five weeks with minimal ops work. A year later, at 14 services, we reviewed the triggers and still didn't need to switch. The explicit triggers made the decision easy to revisit without re-arguing it.</p>`,
+keys:["Identified what's reversible vs costly to change","Gathered the decisive information quickly","Decided with explicit assumptions","Revisit triggers recorded","Kept options open through design"],
+fu:[{q:"How do you know when you have enough information?",a:"When more information wouldn't change the decision, or when the cost of delay exceeds the cost of being wrong on a reversible choice."}],
+rf:["Waited for certainty","Decided without stating assumptions","No way to revisit"]},
+
+{id:"B020",skill:"Technical Decisions",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time you pushed back on an architecture or design proposed by someone more senior than you.",
+a:`<p><b>What it probes:</b> courage combined with tact: can you challenge authority with evidence, in the right forum, and accept the outcome?</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our architect proposed splitting a mid-sized application into eight microservices as part of a modernisation, with a team of six engineers.</p>
+<p><b>T:</b> I believed it would slow us down and add operational risk, but he was senior to me and the proposal had momentum.</p>
+<p><b>A:</b> I asked for a one-to-one first rather than challenging him in the review meeting. I prepared specifics: our team size, the number of cross-service transactions the split would create (I mapped the top 10 user flows; seven would span three or more services), and our lack of distributed tracing and on-call maturity. I proposed a modular monolith with clear module boundaries, extracting a service only where scaling or team ownership required it, starting with the notification module.</p>
+<p><b>R:</b> He agreed to start with the modular approach and two extractions, keeping the option to split further. We delivered the modernisation faster than planned. He later told me he appreciated that I came with data and an alternative rather than just objections.</p>`,
+keys:["Raised it privately first","Came with evidence specific to the context","Offered a constructive alternative","Respected the other person's goals","Result and relationship both good"],
+fu:[{q:"What if he hadn't agreed?",a:"Ask to note the risk and agree on signals to watch, then commit fully to the decision; escalate only if the risk was severe (security, compliance)."}],
+rf:["Public confrontation","Complied silently despite serious concerns","Opinion with no evidence"]},
+
+{id:"B021",skill:"Conflict",level:"Intermediate",type:"Behavioral",
+q:"Two strong engineers on your team are in a long-running conflict about how things should be done, and it's affecting the team. Tell me how you handled a situation like this.",
+a:`<p><b>What it probes:</b> whether you step in early, address behaviour as well as the technical question, and create mechanisms so disputes don't depend on you.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Two senior engineers repeatedly clashed in PR reviews: one prioritised speed and pragmatism, the other strict patterns and test coverage. Reviews turned into long comment threads, and junior engineers started avoiding both.</p>
+<p><b>T:</b> As tech lead, I needed to stop the damage to the team and settle the underlying disagreement.</p>
+<p><b>A:</b> I spoke to each privately, acknowledged their valid points, and named the impact of the behaviour (blocked PRs, juniors avoiding reviews). Then I brought them together to write team coding guidelines covering their main points of disagreement, with me facilitating. Where they still disagreed, I made the call and wrote down the reason. We also agreed on a review norm: comments marked "blocking" must reference a guideline; anything else is a suggestion, and long threads move to a call.</p>
+<p><b>R:</b> PR cycle time dropped noticeably over the next month, and review threads became shorter. Both later said the guidelines helped. One of them took ownership of maintaining the document.</p>`,
+keys:["Intervened early, privately with each","Named behaviour and impact, not personalities","Turned the disagreement into shared standards","Made the call where needed, with reasons","Process norms so it doesn't recur"],
+fu:[{q:"What if one of them kept behaving the same way?",a:"Escalate the behavioural issue to their manager (or handle it as manager) with specific examples and clear expectations."}],
+rf:["Hoped it would resolve itself","Took one side publicly","Only solved the technical question"]},
+
+{id:"B022",skill:"Mentoring & Growth",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time you delegated something important that you could have done faster yourself.",
+a:`<p><b>What it probes:</b> the shift from individual contributor to leader: whether you scale through others and tolerate short-term inefficiency for team growth.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our team needed to integrate with a new payment gateway. I'd done similar integrations before and could have done it in a week.</p>
+<p><b>T:</b> I wanted to reduce dependency on me: I was the only one who knew our payment flows.</p>
+<p><b>A:</b> I delegated it to a mid-level engineer, giving context (the risks: idempotency, webhook verification, reconciliation), a definition of done, and a review checkpoint after the design. I resisted giving the answer when he asked; I asked guiding questions and pointed to our previous integration. I told the product manager it would take about two weeks instead of one and explained why.</p>
+<p><b>R:</b> It took 11 days. His design included webhook signature verification and a reconciliation job, which I'd have done too, plus better logging than mine. Three months later he handled a payment incident on his own while I was on leave. The extra few days were well worth it.</p>`,
+keys:["Delegated outcome with context and constraints","Checkpoints rather than micromanagement","Accepted slower delivery and communicated it","Coached through questions","Result: reduced key-person risk"],
+fu:[{q:"How do you decide what not to delegate?",a:"Things where failure is costly and irreversible with no time to coach, or sensitive people matters; but even then, involve others to build knowledge."}],
+rf:["Delegates only boring tasks","Delegates then takes back at first difficulty","No context given"]},
+
+{id:"B023",skill:"Hiring",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a hiring decision where the interview panel disagreed. How was it resolved?",
+a:`<p><b>What it probes:</b> whether you drive decisions by evidence against the bar, resist groupthink and loud voices, and protect hiring quality.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> For a senior engineer role, two interviewers were strongly in favour and I was against. The candidate was articulate and impressive in conversation.</p>
+<p><b>T:</b> I needed to make sure we decided on evidence, not momentum, without dismissing my colleagues' view.</p>
+<p><b>A:</b> In the debrief, I asked each of us to go through the rubric with specific evidence. Mine was concrete: in the design exercise, the candidate couldn't explain how their proposed caching would stay consistent and dismissed failure scenarios twice. The others' notes were mostly about communication and confidence. We agreed communication was a real strength but the role required strong design depth. We asked for a focused follow-up session on system design with a different interviewer.</p>
+<p><b>R:</b> The follow-up confirmed the gap, and we didn't hire. The hiring manager later added a "most important competency" column to our rubric so debriefs focus on what the role needs. The person we hired a month later was a strong fit.</p>`,
+keys:["Rubric and evidence over impressions","Respected colleagues while disagreeing","Proposed a way to resolve (focused follow-up)","Kept the bar for role-critical skills","Improved the process afterwards"],
+fu:[{q:"What if the hiring manager had overridden you?",a:"Make sure your evidence is recorded, accept the decision, and support the new hire fully; review the hire's performance later to calibrate the process."}],
+rf:["Goes along with the majority","Vague 'gut feeling' objections","Treats hiring as a vote without evidence"]},
+
+{id:"B024",skill:"Estimation & Planning",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a project where scope kept growing. How did you manage it?",
+a:`<p><b>What it probes:</b> whether you make scope changes visible and traded off, rather than absorbing them silently until the deadline fails.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A UK client project to build a patient-referral portal kept gaining "small" additions from different client stakeholders during weekly demos.</p>
+<p><b>T:</b> I was the onshore technical lead responsible for delivery against a fixed date.</p>
+<p><b>A:</b> I started a visible change log: every new request was written down with a rough size and its effect on the date. In the weekly meeting with the client's project owner, I showed the list and the remaining capacity, and asked her to choose: swap something out, move the date, or defer to phase 2. I made sure requests went through her rather than directly to developers. For items that were genuinely critical, we negotiated replacements of equal size.</p>
+<p><b>R:</b> Phase 1 shipped on the original date with a re-prioritised scope; 11 deferred items went into phase 2, and several were later dropped because they turned out unnecessary. The client's owner said the change log made her conversations with her own stakeholders easier.</p>`,
+keys:["Made every change visible with size and impact","Single decision owner on the client side","Trade-offs: swap, move date, defer","Protected developers from side-channel requests","On-time delivery; deferred items re-evaluated"],
+fu:[{q:"How do you handle a request from someone senior who bypasses the process?",a:"Acknowledge it, add it to the list with impact, and route the decision to the agreed owner; explain that this protects their own date."}],
+rf:["Absorbed changes with overtime","Refused all changes","No visibility for stakeholders"]},
+
+{id:"B025",skill:"Incidents & Ownership",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a postmortem you led. How did you keep it blameless, and what changed as a result?",
+a:`<p><b>What it probes:</b> whether you turn incidents into systemic improvements and build a culture where people report problems openly.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> An engineer ran a data-fix script against production instead of staging, updating appointment statuses for about 300 patients.</p>
+<p><b>T:</b> I led the postmortem. The engineer was very upset, and some people were already saying "he should have been more careful".</p>
+<p><b>A:</b> I opened the meeting by stating that we were looking for what in our system allowed this, not who. We built a timeline together, including the engineer's perspective (why prod looked like staging: same tool, similar connection names, credentials available on his machine). We asked "why was this possible?" several times. Actions: separate credentials with production access only through a controlled role, colour-coded and labelled connection profiles, data fixes as reviewed scripts run through a pipeline, and a backup check before data fixes.</p>
+<p><b>R:</b> All actions were completed within three weeks, tracked in the backlog. Six months later, another engineer reported a near-miss on her own, saying the earlier postmortem made her comfortable doing so. That openness was the biggest result.</p>`,
+keys:["Explicitly blameless framing","Timeline with the involved person's perspective","Focus on why the system allowed it","Concrete, owned, tracked actions","Culture effect: people report near-misses"],
+fu:[{q:"Is blameless the same as no accountability?",a:"No. People are accountable for learning and following through on actions; blameless means we don't punish honest mistakes, because punishment hides future problems. Repeated deliberate negligence is handled separately."}],
+rf:["Postmortem as blame session","Actions never completed","Root cause = 'human error'"]},
+{id:"B026",skill:"Technical Decisions",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time you introduced a new engineering practice or tool to your team. How did you get adoption?",
+a:`<p><b>What it probes:</b> change leadership: whether you introduce practices because they solve a real problem, and whether you can get people to adopt them rather than just announcing them.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our team kept re-arguing past technical decisions, and new joiners didn't know why things were built the way they were.</p>
+<p><b>T:</b> I wanted to introduce Architecture Decision Records without it feeling like bureaucracy.</p>
+<p><b>A:</b> I didn't announce a process. I wrote the first three ADRs myself for decisions the team had recently argued about, kept them to one page, and shared them in a team meeting asking whether this would have saved time. People agreed it would. We agreed a lightweight rule: any decision that's hard to reverse or that we'd debated for more than one meeting gets an ADR, stored in the repo next to the code. I reviewed ADRs quickly so they never became a bottleneck, and I referenced them in code reviews ("see ADR-007").</p>
+<p><b>R:</b> Within three months the team had written 14 ADRs, most by people other than me. Onboarding questions about "why did we…" dropped, and in one case an ADR's revisit trigger prompted us to change a decision at the right time.</p>`,
+keys:["Started from a real, felt problem","Led by example before asking others","Lightweight rule with clear trigger","Integrated into existing workflow","Measured adoption by others' use"],
+fu:[{q:"Tell me about a practice you introduced that didn't stick.",a:"Have one ready: what you tried, why adoption failed (too heavy, no felt problem), and what you learned about introducing change."}],
+rf:["Mandated a tool with no problem statement","Only the lead uses it","Heavy templates nobody reads"]},
+
+{id:"B027",skill:"Conflict",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a conflict with another team, for example over a dependency, priorities or ownership.",
+a:`<p><b>What it probes:</b> cross-team collaboration: whether you resolve conflict by understanding the other team's constraints and escalating constructively, not by blaming.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our feature depended on the platform team adding an event to their order service. They kept postponing it; our release was at risk.</p>
+<p><b>T:</b> I needed the change delivered without damaging the relationship.</p>
+<p><b>A:</b> I met their lead to understand why. They had a backlog of 20 similar requests and were stretched thin by an incident-heavy quarter. I offered for one of our engineers to implement the event in their service under their review, following their standards. We agreed on the contract together and added a contract test so they'd be protected from future breaking changes. I also raised with both our managers that the platform team's request load needed a visible prioritisation process.</p>
+<p><b>R:</b> The event shipped in a week, our release stayed on track, and the "contribute under review" model became a standard way for other teams to unblock themselves. Their manager introduced a public request board the next quarter.</p>`,
+keys:["Understood the other team's constraints","Offered help rather than demands","Respected their ownership and standards","Raised the systemic issue constructively","Created a reusable collaboration pattern"],
+fu:[{q:"When would you escalate instead?",a:"When the dependency risks a committed business outcome and the teams can't agree on priority; escalate jointly to the person who owns both priorities, with options rather than complaints."}],
+rf:["Blames the other team","Escalates first","Bypasses their ownership and changes their code without review"]},
+
+{id:"B028",skill:"Conflict",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time you had to work closely with someone you found difficult.",
+a:`<p><b>What it probes:</b> maturity and empathy: can you be effective with people whose style differs from yours, and do you look at your own part?</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> On a UK client engagement, the client's QA lead rejected our releases with long lists of issues, often at the last minute, and her emails felt hostile.</p>
+<p><b>T:</b> I was the onshore lead and needed a working relationship for the rest of the project.</p>
+<p><b>A:</b> I asked her for a coffee, not about any specific issue, and asked about her concerns. She explained that a previous vendor had shipped regressions that caused clinical incidents, and she had been blamed. Her behaviour made sense. I proposed involving her earlier: she'd review acceptance criteria at sprint start, we'd share builds mid-sprint, and we'd agree on severity definitions so "blocking" meant the same to both of us.</p>
+<p><b>R:</b> Late rejections dropped sharply over the next two sprints, and she became one of our strongest advocates with her management. I learned that "difficult" behaviour often comes from a past experience or pressure you can't see.</p>`,
+keys:["Sought to understand their perspective","Reflected on own contribution","Changed the process, not the person","Shared definitions to reduce friction","Relationship improved measurably"],
+fu:[{q:"What if the person's behaviour had been genuinely unacceptable?",a:"Address specific behaviour directly and, if needed, escalate through the appropriate manager, while protecting your team."}],
+rf:["Describes the person negatively throughout","No reflection on own role","Avoided the person"]},
+
+{id:"B029",skill:"Mentoring & Growth",level:"Intermediate",type:"Behavioral",
+q:"Tell me about mentoring a junior engineer who was struggling.",
+a:`<p><b>What it probes:</b> patience and diagnostic skill in coaching: whether you find the real gap (knowledge, confidence, process) and adapt your approach.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A junior engineer, six months in, took much longer than expected on tasks and PRs came back with the same kinds of issues.</p>
+<p><b>T:</b> I wanted to find what was actually blocking him and help him get to an independent level.</p>
+<p><b>A:</b> I paired with him on a task and watched how he worked. The issue wasn't coding: he started coding immediately without understanding the existing flow, then got lost. We agreed on a simple routine: before coding, write a 5-line plan in the ticket (what changes, where, how to test), and share it with me or his buddy for a 5-minute check. I also showed him how I trace a request through the codebase with the debugger and logs. We reviewed progress every two weeks.</p>
+<p><b>R:</b> Within two months his PRs needed far fewer review rounds, and he stopped needing the plan check for small tasks. He later told me the "plan first" habit was the most useful thing he learned that year.</p>`,
+keys:["Observed how they work to diagnose","Found the real gap (approach, not coding)","Simple, concrete habit with check-ins","Taught a transferable skill","Withdrew support as they improved"],
+fu:[{q:"How long do you invest before concluding someone isn't right for the role?",a:"Set clear, shared expectations and a time frame (often 2–3 months with support), and involve their manager if progress doesn't come; the decision isn't yours alone as a TL."}],
+rf:["'I told them to try harder'","Took over their tasks","No diagnosis of the root cause"]},
+
+{id:"B030",skill:"Mentoring & Growth",level:"Intermediate",type:"Behavioral",
+q:"Tell me how you've built a learning culture or knowledge sharing in a team.",
+a:`<p><b>What it probes:</b> whether you raise the whole team's capability and reduce key-person risk, not just mentor individuals.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Knowledge of our core modules sat with two people. When one went on leave, issues waited for her return.</p>
+<p><b>T:</b> I wanted to spread knowledge without heavy documentation projects.</p>
+<p><b>A:</b> I created a simple "who knows what" matrix with the team (modules vs people, rated 0–3) and we set a goal of at least two people at level 2+ for every critical module. We used rotation: tickets in a module were assigned to someone learning it, paired with an expert. We started a fortnightly 30-minute session where someone presented something they'd learned (an incident, a library, a module walkthrough), recorded for later. I also asked that every incident postmortem be shared in that session.</p>
+<p><b>R:</b> After two quarters, every critical module had at least two capable people, and the next long leave caused no delays. The sessions continued without me organising them, which told me it had become part of the team.</p>`,
+keys:["Made knowledge risk visible (skills matrix)","Concrete goal per critical area","Rotation and pairing on real work","Regular, lightweight sharing sessions","Self-sustaining without the lead"],
+fu:[{q:"How do you get busy engineers to participate?",a:"Keep sessions short and practical, rotate presenters, tie them to real work (incidents, new features), and protect the time in planning."}],
+rf:["Relies on documentation nobody reads","Learning time always sacrificed for delivery","Only the lead teaches"]},
+
+{id:"B031",skill:"Hiring",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time you improved your team's hiring or interview process.",
+a:`<p><b>What it probes:</b> whether you treat hiring as a system to improve (signal quality, consistency, candidate experience), a key EM responsibility.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our interviews were unstructured: each interviewer asked their favourite questions, debriefs were opinion-based, and two recent hires didn't work out.</p>
+<p><b>T:</b> My manager asked me to make the technical rounds more reliable.</p>
+<p><b>A:</b> I worked with two senior engineers to define what the role needed (5 competencies), then designed a structured loop: a practical coding exercise based on a real (simplified) problem, a design discussion, and a behavioural round, each with a rubric describing what weak/acceptable/strong evidence looks like. We ran the new questions on two volunteer colleagues to calibrate timing and difficulty. Interviewers wrote independent feedback before the debrief. I also cut the take-home test, which was causing strong candidates to drop out.</p>
+<p><b>R:</b> Debriefs became shorter and more evidence-based. The candidate drop-out rate fell, and the next four hires all passed probation with strong reviews. We reviewed the rubric after six months based on how hires performed.</p>`,
+keys:["Started from what the role needs","Structured exercises + rubrics","Calibrated before using","Independent feedback before debrief","Measured outcomes; improved candidate experience"],
+fu:[{q:"How do you check whether your interviews predict job performance?",a:"Compare interview scores with later performance and probation outcomes for hires, and review which rounds correlated; adjust questions accordingly."}],
+rf:["No rubrics","Long unpaid take-homes without reason","No measurement of results"]},
+
+{id:"B032",skill:"Hiring",level:"Intermediate",type:"Scenario",
+q:"You need to hire three engineers (two senior, one mid-level) in the next three months while still delivering. How do you plan it?",
+a:`<p><b>What it probes:</b> hiring as a planned project: capacity, pipeline maths, quality bar and team impact.</p>
+<p><b>Plan:</b></p>
+<ul>
+<li><b>Define roles clearly</b> with the hiring manager: what each person will own in their first six months, must-have vs nice-to-have skills. This drives the job description and the loop.</li>
+<li><b>Pipeline maths:</b> with typical conversion (e.g. ~10–20 screened per offer for senior roles, varying by market), estimate how many candidates are needed per week and plan sourcing: referrals (usually best quality), recruiter partners, outreach on LinkedIn, community presence. Start sourcing immediately; senior notice periods in India are often 60–90 days, which may push start dates beyond three months.</li>
+<li><b>Efficient loop:</b> a short screen, one technical session, one design/behavioural session, and a decision within a week. Fast processes win candidates.</li>
+<li><b>Interviewer capacity:</b> a trained interviewer pool and a fixed weekly interview schedule so hiring doesn't randomly disrupt delivery; adjust the sprint commitment to account for it (interviewing costs real time).</li>
+<li><b>Keep the bar:</b> a calibrated rubric; don't lower standards under deadline pressure.</li>
+<li><b>Closing and onboarding:</b> sell the role (team, problems, growth); prepare onboarding plans before start dates.</li>
+<li><b>Track weekly:</b> pipeline by stage, drop-off reasons, time to decision.</li>
+</ul>`,
+keys:["Clear role definitions first","Pipeline maths and early sourcing; notice periods","Fast, focused loop","Interviewer capacity planned into delivery","Hold the bar; plan closing and onboarding"],
+trade:["Fast process: wins candidates vs less signal per round","Lowering the bar: hits headcount vs long-term cost of a bad hire"],
+fu:[{q:"A strong candidate has a competing offer and needs a decision in 48 hours. What do you do?",a:"Compress remaining rounds if possible, keep the same bar and rubric, and make a clear decision; if you can't assess properly in time, it's better to let them go than hire on a guess."}],
+rf:["Lowers bar to hit numbers","Ignores notice periods","Hiring with no impact on delivery planning"]},
+
+{id:"B033",skill:"Estimation & Planning",level:"Intermediate",type:"Behavioral",
+q:"Tell me how you planned a quarter or a large project with your team, including dependencies and commitments.",
+a:`<p><b>What it probes:</b> planning skill at TL/EM level: balancing roadmap commitments, capacity, technical work and risk.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> For a quarter, product wanted five major features; we also needed a .NET upgrade before its end-of-support date and had two dependencies on other teams.</p>
+<p><b>T:</b> I owned producing a realistic plan with the team and agreeing it with product.</p>
+<p><b>A:</b> I started with real capacity: team size minus leave, on-call and support load (from the last quarter's data, about 20%), and a 15% slice for tech work. The team sized the features at a high level. It was clear five features didn't fit. With the PM, we ranked them by value and split them into "committed" (high confidence), "targeted" (likely) and "stretch". I contacted the two other teams in week one to confirm their dependency dates and put them on the plan as explicit risks. The upgrade was scheduled early in the quarter to leave buffer.</p>
+<p><b>R:</b> We delivered all committed items and one targeted item; the upgrade finished six weeks before the deadline. Product appreciated knowing early what was at risk instead of discovering it at the end.</p>`,
+keys:["Capacity from real data (leave, support, on-call)","Reserved capacity for tech work","Committed / targeted / stretch tiers","Dependencies confirmed early, tracked as risks","Time-bound risks scheduled early"],
+fu:[{q:"How do you handle a dependency that slips mid-quarter?",a:"Raise it immediately, re-plan with product (swap in other work), and if the dependency is critical, escalate with options."}],
+rf:["Plans at 100% capacity","No tech work in plan","Dependencies assumed, not confirmed"]},
+
+{id:"B034",skill:"Estimation & Planning",level:"Intermediate",type:"Scenario",
+q:"Your team debates story points vs time estimates vs no estimates. Leadership wants reliable delivery forecasts. What approach do you use, and why?",
+a:`<p><b>What it probes:</b> understanding of why teams estimate (forecasting and trade-off decisions), and practical judgement over dogma.</p>
+<p><b>My view:</b> estimates exist to support decisions (what to do first, what fits, when it'll be ready). Pick the lightest approach that gives reliable forecasts.</p>
+<ul>
+<li><b>Story points:</b> relative sizing, useful for conversations that reveal hidden complexity. Weak when converted to commitments or compared across teams, and easily gamed.</li>
+<li><b>Time estimates:</b> intuitive for stakeholders but often optimistic and confused with elapsed time.</li>
+<li><b>Flow-based forecasting ("no estimates"):</b> break work into similarly small items, measure <b>throughput</b> (items per week) and <b>cycle time</b>, and use historical data (e.g. Monte Carlo simulation) to forecast with probabilities: "85% likely to finish these 30 items in 6–8 weeks".</li>
+</ul>
+<p><b>What I'd typically do:</b> keep a brief sizing conversation for discovering complexity (split anything large), forecast from measured throughput rather than summed estimates, communicate ranges with confidence levels, and re-forecast weekly. For big unknowns, spike first.</p>
+<p>The bigger lever for predictability is usually <b>smaller work items and less work in progress</b>, not better estimation technique.</p>`,
+keys:["Estimates exist to support decisions","Points: good for discussion, bad as commitments","Flow metrics + probabilistic forecasting","Ranges with confidence; weekly re-forecast","Small items and low WIP drive predictability"],
+trade:["Points: shared understanding vs ceremony and gaming","Throughput forecasting: data-driven vs needs consistent item sizes and history"],
+fu:[{q:"Leadership wants velocity compared across teams. Your response?",a:"Explain that points are team-relative and comparing them causes inflation; offer outcome and flow metrics (cycle time, delivery predictability) instead."}],
+rf:["Dogmatic about one method","Uses velocity as a performance metric","Single-point date promises"]},
+
+{id:"B035",skill:"Incidents & Ownership",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time during an incident when you had to make a risky call, such as rolling back versus fixing forward.",
+a:`<p><b>What it probes:</b> decision-making under pressure with incomplete information, and whether you prioritise restoring service.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> After a release, the appointment booking API started returning errors for about 10% of requests. The release included a database migration that had already added columns and backfilled data.</p>
+<p><b>T:</b> As incident lead, I had to choose between rolling back the application or fixing forward.</p>
+<p><b>A:</b> I checked whether a rollback was safe: the old application version tolerated the new columns (we used expand/contract migrations), so rolling back the app without reverting the database was possible. A developer said he could fix the bug in 20 minutes. I chose rollback, because a fix under pressure would be untested and the rollback path was known and fast. I communicated the decision and the expected time in the incident channel.</p>
+<p><b>R:</b> Errors stopped within six minutes of the decision. The fix went out the next morning with a test for the failing case. In the review, we agreed on a default rule: if a rollback is safe, roll back first; fix forward only when rollback is unsafe or slower.</p>`,
+keys:["Checked rollback safety (schema compatibility)","Chose the known, fast path over a rushed fix","Communicated decision and timing","Fixed properly afterwards with a test","Turned it into a team rule"],
+fu:[{q:"When is fixing forward the better choice?",a:"When rollback isn't possible or safe (irreversible data changes, external integrations already updated) or would take longer than a small, well-understood fix."}],
+rf:["Debugs live for hours while users fail","Rollback without checking data compatibility","No follow-up"]},
+
+{id:"B036",skill:"Incidents & Ownership",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time you noticed a problem that wasn't your responsibility and took action.",
+a:`<p><b>What it probes:</b> ownership beyond your job description, and whether you act appropriately (raising, helping) without stepping on others.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> While reviewing our AWS costs for my own service, I noticed that another team's S3 bucket with patient report exports had no lifecycle policy and was growing quickly, and the bucket allowed access from a broad set of roles.</p>
+<p><b>T:</b> It wasn't my team's system, but it looked like both a cost and a data-protection risk.</p>
+<p><b>A:</b> I checked enough to be sure (bucket policy, size growth, object age) without changing anything. I messaged the owning team's lead privately with the facts and the potential risk, and offered help. Since the access issue could be a security concern, I also informed our security contact, letting the team lead know I was doing so.</p>
+<p><b>R:</b> The team tightened the bucket policy the same week and added a 90-day lifecycle rule, cutting the storage cost and reducing exposure. They thanked me for raising it privately rather than in a public channel. The company later added automated checks for missing lifecycle rules on sensitive buckets.</p>`,
+keys:["Noticed and verified before raising","Raised directly and respectfully with the owner","Escalated security risk appropriately and transparently","Offered help, didn't take over","Systemic improvement followed"],
+fu:[{q:"What if the owning team had ignored you?",a:"Follow up with a date, then escalate through managers or security with the evidence, especially for security or compliance risks."}],
+rf:["Fixed another team's system without telling them","Ignored it as 'not my job'","Shamed the team publicly"]},
+
+{id:"B037",skill:"Stakeholder Pushback",level:"Intermediate",type:"Behavioral",
+q:"Tell me about managing an unhappy client or stakeholder.",
+a:`<p><b>What it probes:</b> composure, listening, ownership of the relationship, and turning a bad situation into trust.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A UK client's operations head escalated to our director that our releases kept breaking their workflows and that they were considering another vendor.</p>
+<p><b>T:</b> As the technical lead, I was asked to take the meeting and rebuild confidence.</p>
+<p><b>A:</b> I listened first and asked for specific examples, without defending. Three of the five issues were genuine regressions; two were features that worked as specified but differed from how their staff actually used them. I acknowledged our part clearly. I proposed concrete changes: a staging environment their key users could test in before each release, release notes in their language (what changes for users, not tickets), a regression suite for their top workflows, and a fortnightly 30-minute review with her. I followed up in writing the same day.</p>
+<p><b>R:</b> Over the next three releases, client-reported regressions dropped to near zero. The contract was renewed, and she later involved us earlier in planning. I learned that clients mostly want to see that you understand their pain and have a concrete plan.</p>`,
+keys:["Listened and gathered specifics","Owned real failures without excuses","Separated defects from expectation gaps","Concrete, visible improvements","Written follow-up and regular check-ins"],
+fu:[{q:"What if the client was partly wrong?",a:"Acknowledge your part fully, then address their part through process changes (involving them in acceptance) rather than arguing who was right."}],
+rf:["Defensive or blaming the client","Vague promises","No follow-through"]},
+
+{id:"B038",skill:"Stakeholder Pushback",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time you influenced a decision where you had no formal authority.",
+a:`<p><b>What it probes:</b> influence skills, essential for TLs and for EMs working across teams: building a case, finding allies, framing for the audience.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Several teams logged sensitive data inconsistently, and our logging costs were rising. There was no owner for logging standards across teams.</p>
+<p><b>T:</b> I wanted a company-wide logging standard, but I had no authority over other teams.</p>
+<p><b>A:</b> I gathered evidence: log volume and cost per service, and a sample of logs containing emails and tokens (shared privately with security). I talked to the leads of the three biggest teams individually to understand their pain, which was mostly noisy logs during incidents. I drafted a short standard addressing their problems (structured fields, levels, redaction helper) plus a shared library that made compliance easy. I presented it at the architecture forum with two leads co-presenting, and with the security team's support on the data-protection angle.</p>
+<p><b>R:</b> The standard was adopted by four teams within a quarter. Log costs fell by about a third, and the next security review found no PII in logs for those services.</p>`,
+keys:["Evidence that matters to each audience","One-to-one conversations before group decisions","Solved others' pain, not just mine","Made compliance easy (shared library)","Allies and co-presenters; measurable result"],
+fu:[{q:"How do you handle a team that refuses to adopt it?",a:"Understand their objection, adapt where reasonable, and if it's a real risk (security), escalate through the right forum with evidence."}],
+rf:["Relied on escalation from the start","Presented without pre-wiring stakeholders","No benefit to the other teams"]},
+
+{id:"B039",skill:"Stakeholder Pushback",level:"Intermediate",type:"Scenario",
+q:"Sales promised a major prospect a feature by a specific date without consulting engineering. The deal depends on it. What do you do?",
+a:`<p><b>What it probes:</b> business partnership: avoiding both blind compliance and blame, and fixing the process.</p>
+<p><b>Approach:</b></p>
+<ol>
+<li><b>Understand the commitment precisely:</b> what exactly was promised (in writing?), what the customer actually needs by that date, and what's flexible.</li>
+<li><b>Assess quickly with the team:</b> effort, risk, what we'd have to drop.</li>
+<li><b>Give leadership options</b> rather than a yes/no: (a) build the full feature, delaying named roadmap items; (b) deliver a minimal version that meets the customer's core need by the date, the rest later; (c) a workaround or service process for the interim; (d) renegotiate the date with the customer, with sales leading the conversation and engineering supporting with a credible plan.</li>
+<li>Let the business owner decide, explicitly accepting the trade-off.</li>
+<li><b>Fix the process</b> afterwards without blame: agree with the sales leader on a simple rule (no dated feature commitments without an engineering check, with a quick turnaround from us, e.g. 48 hours), so sales isn't blocked.</li>
+</ol>`,
+keys:["Clarify what was actually promised","Fast impact assessment","Options with trade-offs to the business owner","Support renegotiation with a credible plan","Fix the process with a quick engineering check"],
+trade:["Honouring the promise: wins the deal vs roadmap disruption and team strain","Renegotiating: protects quality vs deal risk"],
+fu:[{q:"What if this keeps happening?",a:"Escalate the pattern to leadership with its cost (disrupted roadmaps, missed commitments) and propose a lightweight pre-sales engineering review."}],
+rf:["Refuses outright","Commits the team to overtime silently","Blames sales publicly"]},
+
+{id:"B040",skill:"Underperformance",level:"Intermediate",type:"Behavioral",
+q:"Tell me about giving feedback to someone whose work quality was consistently below expectations.",
+a:`<p><b>What it probes:</b> whether you give clear, specific, timely feedback and set expectations, rather than hinting or avoiding it.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> An engineer's changes frequently caused bugs found in QA or production: missing edge cases, no tests for error paths.</p>
+<p><b>T:</b> I needed to address it directly; hints in code reviews hadn't worked.</p>
+<p><b>A:</b> I prepared specific examples (four bugs in a month, with their impact) and used a simple structure in a private conversation: what I observed, the impact on the team and users, and what I expected instead. I asked for his view; he said he felt pressure to close tickets fast. We agreed concrete expectations: tests for error paths in every PR, a self-review checklist before requesting review, and asking for help when estimates looked tight. I told his manager about the conversation and the agreed expectations, and we checked progress every two weeks.</p>
+<p><b>R:</b> Escaped bugs from his changes dropped to near zero within six weeks. He said it was the first time someone had told him plainly what "good" looked like. I learned that vague feedback is unkind: it leaves people guessing.</p>`,
+keys:["Specific examples and impact","Private, structured conversation (observation, impact, expectation)","Listened for causes","Concrete expectations and follow-up","Kept the line manager informed"],
+fu:[{q:"What framework do you use for feedback?",a:"Something like SBI (Situation, Behaviour, Impact) followed by a clear request and agreement, delivered soon after the event, in private for corrective feedback."}],
+rf:["Hinted in code review comments only","Waited for the performance review","No follow-up"]},
+
+{id:"B041",skill:"Underperformance",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time a strong engineer became disengaged. How did you handle it?",
+a:`<p><b>What it probes:</b> retention and motivation: whether you notice early, ask, and act on causes (growth, recognition, work fit), not just performance symptoms.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> One of our best engineers became quiet in meetings, stopped volunteering for design work, and did only assigned tasks.</p>
+<p><b>T:</b> I wanted to understand what had changed before we lost him.</p>
+<p><b>A:</b> In a one-to-one, I said I'd noticed a change and asked openly how he felt about his work. After some hesitation, he said he'd spent eight months on maintenance of an old module, felt invisible, and had seen a peer promoted after leading a new project. I acknowledged it was fair. With his manager, we gave him ownership of a new integration project and a plan for the maintenance work to be shared through rotation. I made sure his contributions were visible in demos and to leadership.</p>
+<p><b>R:</b> His engagement came back within weeks; he led the integration successfully and was promoted the following cycle. I now track who has been on unglamorous work for a long time and rotate it deliberately.</p>`,
+keys:["Noticed behaviour change early","Asked openly and listened","Acted on the real cause (growth, visibility)","Worked with the line manager","Systemic change (rotation of unglamorous work)"],
+fu:[{q:"What if the cause was something you couldn't fix, like compensation?",a:"Be honest about what you can influence, advocate where justified, and help them see the realistic path; sometimes the right outcome is supporting a move."}],
+rf:["Treated it as a performance problem only","Didn't ask","Promises you couldn't keep"]},
+
+{id:"B042",skill:"Underperformance",level:"Intermediate",type:"Behavioral",
+q:"Tell me about dealing with a technically brilliant engineer whose behaviour was hurting the team.",
+a:`<p><b>What it probes:</b> whether you hold high performers accountable for behaviour, protecting team health and psychological safety.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our strongest engineer was dismissive in reviews ("this is wrong, obviously"), interrupted others in design meetings, and juniors stopped asking him questions.</p>
+<p><b>T:</b> His technical output was excellent, but the team's collaboration was suffering, and two juniors mentioned it to me.</p>
+<p><b>A:</b> I spoke to him privately with specific examples (quoted review comments, a meeting where a junior's idea was dismissed and later turned out to be right) and the impact on the team. I made it clear that how he worked mattered as much as what he delivered, and that this was an expectation, not a suggestion. He was surprised; he saw directness as efficiency. We agreed concrete changes: explain the "why" in reviews, ask a question before stating a conclusion, and let others finish in meetings. I gave him timely feedback, positive when I saw improvement, and involved his manager since it touched on performance expectations.</p>
+<p><b>R:</b> His review comments changed noticeably within a month, and he started mentoring one of the juniors. If it hadn't improved, the next step would have been a formal performance conversation with his manager; strong output doesn't excuse damaging behaviour.</p>`,
+keys:["Specific examples and impact on others","Behaviour as an explicit expectation","Concrete alternative behaviours","Recognition when improving","Clear consequence path if no change"],
+fu:[{q:"Wouldn't confronting him risk losing him?",a:"Possibly, but keeping a high performer who drives others away costs more overall; most people improve when given clear, respectful feedback."}],
+rf:["Tolerates behaviour because of output","Vague feedback","Public confrontation"]},
+
+{id:"B043",skill:"Tech Debt",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a significant refactoring or re-architecture you led while still delivering features.",
+a:`<p><b>What it probes:</b> ability to change systems incrementally and safely, balancing delivery with improvement.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our appointment scheduling logic was spread across stored procedures, controllers and a UI library, and every change caused regressions.</p>
+<p><b>T:</b> I needed to consolidate it into a tested domain module without a feature freeze.</p>
+<p><b>A:</b> I wrote characterisation tests for the main scheduling scenarios first, using production-like data. Then we used a strangler approach: a new scheduling service class implemented one rule at a time; the old path and new path ran side by side for reads, with differences logged; once a rule matched for two weeks, we switched to the new path behind a feature flag. Every feature touching scheduling was implemented in the new module, so feature work also moved the refactoring forward. I tracked progress on a simple board visible to the product manager.</p>
+<p><b>R:</b> Over four months, all scheduling rules moved to the new module with no major incidents. Regressions in that area dropped sharply, and later feature estimates for scheduling went down because changes were easier.</p>`,
+keys:["Characterisation tests first","Incremental strangler with parallel comparison","Feature flags for switchover","Feature work used to move refactoring forward","Visible progress; measurable benefits"],
+fu:[{q:"How did you handle a mismatch between old and new behaviour?",a:"Investigate which was correct with the domain owner; replicate intentional old behaviour, fix bugs deliberately with sign-off."}],
+rf:["Big-bang rewrite","Feature freeze for months","No tests before refactoring"]},
+
+{id:"B044",skill:"Tech Debt",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time you deliberately took on technical debt. Was it the right call?",
+a:`<p><b>What it probes:</b> pragmatism: whether you can take shortcuts consciously, with eyes open and a plan to repay, rather than either perfectionism or carelessness.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> We had a chance to pilot a feature with a large prospective client, with a deadline three weeks away. The proper design needed a new event-driven integration.</p>
+<p><b>T:</b> I had to decide whether to build it properly (six weeks) or find a faster path.</p>
+<p><b>A:</b> I proposed a deliberate shortcut: a scheduled job polling the other system every five minutes instead of events, isolated behind an interface so the polling could be replaced later. I documented the debt (an ADR noting the limitation, the scale at which it would break, and the replacement plan), told the PM it would need two sprints of follow-up work if the pilot succeeded, and we added the follow-up to the roadmap immediately.</p>
+<p><b>R:</b> The pilot launched on time and the client signed. We replaced the polling with events six weeks later as planned, which was easy because of the interface. It was the right call because the debt was visible, contained and scheduled. I've also seen the opposite, where "temporary" code stayed for years, which is why I insist on the follow-up being in the roadmap before shipping.</p>`,
+keys:["Business reason for the shortcut","Contained behind an interface","Documented with limits and repayment plan","Repayment scheduled before shipping","Reflection on when debt goes wrong"],
+fu:[{q:"How do you make sure the follow-up actually happens?",a:"Put it in the roadmap with an owner and date before shipping, and make it a condition agreed with product, not an engineering wish."}],
+rf:["Never takes shortcuts (inflexible)","Takes shortcuts with no record","'Temporary' with no plan"]},
+
+{id:"B045",skill:"Tech Debt",level:"Intermediate",type:"Scenario",
+q:"How do you stop technical debt from accumulating in the first place on a team you lead?",
+a:`<p><b>What it probes:</b> prevention mindset: standards, habits and incentives that keep quality high without heavy process.</p>
+<p><b>Practices:</b></p>
+<ul>
+<li><b>Definition of done</b> that includes tests, observability (logs/metrics for new flows), documentation where needed and no new warnings.</li>
+<li><b>Code review norms</b> focused on design and maintainability, with automated tools handling style.</li>
+<li><b>Boy-scout rule:</b> leave touched code a little better; budget for it in estimates.</li>
+<li><b>Lightweight design reviews</b> for larger changes, so structural problems are caught before code exists.</li>
+<li><b>Dependency and platform hygiene:</b> automated dependency updates (Renovate/Dependabot), a calendar of end-of-support dates.</li>
+<li><b>Debt register:</b> deliberate debt recorded with a reason and a repayment trigger.</li>
+<li><b>Capacity slice</b> each sprint for improvement work, protected in planning.</li>
+<li><b>Signals:</b> watch cycle time and change failure rate in specific areas; rising values mean debt is biting.</li>
+</ul>
+<p>And the cultural part: product managers understand that skipping these practices has a cost they'll pay later, because I show them the data when debt slows delivery.</p>`,
+keys:["Definition of done with tests and observability","Review norms; automation for style","Boy-scout rule budgeted","Design reviews; dependency hygiene","Debt register, capacity slice, signals; product understanding"],
+trade:["Strict standards: lower debt vs slower early delivery","Capacity slice: steady health vs fewer features per sprint"],
+fu:[{q:"How do you handle a deadline where following all standards isn't possible?",a:"Decide explicitly which standards to relax, record the debt with a repayment plan, and keep non-negotiables (security, data integrity, critical tests)."}],
+rf:["'We'll clean up later' with no mechanism","No product involvement","Perfectionism blocking delivery"]},
+
+{id:"B046",skill:"Delivery Under Pressure",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a project that was going to miss its date. What did you do, and when?",
+a:`<p><b>What it probes:</b> early warning and honest communication; options instead of excuses.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Halfway through a three-month migration of a client's reporting to a new data platform, our burn-up chart showed we'd finish about five weeks late.</p>
+<p><b>T:</b> I owned delivery and needed to raise it before it became a surprise.</p>
+<p><b>A:</b> I analysed why: report complexity was higher than sampled during estimation, and one data source needed cleanup. I went to the PM and the client sponsor that week, with data (the forecast, the cause) and three options: reduce scope by migrating the 30 most-used reports first and the rarely used ones later; add one engineer for six weeks (with ramp-up cost explained); or move the date. The sponsor chose the scope option after we checked usage data showing 30 reports accounted for over 90% of usage.</p>
+<p><b>R:</b> We migrated the top 30 on the original date; the rest followed four weeks later, and about 15 reports were retired because nobody needed them. The sponsor said the early warning built more trust than hitting the date would have.</p>`,
+keys:["Detected the slip early with data","Understood the cause","Raised it immediately with options","Used data (usage) to guide the decision","Delivered value on the original date"],
+fu:[{q:"Why not just add more people?",a:"New people need ramp-up and take time from existing members (Brooks's law); it can help when work is parallelisable and onboarding is fast, but rarely fixes a late project quickly."}],
+rf:["Waited until the deadline","Overtime as the only plan","No options presented"]},
+
+{id:"B047",skill:"Delivery Under Pressure",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time you had to balance speed against quality. How did you decide where to draw the line?",
+a:`<p><b>What it probes:</b> judgement about risk: whether you vary rigour by impact rather than applying one standard everywhere.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> We had two weeks to deliver a new patient self-registration flow for a clinic opening.</p>
+<p><b>T:</b> I had to decide where we could move fast and where we couldn't compromise.</p>
+<p><b>A:</b> I split the work by risk with the team. Non-negotiable: identity data validation, duplicate-patient detection, consent capture, security of personal data, and audit logs, with thorough tests and review. Flexible: UI polish, admin reporting (a CSV export instead of a dashboard), and edge-case convenience features. We used a feature flag to release to one clinic first and agreed with the clinic staff on a manual fallback if anything went wrong.</p>
+<p><b>R:</b> The flow launched on time at the first clinic with no data issues. We added the dashboard and polish over the following month. I use this "risk-tier the work" approach whenever time is tight.</p>`,
+keys:["Tiered work by risk and impact","Non-negotiables named explicitly","Simpler alternatives for low-risk parts","Limited rollout and fallback plan","Follow-up on deferred items"],
+fu:[{q:"What do you never compromise on?",a:"Security, data integrity and privacy, and anything that's hard to reverse; UI polish and convenience features can follow."}],
+rf:["Same rigour everywhere (or none)","No stakeholder agreement on trade-offs","Deferred items never done"]},
+
+{id:"B048",skill:"Delivery Under Pressure",level:"Intermediate",type:"Behavioral",
+q:"Tell me about a time your team was overloaded or showing signs of burnout. What did you do?",
+a:`<p><b>What it probes:</b> care for people combined with delivery responsibility: whether you notice, act and protect sustainability.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> After two months of back-to-back releases plus frequent on-call incidents, the team was working evenings, mood was low, and one engineer mentioned exhaustion in a retro.</p>
+<p><b>T:</b> I needed to reduce the load without failing our commitments.</p>
+<p><b>A:</b> I looked at where time went: about a third was unplanned work from incidents and support requests. I took three actions. First, I went to the PM and our manager with the data and negotiated a two-week reduced sprint focused on fixing the top incident causes. Second, I set up a rotation where one person handled support each week, protecting the others' focus. Third, I stopped evening deployments and made it clear that overtime wasn't expected; I also personally avoided sending late messages.</p>
+<p><b>R:</b> Incident volume fell by about half within a month, evening work stopped, and the next team survey showed a clear improvement. Delivery actually became more predictable because fewer interruptions disrupted planned work.</p>`,
+keys:["Noticed signals and took them seriously","Data on where the load came from","Negotiated capacity with stakeholders","Structural fixes (rotation, root causes)","Modelled healthy behaviour; measured improvement"],
+fu:[{q:"How do you notice burnout early in a remote team?",a:"One-to-ones with direct questions, watching working hours and response times, retro signals, and changes in someone's usual behaviour."}],
+rf:["'Push through' as the answer","Led by example with overtime","No structural change"]},
+
+{id:"B049",skill:"EM Fundamentals",level:"Intermediate",type:"Behavioral",
+q:"How do you run one-to-ones? Tell me about a one-to-one that led to a meaningful change.",
+a:`<p><b>What it probes:</b> whether one-to-ones are a real management tool for you (their agenda, trust, growth) rather than status updates.</p>
+<p><b>How I run them:</b> weekly or fortnightly, 30 minutes, the other person's agenda first. Not status updates (those belong elsewhere). Recurring themes: how they're feeling about work, blockers, growth goals, feedback both ways. I keep shared notes so commitments are tracked, and I ask occasionally "what should I do differently?"</p>
+<p><b>Sample STAR answer</b> <i>(template; as a tech lead)</i></p>
+<p><b>S:</b> In a one-to-one, an engineer mentioned, almost in passing, that she'd been reading about Kubernetes in her own time and wished she could work on infrastructure.</p>
+<p><b>T:</b> I wanted to support her interest in a way that also helped the team.</p>
+<p><b>A:</b> I asked what attracted her and what she wanted to be doing in two years. We agreed she would take ownership of improving our CI/CD pipeline, a real need, and pair with the DevOps engineer for a month. We reviewed progress in our one-to-ones every two weeks.</p>
+<p><b>R:</b> She cut our pipeline time by half over a quarter and became the team's infrastructure lead. Without that one-to-one, we'd have missed both her motivation and the improvement.</p>`,
+keys:["Their agenda, not status","Regular, protected, with notes","Covers wellbeing, growth, feedback both ways","Acts on what's heard","Example of real impact"],
+fu:[{q:"What do you do when someone says 'nothing to discuss'?",a:"Have a few open questions ready (what's frustrating you, what would you change, what are you learning), and keep the time anyway; trust builds over time."}],
+rf:["One-to-ones as status meetings","Frequently cancelled","No follow-through on what's discussed"]},
+
+{id:"B050",skill:"EM Fundamentals",level:"Intermediate",type:"Behavioral",
+q:"Why do you want to move into engineering management (or a senior tech lead role)? What will you miss, and what concerns you?",
+a:`<p><b>What it probes:</b> motivation and realism. Interviewers screen out people who want management for status or as the only path to a raise, and those who don't understand they'll write much less code.</p>
+<p><b>What a strong answer covers</b> <i>(write your own; this is a guide)</i>:</p>
+<ul>
+<li><b>Genuine motivation from experience:</b> e.g. "Over the last few years, the work I've found most satisfying was helping engineers grow and fixing how the team works: onboarding, reviews, incident practices. I've seen that improving the team multiplies outcomes more than my own code."</li>
+<li><b>Evidence you've already done parts of the job:</b> mentoring, hiring panels, planning, stakeholder management, running incidents as a tech lead.</li>
+<li><b>Realism about the trade-offs:</b> less coding time, impact through others, slower feedback loops, harder conversations (performance, conflict), being accountable for outcomes you don't directly control.</li>
+<li><b>What you'll miss and how you'll stay technical:</b> e.g. design reviews, reading code, occasional small contributions off the critical path, keeping up with architecture.</li>
+<li><b>An honest concern and how you're addressing it:</b> e.g. "Handling underperformance formally is new to me; I've been learning from my manager and reading on it, and I'd want support from HR and my own manager early on."</li>
+</ul>
+<p>For a TL/EM hybrid role, say which you lean towards and why; many companies want people who can do both for a period.</p>`,
+keys:["Motivation rooted in real experience","Evidence of doing parts of the job","Realistic about trade-offs","Plan for staying technical","Honest concern with a learning plan"],
+fu:[{q:"What if you find you don't like management?",a:"Say honestly that the IC path to staff/principal is equally valuable and that you'd discuss it openly with your manager; many good leaders move between tracks."}],
+rf:["Status or salary as the main motive","'I'll still code 50% of the time' in an EM role","No awareness of the difficult parts"]},
+{id:"B051",skill:"Technical Decisions",level:"Advanced",type:"Behavioral",
+q:"Tell me about a decision you made that was unpopular with your team. How did you handle the resistance?",
+a:`<p><b>What it probes:</b> whether you can make hard calls, explain them well, listen to dissent, and keep trust when people disagree.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> After two production incidents caused by untested changes, I decided that every change to the billing module needed a second reviewer from a small group of billing experts, and tests for any changed rule.</p>
+<p><b>T:</b> The team saw it as slowing them down and as a lack of trust.</p>
+<p><b>A:</b> I explained the reasoning openly in a team meeting: the incident costs, the specific gaps, and why billing (money, customer trust) justified extra rigour that other modules didn't need. I asked for objections and alternatives. Two were valid: reviewer availability would be a bottleneck, and the rule was vague. We adjusted: three trained reviewers instead of two, a 24-hour review expectation, and a clear checklist. I committed to reviewing the rule after two months with data.</p>
+<p><b>R:</b> No billing incidents occurred over the next two quarters, and review times stayed under a day. At the two-month review, the team asked to keep it. Some people still didn't love it, and that's fine; what mattered was that they understood why and that their input changed the rule.</p>`,
+keys:["Clear reasoning tied to real risk","Scope limited to where it's justified","Invited and acted on objections","Committed to a review with data","Accepted that not everyone will agree"],
+fu:[{q:"How do you know when to compromise vs hold firm?",a:"Hold firm on the goal (no untested billing changes); be flexible on the mechanism when people propose better ways to achieve it."}],
+rf:["Imposed with no explanation","Backed down entirely under pressure","Dismissed objections"]},
+
+{id:"B052",skill:"Technical Decisions",level:"Advanced",type:"Behavioral",
+q:"Tell me about a time you reversed or killed an approach you had championed.",
+a:`<p><b>What it probes:</b> intellectual honesty and ego management, and avoiding the sunk-cost fallacy. Leaders who never change course are a risk.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> I championed building our own lightweight workflow engine for multi-step lab processing, arguing that existing tools were too heavy.</p>
+<p><b>T:</b> Three months in, I had to judge whether to continue.</p>
+<p><b>A:</b> I noticed we kept adding features that mature tools already had: retries with backoff, timeouts, visibility into stuck workflows, versioning of running workflows. I compared the remaining roadmap with AWS Step Functions honestly, including the effort to migrate what we'd built. Our engine would need another three to four months to be production-grade; migrating would take about five weeks. I presented this to the team and my manager, stating plainly that my original assessment had underestimated the operational features needed.</p>
+<p><b>R:</b> We migrated to Step Functions in six weeks. Operations became simpler, and we gained execution history for debugging. The team told me that seeing me reverse my own decision made it easier for them to raise concerns about their own work. My lesson: write down the conditions for success when starting, and check them on a schedule.</p>`,
+keys:["Noticed warning signs early","Honest comparison including sunk cost","Stated own misjudgement plainly","Switched decisively","Lesson: success criteria up front, scheduled checks"],
+fu:[{q:"How did you handle the team members who'd built the engine?",a:"Recognise their work publicly, explain that the knowledge gained shaped the migration, and involve them in leading it."}],
+rf:["Kept going because of effort already spent","Blamed others for the original decision","Couldn't think of an example"]},
+
+{id:"B053",skill:"Technical Decisions",level:"Advanced",type:"Behavioral",
+q:"Tell me about setting a technical direction that multiple teams had to follow.",
+a:`<p><b>What it probes:</b> cross-team technical leadership: building consensus, balancing standardisation with autonomy, and driving adoption.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Four teams called each other's APIs with different error formats, authentication approaches and pagination styles. Integration bugs were frequent.</p>
+<p><b>T:</b> I volunteered to lead an API guidelines effort, without authority over the other teams.</p>
+<p><b>A:</b> I formed a small working group with one engineer from each team, so each team had a voice. We started with the pain points from real incidents and agreed on a minimal set of rules (error format based on RFC 7807 problem details, cursor pagination, auth via the shared library, versioning approach). We published it as a short living document with examples, and added a linter for the OpenAPI specs in CI that warned on violations. New APIs had to follow it; existing APIs migrated when changed. The working group met monthly to handle exceptions and updates.</p>
+<p><b>R:</b> Within six months, all new APIs followed the guidelines, and integration bugs between teams dropped noticeably. Because each team had helped write the rules, adoption needed very little enforcement.</p>`,
+keys:["Representation from each team","Started from real pain","Minimal rules with examples","Automated checks; new-first, migrate-on-touch","Ongoing governance forum for exceptions"],
+fu:[{q:"How did you handle a team that wanted an exception?",a:"Evaluate the reason in the forum; grant documented exceptions where justified and time-boxed, and update the guidelines if the case was general."}],
+rf:["Top-down mandate with no input","Huge document nobody reads","No adoption mechanism"]},
+
+{id:"B054",skill:"Conflict",level:"Advanced",type:"Behavioral",
+q:"Tell me about a time you disagreed with your manager's decision.",
+a:`<p><b>What it probes:</b> whether you can disagree upward constructively, then commit, and how you manage the relationship with your manager.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> My manager decided to move two of our most experienced engineers to a new project for three months, in the middle of a critical release for a key client.</p>
+<p><b>T:</b> I believed it put the release at serious risk and wanted to influence the decision.</p>
+<p><b>A:</b> I asked for a meeting the same day rather than discussing it in a group. I acknowledged the importance of the new project, then showed the specific risk: the remaining team had no one experienced in the integration module, and the release included three integration changes. I proposed an alternative: move one engineer immediately, and the second after the release in five weeks, with a knowledge-transfer plan in the meantime. I also said that if he still decided to move both, I'd support it and we'd re-plan the release scope with the client.</p>
+<p><b>R:</b> He agreed to stagger the move. The release went out on time, and the new project started with one experienced engineer, the second joining five weeks later. Our relationship got stronger because I'd brought a solution and made it clear I'd commit either way.</p>`,
+keys:["Raised privately and promptly","Acknowledged manager's goals","Specific risk with evidence","Alternative proposal","Explicit commitment to the final decision"],
+fu:[{q:"What if your manager hadn't changed his mind?",a:"Disagree and commit: execute the decision fully, make the risk visible in planning, and don't undermine it with the team."}],
+rf:["Complained to the team","Complied silently despite serious risk","Escalated over the manager's head first"]},
+
+{id:"B055",skill:"Conflict",level:"Advanced",type:"Behavioral",
+q:"Tell me about a time you had to communicate and implement a leadership decision you personally disagreed with.",
+a:`<p><b>What it probes:</b> maturity as a leader in the middle: representing the organisation honestly without undermining it or being dishonest with your team.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Leadership decided that all engineers would return to the office three days a week. Several of my team members had moved further away during remote work, and I had argued for team-level flexibility.</p>
+<p><b>T:</b> I had to communicate the decision and help the team adapt, while keeping their trust.</p>
+<p><b>A:</b> I didn't pretend to agree, but I didn't criticise leadership either. I told the team that I'd shared concerns during the discussion, explained the reasons leadership gave (collaboration, onboarding of new joiners), and said the decision was final and I'd support it. Then I focused on what I could influence: we chose the same office days as a team so the days were worth the commute, planned collaborative work (design sessions, pairing) for those days, and I raised individual hardship cases with HR for exceptions through the official process.</p>
+<p><b>R:</b> Two team members got approved exceptions; the rest adapted. Office days became our most productive collaboration time. One engineer said he appreciated that I was honest about my view while still making it work.</p>`,
+keys:["Honest without undermining leadership","Explained the reasons behind the decision","Focused on what you could influence","Used proper channels for individual issues","Maintained team trust"],
+fu:[{q:"Where's the line between disagreeing and undermining?",a:"Disagreeing in the decision forum is healthy; after the decision, executing half-heartedly or criticising it to the team undermines it. If it's an ethical issue, escalate through proper channels."}],
+rf:["'Management made me do it'","Pretended to agree","Ignored the decision in practice"]},
+
+{id:"B056",skill:"Mentoring & Growth",level:"Advanced",type:"Behavioral",
+q:"Tell me about helping a senior engineer grow into a tech lead role.",
+a:`<p><b>What it probes:</b> whether you can develop leaders, not just engineers: delegating leadership responsibilities, coaching on influence and judgement.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A senior engineer wanted to become a tech lead but had only led technical work, not people or planning.</p>
+<p><b>T:</b> I wanted her ready to lead a small team within six months.</p>
+<p><b>A:</b> We listed the parts of the TL role she hadn't done: sprint planning, stakeholder communication, running incident response, giving feedback, and making calls under disagreement. I handed them over gradually: she ran planning for a sub-team with me observing, then alone; she became the contact for one product manager; she led an incident with me as backup. After each, we did a short debrief: what went well, what she'd do differently. The hardest part was feedback: we role-played a difficult conversation before she had a real one.</p>
+<p><b>R:</b> After five months she led a team of four on a new product area. Her team's delivery was strong, and she later told me the role-play was what gave her confidence. It also freed my time for cross-team work.</p>`,
+keys:["Mapped the gaps to the role's real responsibilities","Gradual handover with observation then independence","Debriefs after each experience","Practice for the hard parts (role-play)","Outcome: new leader; your time freed"],
+fu:[{q:"How do you know someone is ready for a lead role?",a:"They already show lead behaviours: others go to them for help, they think about the team's outcomes, they handle disagreement well, and they can explain decisions to non-engineers."}],
+rf:["Promotion as a reward without preparation","No support after the transition","Only technical mentoring"]},
+
+{id:"B057",skill:"Mentoring & Growth",level:"Advanced",type:"Behavioral",
+q:"Tell me how you've made yourself replaceable, for example by developing a successor.",
+a:`<p><b>What it probes:</b> whether you build resilient teams and are secure enough to share knowledge and authority, a prerequisite for promotion beyond the current role.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> As the lead, I was the bottleneck for architecture decisions, production access approvals and client technical escalations.</p>
+<p><b>T:</b> I wanted the team to run without me for a month, so I could take on cross-team work and so we weren't fragile.</p>
+<p><b>A:</b> I listed everything only I did. For each, I either documented and delegated it (production approvals moved to a rotation with clear criteria), or developed someone (a senior engineer joined all client escalation calls for two months, then led them with me listening). Architecture decisions moved to a weekly design review where engineers presented and decided together, with me as one voice. I then took a planned two-week leave as a test, and asked the team to note anything that needed me.</p>
+<p><b>R:</b> Only one thing came up during my leave (a contract question). The senior engineer became the client's main technical contact, and I moved to a cross-team platform role three months later with no disruption to the team.</p>`,
+keys:["Listed single points of dependency","Delegate, document or develop for each","Group decision forums instead of personal approval","Tested with a real absence","Enabled your own next step"],
+fu:[{q:"Isn't making yourself replaceable risky for your job?",a:"The opposite: people who build teams that run without them are the ones trusted with bigger scope."}],
+rf:["Hoards knowledge","No test of independence","Delegates responsibilities without authority"]},
+
+{id:"B058",skill:"Mentoring & Growth",level:"Advanced",type:"Behavioral",
+q:"Tell me about a mentoring or coaching relationship that didn't work. What did you learn?",
+a:`<p><b>What it probes:</b> self-reflection and adaptability: understanding that one style doesn't fit everyone.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> I mentored an engineer who wanted to move into architecture. I used the approach that had worked for others: assign a design, ask questions, let them find answers.</p>
+<p><b>T:</b> After three months, he hadn't progressed and seemed frustrated.</p>
+<p><b>A:</b> I asked him directly how the mentoring was working for him. He said my questions felt like tests and he didn't know what "good" looked like; he learned better from worked examples and reading. I changed my approach: we walked through two of our existing designs together, I explained my reasoning out loud, recommended specific reading, and then he wrote a design with examples to reference. I also realised his goal was partly about recognition, so we agreed visible milestones.</p>
+<p><b>R:</b> His next design was solid, and he became much more confident. My lesson: ask early how someone learns and check the relationship is working, instead of assuming my default style fits everyone.</p>`,
+keys:["Honest about the failure","Asked the mentee for feedback","Adapted the style to their learning","Clarified underlying goals","General lesson applied since"],
+fu:[{q:"What if the person isn't interested in being mentored?",a:"Respect it; mentoring works only if they want it. Focus on clear expectations and feedback through normal channels."}],
+rf:["Blames the mentee","No reflection","Same approach for everyone"]},
+
+{id:"B059",skill:"Hiring",level:"Advanced",type:"Behavioral",
+q:"Tell me about a hire that turned out to be a mistake. What went wrong in the process, and what did you change?",
+a:`<p><b>What it probes:</b> ownership of hiring outcomes and learning: whether you trace problems back to the process, and how you handled the person fairly.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> We hired a senior engineer who interviewed very well, but in practice struggled to work in our codebase without detailed instructions and resisted feedback.</p>
+<p><b>T:</b> I was on the panel and later his technical lead, so I shared responsibility for the decision and for handling the situation.</p>
+<p><b>A:</b> First, I treated it as a performance issue fairly: clear expectations, support, regular feedback, and with his manager we gave a defined period to improve. When it didn't work out, his manager handled the exit respectfully. Then I looked back at our interviews: every round had tested problems from scratch; none tested working within an existing, messy codebase or receiving feedback. Two references had been glowing but generic. I proposed adding a code-reading and extension exercise using a sample of real (sanitised) code, a review-feedback discussion in the behavioural round, and more specific reference questions.</p>
+<p><b>R:</b> The new exercise became one of the most predictive rounds; it surfaced similar issues in two later candidates. I also learned to weigh "how they work with others" evidence as heavily as technical brilliance for senior roles.</p>`,
+keys:["Shared responsibility for the decision","Handled the person fairly and supportively","Traced the miss to gaps in the process","Specific changes to interviews/references","Evidence the change helped"],
+fu:[{q:"How long should you wait before acting on a bad hire?",a:"Address issues as soon as they're clear, with support; most organisations use probation for this. Waiting too long hurts the team and the person."}],
+rf:["Blames the hire entirely","No process change","Avoided the issue for months"]},
+
+{id:"B060",skill:"Hiring",level:"Advanced",type:"Scenario",
+q:"How would you design the interview loop for a senior engineer versus a staff or lead engineer? What changes?",
+a:`<p><b>What it probes:</b> understanding of what distinguishes levels, and how to assess scope and influence, not just technical depth.</p>
+<p><b>Senior engineer loop</b> (owns features and services end to end):</p>
+<ul>
+<li>Coding/practical exercise: quality, testing, debugging in realistic code.</li>
+<li>System design at service level: data model, APIs, failure handling, trade-offs.</li>
+<li>Behavioural: ownership, collaboration, mentoring juniors, handling incidents.</li>
+</ul>
+<p><b>Staff/lead engineer loop</b> (sets direction across teams, multiplies others):</p>
+<ul>
+<li><b>Design at system/organisation level:</b> ambiguous, multi-team problems (e.g. migrating a platform used by five teams), with emphasis on sequencing, risk, and how they'd get buy-in.</li>
+<li><b>Technical strategy discussion:</b> walk through a past initiative they led: the problem, alternatives, how they influenced, measurable outcome. Deep follow-ups test authenticity.</li>
+<li><b>Behavioural focus on influence:</b> resolving cross-team conflict, saying no to leadership, developing other leaders, decisions that were wrong.</li>
+<li><b>Coding</b> still present but lighter (code review exercise or pairing), checking they remain hands-on enough.</li>
+<li>Interviewers at or above the level, including someone from a partner function (product).</li>
+</ul>
+<p><b>Rubric differences:</b> scope (feature → system → organisation), ambiguity handled, influence without authority, and impact through others. Calibrate with examples of past hires at each level.</p>`,
+keys:["Levels differ in scope and influence","Senior: practical coding + service design + ownership","Staff: ambiguous multi-team design, past initiative deep-dive, influence","Lighter but present coding for staff","Level-specific rubric and calibrated interviewers"],
+trade:["More rounds: better signal vs candidate fatigue and drop-off","Deep-dive on past work: authentic signal vs favours good storytellers (probe details)"],
+fu:[{q:"How do you detect someone exaggerating their role in a past project?",a:"Ask for specifics only the decision-maker would know: alternatives rejected and why, who disagreed, what went wrong, numbers, what they'd do differently."}],
+rf:["Same loop for all levels","Only algorithm questions","No assessment of influence for staff"]},
+
+{id:"B061",skill:"Hiring",level:"Advanced",type:"Behavioral",
+q:"Tell me what you've done to make hiring fairer or to build a more diverse team.",
+a:`<p><b>What it probes:</b> awareness of bias in hiring and concrete actions, not slogans.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our engineering candidates came almost entirely from referrals and a few colleges, and our interview feedback often mentioned "culture fit" without evidence.</p>
+<p><b>T:</b> I wanted a fairer process that widened who we reached and assessed people on job-relevant evidence.</p>
+<p><b>A:</b> I worked with our recruiter to rewrite job descriptions (removed inflated requirements like "10+ years" for a role that needed 5, and separated must-haves from nice-to-haves, since some candidates don't apply unless they meet every line). We added sourcing channels beyond referrals, including community groups and returnship programmes for people coming back after career breaks. In interviews, we replaced "culture fit" with defined values-related behaviours in the rubric, required evidence-based notes, and had interviewers submit feedback before the debrief. We made sure panels weren't all from one background where possible.</p>
+<p><b>R:</b> Applications from a wider range of backgrounds increased, and two of the next five hires came through the new channels, including an excellent engineer returning from a career break. Debriefs became more evidence-based overall.</p>`,
+keys:["Job descriptions with realistic requirements","Broader sourcing channels","Structured rubric replacing 'culture fit'","Independent feedback before debrief","Measured the change"],
+fu:[{q:"Doesn't this lower the bar?",a:"No: the bar is defined by job-relevant evidence in the rubric. Widening the funnel and removing irrelevant filters tends to raise quality."}],
+rf:["Only talks about intentions","'Culture fit' as a criterion","Lowering standards as the method"]},
+
+{id:"B062",skill:"Estimation & Planning",level:"Advanced",type:"Behavioral",
+q:"Tell me about planning and running a multi-quarter migration or programme. How did you sequence it and keep it on track?",
+a:`<p><b>What it probes:</b> programme leadership: sequencing for risk and value, tracking progress, managing dependencies across months.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> We had to migrate a client platform from on-premises servers to AWS: 12 applications, SQL Server databases, file shares and integrations with lab instruments, over three quarters.</p>
+<p><b>T:</b> I led the technical plan and execution across two teams.</p>
+<p><b>A:</b> I inventoried every component with its dependencies, risk and business criticality, then sequenced in waves: first a low-risk internal application to prove the landing zone, pipeline and runbooks; then medium-risk apps; the critical lab-results system last, when the process was proven. Each wave had entry and exit criteria (tested rollback, performance comparison, sign-off). I tracked progress weekly on a one-page dashboard (components migrated, blockers, risks, cost vs forecast) shared with the client. Dependencies like network links and firewall changes were requested two waves ahead.</p>
+<p><b>R:</b> We completed in three quarters, two weeks late due to one vendor dependency we'd flagged early. The final cutover of the lab system took one weekend with no data loss. The wave approach and runbooks were reused for another client.</p>`,
+keys:["Inventory with dependencies and criticality","Waves: prove the process on low risk first","Entry/exit criteria including rollback","Weekly one-page tracking shared with stakeholders","Long-lead dependencies requested early"],
+fu:[{q:"What would you do if a wave failed its exit criteria?",a:"Pause the next wave, fix the root cause, and re-plan with stakeholders; rushing forward compounds risk."}],
+rf:["Big-bang migration","No rollback criteria","Progress tracked only in heads"]},
+
+{id:"B063",skill:"Estimation & Planning",level:"Advanced",type:"Scenario",
+q:"Leadership asks for a fixed 12-month roadmap with committed dates for a new AI-powered product where the technology and user needs are still uncertain. How do you respond?",
+a:`<p><b>What it probes:</b> managing uncertainty at the leadership level: giving leaders what they need for planning (budget, milestones, decisions) without false precision.</p>
+<p><b>Approach:</b></p>
+<ul>
+<li><b>Understand why they need it:</b> budget approval, hiring, sales messaging, board reporting? Each needs a different level of commitment.</li>
+<li><b>Commit to outcomes and learning milestones, not feature dates:</b> e.g. Q1: validate with 3 pilot customers that the assistant reduces support handling time by 20%; Q2: production launch for pilot segment with quality thresholds met; Q3–Q4: scale and expand based on results.</li>
+<li><b>Horizon-based roadmap:</b> next quarter detailed and committed; the following quarter planned with ranges; later quarters as themes and bets.</li>
+<li><b>Explicit decision points:</b> "At the end of Q1, if evaluation shows accuracy below X, we either narrow the use case or stop." This gives leadership control and protects against sunk-cost continuation.</li>
+<li><b>Fixed budget and team, flexible scope:</b> leadership can plan cost and headcount with confidence.</li>
+<li><b>Regular reporting</b> with evidence: evaluation results, pilot metrics, cost per interaction.</li>
+</ul>
+<p>Phrase it positively: "I can give you a committed plan for the next quarter, a forecast for the one after, and clear decision points for the rest, which is more useful than dates we'd have to change."</p>`,
+keys:["Find out what the roadmap is for","Commit to outcomes and learning milestones","Horizons: detailed near, themes far","Explicit go/no-go decision points","Fixed budget/team, flexible scope; evidence-based reporting"],
+trade:["Fixed dates: easy to communicate vs likely broken and erodes trust","Outcome roadmap: honest vs needs leadership comfort with uncertainty"],
+fu:[{q:"What if leadership insists on dates for a customer commitment?",a:"Commit to a minimal, well-understood scope with a conservative date for that customer, separate from the exploratory roadmap, and document the assumptions."}],
+rf:["Produces a detailed 12-month Gantt chart","Refuses to plan","No decision points"]},
+
+{id:"B064",skill:"Incidents & Ownership",level:"Advanced",type:"Behavioral",
+q:"Tell me about leading a major incident where senior leadership or customers were watching closely.",
+a:`<p><b>What it probes:</b> incident command under pressure: separating coordination from investigation, communication cadence, and protecting responders from distraction.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our patient portal was down for all clinics on a weekday morning after a cloud networking change. The client's CEO and our director joined the call within 20 minutes.</p>
+<p><b>T:</b> I was incident commander, responsible for coordination and communication.</p>
+<p><b>A:</b> I separated roles immediately: two engineers investigating in a separate channel, one person writing updates, and I handled the leadership call. I gave leadership updates every 20 minutes in a fixed format: impact, what we know, what we're trying, next update time, and kept them out of the technical channel so engineers could focus. When the director suggested restarting everything, I explained why that could make diagnosis harder and what we were doing instead. Investigation found a security group change that blocked database traffic; we reverted it.</p>
+<p><b>R:</b> Service was restored in 75 minutes. The client's CEO later said the regular, clear updates made the difference in their confidence. In the postmortem we introduced change review for network rules and an alert on database connection failures.</p>`,
+keys:["Clear incident roles (commander, investigators, comms)","Fixed-cadence, structured updates","Shielded responders from leadership pressure","Pushed back on risky suggestions with reasons","Restored, then systemic follow-up"],
+fu:[{q:"What would you do if an executive started directing engineers directly?",a:"Politely redirect: explain that one commander coordinates to avoid conflicting actions, and offer them a direct line to you for questions."}],
+rf:["Commander also debugging","Irregular updates","Letting executives run the technical response"]},
+
+{id:"B065",skill:"Incidents & Ownership",level:"Advanced",type:"Behavioral",
+q:"Tell me about eliminating a recurring class of incidents, not just a single one.",
+a:`<p><b>What it probes:</b> systems thinking: looking across incidents for patterns and investing in structural fixes.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> We had six incidents in four months, each with a different immediate cause, but each started with a configuration change: a feature flag, an environment variable, a connection string.</p>
+<p><b>T:</b> I wanted to stop treating them separately and fix the underlying weakness.</p>
+<p><b>A:</b> I reviewed all postmortems together and found the pattern: configuration changes bypassed the review, testing and gradual rollout that code changes had. I proposed treating configuration as code: all application config in a repository with PR review, validation on startup (the app refused to start with invalid config rather than failing later), staged rollout of config changes like deployments, and automatic rollback on alarm. Feature flags got owners and expiry dates.</p>
+<p><b>R:</b> Configuration-caused incidents dropped to one in the following six months, and that one was caught by startup validation in staging. Incident reviews now include a cross-incident pattern review every quarter.</p>`,
+keys:["Looked across incidents for patterns","Identified the shared root cause","Structural fix (config as code, validation, staged rollout)","Measured reduction","Institutionalised pattern reviews"],
+fu:[{q:"How do you find patterns across incidents?",a:"Tag postmortems by contributing factors (change type, detection gap, component) and review them quarterly; counts by tag reveal the systemic issues."}],
+rf:["Fixes each incident in isolation","No data to show improvement","Only adds more alerts"]},
+
+{id:"B066",skill:"Stakeholder Pushback",level:"Advanced",type:"Behavioral",
+q:"Tell me about a time you convinced leadership to stop or significantly change a project.",
+a:`<p><b>What it probes:</b> courage and business judgement: using evidence to redirect investment, even when it's uncomfortable.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> We had spent four months building a mobile app for clinic staff, sponsored by a senior product leader. Pilot usage was very low: staff kept using the web portal on desktop computers in the clinic.</p>
+<p><b>T:</b> I believed continuing would waste another six months of team capacity.</p>
+<p><b>A:</b> I gathered evidence: pilot usage data, a few short interviews with clinic staff (they worked at desks with shared PCs and weren't allowed to use personal phones for patient data), and the cost of the remaining roadmap. I met the sponsor privately first, acknowledged the original reasoning, and showed the data. I proposed redirecting: make the web portal responsive for the few mobile use cases (doctors on rounds) and use the saved capacity for the scheduling improvements that staff were asking for.</p>
+<p><b>R:</b> The sponsor agreed and presented the change to leadership herself. We delivered the responsive features in six weeks and the scheduling improvements the next quarter, which had strong adoption. Approaching her privately and giving her ownership of the change was key.</p>`,
+keys:["Evidence: usage data, user research, cost","Private conversation with the sponsor first","Acknowledged original reasoning","Proposed a better use of capacity","Let the sponsor own the change"],
+fu:[{q:"What if the sponsor had refused?",a:"Ask what evidence would change their mind and agree to a time-boxed checkpoint; if the waste is large, raise it with the appropriate decision-maker transparently."}],
+rf:["Public criticism of the project","Opinion without evidence","Stopping work without agreement"]},
+
+{id:"B067",skill:"Stakeholder Pushback",level:"Advanced",type:"Behavioral",
+q:"Tell me about aligning conflicting priorities from several stakeholders who all wanted your team's time.",
+a:`<p><b>What it probes:</b> prioritisation across competing demands, transparency, and getting the right person to make trade-off decisions.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> My team received requests from two product managers, the support team (bug fixes) and sales (custom work for prospects). Each considered their request urgent, and engineers were being asked directly.</p>
+<p><b>T:</b> I needed a fair, visible way to decide, and to stop the team being pulled in all directions.</p>
+<p><b>A:</b> I made all requests go into one intake board with a short description, the business impact, and the deadline reason. I proposed a simple scoring (customer impact, revenue, risk, effort) and a fortnightly prioritisation meeting with all stakeholders and our head of product as the tie-breaker. I set a fixed capacity split as a starting point (60% roadmap, 25% support issues, 15% sales requests) that the group could adjust. Engineers were asked to redirect direct requests to the board politely.</p>
+<p><b>R:</b> Within a month, escalations to my manager about "my request being ignored" stopped. Stakeholders could see where their items stood and why. The head of product used the capacity split in her quarterly planning.</p>`,
+keys:["Single intake with impact and reason","Transparent scoring","Shared prioritisation forum with a tie-breaker","Explicit capacity split","Protected engineers from side requests"],
+fu:[{q:"What do you do with a truly urgent request mid-sprint?",a:"Have an agreed path: the requester and the tie-breaker decide what gets dropped, visibly. Urgent means something else moves."}],
+rf:["The loudest stakeholder wins","Lead decides alone without visibility","Team overloaded to satisfy everyone"]},
+
+{id:"B068",skill:"Stakeholder Pushback",level:"Advanced",type:"Behavioral",
+q:"Tell me about a time you had to deliver bad news upward, such as a serious risk, a security problem or a big delay.",
+a:`<p><b>What it probes:</b> whether leaders hear bad news from you early and clearly, with options, rather than late or softened into meaninglessness.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Two months before a contracted go-live, a security review found that our document storage didn't meet the client's data-residency requirement: backups were replicated to a region outside the agreed country.</p>
+<p><b>T:</b> I had to tell my director and then the client, knowing it could affect the contract.</p>
+<p><b>A:</b> I informed my director the same day with a short written summary: what we found, what data was affected (none yet in production, only test data), the contractual requirement, and two options with effort: move backups to an in-region setup (three weeks) or seek the client's acceptance for an approved alternative. I recommended the first. I asked for us to inform the client proactively rather than wait. We presented it to the client together the next week with the remediation plan already started.</p>
+<p><b>R:</b> We fixed it in three weeks; go-live was unaffected. The client said our proactive disclosure increased their trust; their audit later praised our transparency. My lesson: bad news doesn't get better with age, and arriving with facts and options makes it manageable.</p>`,
+keys:["Raised immediately","Written, factual summary of impact","Options with effort and a recommendation","Proactive disclosure to the client","Remediation underway when communicated"],
+fu:[{q:"How do you avoid sounding alarmist or downplaying?",a:"Stick to facts: what's known, what's unknown, actual impact so far, and likelihood; separate facts from your assessment."}],
+rf:["Delayed until fixed","Softened so leaders didn't grasp severity","No options"]},
+
+{id:"B069",skill:"Underperformance",level:"Advanced",type:"Behavioral",
+q:"Tell me about managing a performance issue formally, through a performance improvement plan or an exit.",
+a:`<p><b>What it probes:</b> whether you can handle the hardest people situations fairly, documented and humanely. <b>Be honest about your experience:</b> if you haven't run a formal process as a TL without reports, say so and describe your actual part (supporting the line manager, providing evidence and coaching) plus how you'd approach it. Inventing one is easy to detect.</p>
+<p><b>Sample STAR answer</b> <i>(template; written from a tech lead supporting a line manager)</i></p>
+<p><b>S:</b> An engineer on my team had missed expectations for several months despite feedback and support: tasks repeatedly late, and quality issues reaching production.</p>
+<p><b>T:</b> His line manager decided on a formal improvement plan; I was responsible for the technical expectations and for coaching during it.</p>
+<p><b>A:</b> We wrote specific, measurable expectations for six weeks (e.g. complete agreed tasks within estimates in most cases, PRs passing review within two rounds, tests for all changes). I met him weekly to review progress honestly and offer help: pairing, clearer task breakdown. I documented observations factually after each meeting and shared them with him and his manager, so there were no surprises. HR advised on the process.</p>
+<p><b>R:</b> He improved partially but didn't meet the expectations; together with his manager and HR, the company decided to part ways, with notice and support. It was hard, but the team's morale improved because they saw standards applied fairly. I learned that clarity and documentation are kind to everyone, including the person.</p>`,
+keys:["Specific, measurable, time-bound expectations","Genuine support during the plan","Factual documentation shared with the person","HR involved; no surprises","Respectful outcome; honest about your role"],
+fu:[{q:"How do you keep it fair rather than a formality before exit?",a:"Set achievable expectations, provide real support, review honestly, and be open to the plan succeeding; many do."}],
+rf:["Fabricated people-management experience","Vague expectations","Surprise outcome for the person","Gossip with the team"]},
+
+{id:"B070",skill:"Underperformance",level:"Advanced",type:"Scenario",
+q:"You've been promoted to lead your team. A former peer, who also applied for the role, is now reporting to you, openly questioning your decisions and slowing things down. What do you do?",
+a:`<p><b>What it probes:</b> handling a delicate authority transition with empathy and firmness.</p>
+<p><b>Approach:</b></p>
+<ol>
+<li><b>Talk early and privately.</b> Acknowledge the situation honestly: "I know you wanted this role too, and you'd have been a strong candidate." Ask how they feel and what they want from their career.</li>
+<li><b>Recognise their strengths and give real ownership:</b> perhaps technical ownership of an area, leading a key design, or mentoring, so they have meaningful scope and influence.</li>
+<li><b>Set expectations clearly:</b> disagreement is welcome in team discussions and one-to-ones; undermining decisions after they're made, or in front of others, isn't.</li>
+<li><b>Involve them in decisions</b> where their expertise matters, so they're heard before decisions, not just after.</li>
+<li><b>Address specific incidents</b> promptly with examples if the behaviour continues.</li>
+<li><b>Support their growth:</b> talk with your manager about their path (another lead opening, staff track). If they're unhappy long-term, helping them find a better-fitting role is a good outcome.</li>
+<li>If it persists despite this, treat it as a performance/behaviour issue with your manager.</li>
+</ol>`,
+keys:["Early, honest, private conversation","Acknowledge their disappointment and strengths","Meaningful ownership and involvement","Clear line between disagreement and undermining","Growth path; escalate behaviour if it persists"],
+trade:["Giving them significant ownership: engagement vs perceived favouritism (be transparent)","Firmness: authority vs damaging the relationship (balance with empathy)"],
+fu:[{q:"What if other team members side with them?",a:"Keep decisions transparent and well-reasoned, involve the team, and address the core relationship first; credibility comes from consistently good, fair decisions."}],
+rf:["Ignores the tension","Pulls rank publicly","Excludes them from important work"]},
+
+{id:"B071",skill:"Underperformance",level:"Advanced",type:"Behavioral",
+q:"Tell me about a time you realised someone was in the wrong role and helped them move to a better fit.",
+a:`<p><b>What it probes:</b> whether you see performance in context (role fit, strengths), and act in the interest of both the person and the organisation.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> An engineer on our backend team was struggling with complex distributed-systems work, but was excellent at understanding users and frequently helped support staff and clinic users.</p>
+<p><b>T:</b> I wanted to address the performance gap without losing someone who clearly had valuable skills.</p>
+<p><b>A:</b> In a one-to-one, I asked what parts of her work she enjoyed most. She lit up talking about solving users' problems and writing clear guides; she felt drained by low-level backend work. With her manager, we explored options: a role in our product-support engineering team, which needed someone technical who could communicate with clinics and triage issues. We arranged a two-week trial, she found it energising, and the transfer went ahead.</p>
+<p><b>R:</b> Within months she significantly reduced escalations to engineering by solving problems at first contact and writing knowledge-base articles. She was later promoted in that track. The backend team also benefited from a clearer link to users.</p>`,
+keys:["Looked at strengths, not just gaps","Asked what energises the person","Worked with the manager on real options","Trial before committing","Outcome good for person and organisation"],
+fu:[{q:"How do you avoid this looking like moving a problem elsewhere?",a:"Be transparent with the receiving team about strengths and gaps, use a trial, and only move people where their strengths genuinely fit the role."}],
+rf:["Moves the problem to another team","Never asks the person","Assumes poor performance means poor ability"]},
+
+{id:"B072",skill:"Tech Debt",level:"Advanced",type:"Behavioral",
+q:"Tell me about deciding between rewriting and incrementally modernising a legacy system.",
+a:`<p><b>What it probes:</b> judgement on one of the riskiest decisions in engineering; rewrites often fail, and leaders must justify the choice with evidence.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> A 12-year-old WebForms application with most logic in stored procedures was the core of our lab-management product. The team wanted a complete rewrite in .NET with a React frontend.</p>
+<p><b>T:</b> I had to recommend an approach to leadership.</p>
+<p><b>A:</b> I evaluated three options: full rewrite, incremental strangler migration, and keep-and-improve. Key facts: the system was business-critical, much behaviour was undocumented, and customers needed new features continuously. A rewrite would freeze features for an estimated 18+ months and risk missing hidden behaviour. I recommended the strangler approach: a new .NET API and React frontend alongside the old app, new features built in the new stack, and old screens migrated by usage priority. Shared database first, with logic moved out of stored procedures module by module, each with characterisation tests.</p>
+<p><b>R:</b> Leadership approved it. After 18 months, around 70% of usage ran on the new stack while customers received features throughout. The remaining rarely used screens were migrated or retired. The team was initially disappointed not to rewrite, but the steady delivery won them over.</p>`,
+keys:["Evaluated rewrite, strangler, keep-and-improve","Facts: criticality, undocumented behaviour, feature needs","Strangler with migration by usage priority","Characterisation tests per module","Continuous customer value; team bought in"],
+fu:[{q:"When is a rewrite the right choice?",a:"When the system is small enough to rewrite quickly, the platform is truly unviable (e.g. unsupported and insecure), or the product itself is changing so much that little behaviour carries over; even then, release incrementally."}],
+rf:["Rewrite because the code is old","No consideration of hidden behaviour","Feature freeze for a year+"]},
+
+{id:"B073",skill:"Tech Debt",level:"Advanced",type:"Scenario",
+q:"How do you quantify technical debt for executives so it competes fairly with feature work for investment?",
+a:`<p><b>What it probes:</b> translating engineering concerns into business language: cost, risk, speed.</p>
+<p><b>Ways to quantify:</b></p>
+<ul>
+<li><b>Capacity drain:</b> percentage of engineering time on unplanned work, incidents, workarounds and manual operations caused by specific debt (from ticket tags and time tracking), expressed as person-months or money.</li>
+<li><b>Delivery speed:</b> cycle time and change failure rate in affected areas compared with healthy areas ("changes to billing take 3× longer and fail 4× more often").</li>
+<li><b>Risk:</b> probability × impact of failures: end-of-support dates with security implications, single points of failure, compliance findings. Use concrete scenarios ("if this fails, clinics can't see results; last outage cost X in SLA credits").</li>
+<li><b>Opportunity cost:</b> roadmap items that are slower or impossible because of the debt.</li>
+<li><b>Customer impact:</b> incidents, support tickets, churn reasons linked to quality.</li>
+</ul>
+<p><b>Presenting it:</b> a short list of the top 3–5 debt items as investment proposals: cost to fix, expected return (capacity regained, risk reduced), and timeline, comparable to feature proposals. Report results after fixing (e.g. "billing changes now take half the time"), which builds credibility for the next request.</p>`,
+keys:["Capacity drain in person-months/money","Cycle time and failure rate in affected areas","Risk scenarios with impact","Opportunity cost and customer impact","Investment proposals with expected return; report results"],
+trade:["Detailed measurement: credible vs effort to collect data (start with estimates, refine)"],
+fu:[{q:"What if you don't have good data?",a:"Start with reasonable estimates and a few well-documented examples, and set up tagging of unplanned work so next quarter's case uses real data."}],
+rf:["'The code is bad' as the argument","Huge undifferentiated debt list","No follow-up on results"]},
+
+{id:"B074",skill:"Tech Debt",level:"Advanced",type:"Behavioral",
+q:"Tell me about a time technical debt caused a serious incident. What did you change beyond the immediate fix?",
+a:`<p><b>What it probes:</b> learning at the organisational level: changing how debt is tracked and prioritised, not just fixing the instance.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> An outdated version of a PDF-generation library, flagged months earlier as needing an upgrade, failed under a new type of lab report. Report generation stopped for all clinics for half a day.</p>
+<p><b>T:</b> After restoring service, I wanted to understand why known debt had remained unaddressed and prevent repeats.</p>
+<p><b>A:</b> The postmortem showed the upgrade had been a backlog ticket for eight months, repeatedly deprioritised because nobody could quantify its risk. I proposed three changes: a debt register with risk ratings reviewed monthly with the product manager; any "high risk" item had to be either scheduled or explicitly accepted by the product owner in writing; and automated dependency updates with alerts for libraries more than one major version behind. I also presented the incident's business cost to leadership to show what deferred debt can cost.</p>
+<p><b>R:</b> In the next quarter, four high-risk items were fixed, including two other outdated libraries. No debt-related incidents of that severity occurred over the following year. Making risk acceptance explicit changed behaviour: product owners preferred to schedule fixes rather than sign off on risks.</p>`,
+keys:["Immediate fix, then organisational root cause","Debt register with risk ratings","Explicit risk acceptance by product owner","Automated dependency hygiene","Communicated business cost to leadership"],
+fu:[{q:"Why does explicit risk acceptance work?",a:"It moves an implicit engineering worry into a visible business decision with an accountable owner, and people rarely want to sign their name to a known high risk."}],
+rf:["Only upgraded the library","Blamed product for deprioritising","No mechanism to prevent recurrence"]},
+
+{id:"B075",skill:"Delivery Under Pressure",level:"Advanced",type:"Behavioral",
+q:"Tell me about taking over a project that was already failing. How did you turn it around?",
+a:`<p><b>What it probes:</b> diagnosing quickly, resetting expectations honestly, and rebuilding momentum and trust.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> I was asked to take over a client integration project that was three months late, with a frustrated client and a demoralised team.</p>
+<p><b>T:</b> I needed to stabilise it and deliver within a realistic timeframe.</p>
+<p><b>A:</b> In the first week, I listened: one-to-ones with each engineer, a meeting with the client's lead, and a review of the backlog and defect list. The problems were clear: requirements had never been agreed in writing, there was no test environment matching the client's system, and the team was switching between too many tasks. I reset the plan with the client: a written scope for phase 1, a realistic date with buffer, and weekly demos. We got a client test environment within two weeks by escalating jointly. I limited work in progress to two features at a time and protected the team from side requests.</p>
+<p><b>R:</b> Phase 1 shipped on the new date, eight weeks later. The client's confidence returned through weekly demos, and the team's morale improved as they saw progress. I learned that the first step in a turnaround is an honest reset, not trying to recover the old date.</p>`,
+keys:["Listened first (team, client, backlog)","Diagnosed root causes","Honest reset of scope and date","Fixed blockers (environment); limited WIP","Visible progress to rebuild trust"],
+fu:[{q:"How do you handle the previous lead's decisions?",a:"Respect the context they had, avoid blaming them, and change what's needed with clear reasons."}],
+rf:["Promised to recover the original date","Blamed the previous lead","Changed everything at once"]},
+
+{id:"B076",skill:"Delivery Under Pressure",level:"Advanced",type:"Behavioral",
+q:"Tell me about delivering with a team split across time zones, for example India and the UK. What did you do to make it work?",
+a:`<p><b>What it probes:</b> leading distributed teams: communication design, avoiding handover delays, and fairness across locations.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> I was the onshore lead in the UK for a project with engineers in India and client stakeholders in the UK. Questions from India often waited a full day for answers, and meetings were scheduled at times convenient only for the UK.</p>
+<p><b>T:</b> I wanted to reduce delays and make the team feel like one team.</p>
+<p><b>A:</b> I set up a daily overlap hour (morning UK, afternoon India) for questions and decisions. Requirements were written with acceptance criteria and examples before work started, so engineers in India could proceed without waiting. I introduced end-of-day handover notes in a shared channel. I rotated meeting times that fell outside working hours so the inconvenience was shared, and recorded key sessions. I made sure India-based engineers presented their own work in client demos rather than me presenting for them.</p>
+<p><b>R:</b> Average wait time for answers dropped from about a day to a few hours, delivery became more predictable, and the client began contacting India-based engineers directly. Engineers said presenting to the client was a turning point in feeling ownership.</p>`,
+keys:["Defined overlap window for decisions","Clear written requirements to reduce waiting","Handover notes","Fair meeting rotation; recordings","Visibility and ownership for offshore engineers"],
+fu:[{q:"How do you build trust with a client who prefers working with onshore people?",a:"Put offshore engineers in front of the client with good preparation, highlight their contributions, and let results build confidence."}],
+rf:["Lead as a bottleneck for all communication","Meetings always at one location's convenience","Offshore team invisible to client"]},
+
+{id:"B077",skill:"EM Fundamentals",level:"Advanced",type:"Behavioral",
+q:"Tell me about leading your team through a major change, such as a reorganisation, a change of direction or a difficult announcement.",
+a:`<p><b>What it probes:</b> change leadership: transparency, empathy, and keeping the team functioning through uncertainty.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Our company restructured into product-aligned teams. My team of eight was split: four stayed with me on a new product area, and four joined other teams. Rumours circulated before the official announcement.</p>
+<p><b>T:</b> I had to help the team through the change and keep both delivery and morale intact.</p>
+<p><b>A:</b> After the announcement, I met the team the same day and then each person individually. I shared what I knew, said clearly what I didn't know yet, and committed to a date for more information. In one-to-ones, I asked about concerns and preferences and passed them to the managers making allocation decisions. For people moving, I arranged handover sessions and introductions to their new leads. For the new team, we held a kick-off to agree on goals and working norms. I kept regular check-ins during the first month.</p>
+<p><b>R:</b> Nobody left during or after the change, and both new teams were delivering within a month. Several people said the individual conversations and honesty about uncertainty helped most.</p>`,
+keys:["Communicated quickly and honestly, including unknowns","Individual conversations","Advocated for people's preferences","Structured transitions (handover, intros, kick-off)","Follow-up during the settling period"],
+fu:[{q:"What do you say when you can't share information yet?",a:"Say honestly that you can't share it yet, explain why if possible, and give a date by which you'll update them; never invent answers."}],
+rf:["Silence until everything is final","False reassurance","No individual attention"]},
+{id:"B078",skill:"Technical Decisions",level:"Lead",type:"Behavioral",
+q:"How do you balance hands-on technical work with leadership responsibilities? Give an example of getting this balance wrong and how you corrected it.",
+a:`<p><b>What it probes:</b> whether you understand that your leverage has changed, and whether you stay technical enough to make good decisions without becoming the team's bottleneck.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> In my first months as tech lead, I kept taking the hardest tickets myself because I could do them fastest.</p>
+<p><b>T:</b> I noticed problems: PRs waited for my review, planning and stakeholder conversations happened late, and two engineers said they never got challenging work.</p>
+<p><b>A:</b> I changed how I spent my time deliberately. I stopped taking critical-path tickets; I picked work off the critical path (tooling, spikes, small fixes) so a delay on my side didn't block delivery. I protected review time each morning, kept a weekly design review where others led, and blocked time for planning and one-to-ones. To stay technical, I review most significant PRs, pair with engineers on hard problems instead of solving them alone, and do one spike per quarter on something we'll need.</p>
+<p><b>R:</b> Review wait times fell, two engineers took on the complex work and grew quickly, and team throughput went up even though I wrote less code. I now check my calendar monthly: if most of my time is coding, I'm probably neglecting the multiplier work.</p>`,
+keys:["Recognises leverage shifts from own output to team output","Off-critical-path coding","Protected time for reviews, planning, people","Stays technical via reviews, pairing, spikes","Regular self-check on time allocation"],
+fu:[{q:"How much do you expect to code as an EM?",a:"Little on the critical path; enough to stay credible in design and review discussions. Be realistic about this in EM interviews."}],
+rf:["Still the top individual contributor and proud of it","No coding or technical engagement at all","No awareness of being a bottleneck"]},
+
+{id:"B079",skill:"Technical Decisions",level:"Lead",type:"Scenario",
+q:"You join as a senior engineering leader for an organisation of 40 engineers. How would you set the technical strategy for the next two years?",
+a:`<p><b>What it probes:</b> strategic thinking: starting from business goals, diagnosing before prescribing, and making strategy actionable.</p>
+<p><b>Approach:</b></p>
+<ol>
+<li><b>Listen and diagnose (first 60–90 days):</b> meet leaders and engineers; understand business goals for two years (growth, new markets, compliance, margins); review architecture, incidents, delivery metrics (DORA), cloud costs, team structure and skills. Identify the few biggest constraints, e.g. "every release needs three teams to coordinate" or "on-call load consumes 30% of capacity".</li>
+<li><b>Write a short strategy:</b> the diagnosis, guiding principles (e.g. "teams own services end to end", "buy undifferentiated infrastructure", "secure by default"), and 3–5 major initiatives tied to business outcomes, each with measurable targets (e.g. lead time from 2 weeks to 2 days; halve incidents from change; enable EU data residency for expansion).</li>
+<li><b>Socialise and refine</b> with engineers and leadership; adjust based on feedback so it's owned, not imposed.</li>
+<li><b>Make it executable:</b> sequence initiatives across quarters, assign owners, reserve capacity (e.g. 20–30%) alongside the product roadmap, and decide what we will <b>not</b> do.</li>
+<li><b>Review quarterly</b> against metrics; update as the business changes.</li>
+</ol>
+<p>Avoid the classic mistake of arriving and announcing a rewrite or a new stack before understanding why things are the way they are.</p>`,
+keys:["Diagnose before prescribing (60–90 days)","Tie to 2-year business goals","Short strategy: diagnosis, principles, few initiatives with metrics","Socialise for ownership; say what we won't do","Sequence, staff, review quarterly"],
+trade:["Fast changes: momentum vs mistakes from incomplete understanding","Big initiatives: impact vs competing with roadmap capacity"],
+fu:[{q:"How do you show early results without rushing?",a:"Pick one or two quick, visible improvements during the diagnosis phase (e.g. fixing a painful deployment step) to build trust while the strategy forms."}],
+rf:["Announces a rewrite in week one","Strategy without business link","Dozens of initiatives","No metrics or review"]},
+
+{id:"B080",skill:"Conflict",level:"Lead",type:"Behavioral",
+q:"Tell me about a time you faced an ethical dilemma at work, for example being asked to hide a defect, mislead a client, or use data in a questionable way.",
+a:`<p><b>What it probes:</b> integrity under pressure. Leaders set the ethical tone; interviewers want to see you'd raise concerns and refuse clearly wrong actions while staying constructive.</p>
+<p><b>Sample STAR answer</b> <i>(template)</i></p>
+<p><b>S:</b> Before a contract renewal, a senior account manager asked us not to mention in the release notes a known defect where, in rare cases, an amended lab result didn't trigger a notification to the doctor.</p>
+<p><b>T:</b> I believed hiding it was wrong: it could affect patient care, and the client had a right to know so they could apply a manual check.</p>
+<p><b>A:</b> I explained my concern to the account manager privately, focusing on patient-safety risk and our contractual and regulatory obligations, not on accusing him. I proposed a constructive alternative: disclose it with a clear workaround (a daily report of amended results) and a committed fix date, framed as proactive quality management. When he still hesitated, I raised it with my director, who agreed. We informed the client the same week.</p>
+<p><b>R:</b> The client appreciated the transparency, applied the workaround, and the fix shipped in two weeks. The contract was renewed. Our director later made defect disclosure for patient-safety-related issues an explicit policy.</p>`,
+keys:["Clear line on safety and honesty","Raised privately and constructively first","Offered a responsible alternative","Escalated when necessary","Outcome and policy change"],
+fu:[{q:"What if your director had agreed with hiding it?",a:"For a patient-safety or legal issue, escalate further (compliance, quality, legal channels) and, if necessary, refuse to participate. Know where your line is before you're tested."}],
+rf:["'I did what I was told'","Self-righteous without offering alternatives","Can't name an example and claims it never happens"]},
+
+{id:"B081",skill:"Mentoring & Growth",level:"Lead",type:"Scenario",
+q:"Your organisation has no clear career paths: engineers think the only way to grow is to become a manager. How would you design growth paths for engineers?",
+a:`<p><b>What it probes:</b> organisational design for growth and retention; understanding parallel IC and management tracks.</p>
+<p><b>Design:</b></p>
+<ul>
+<li><b>Dual tracks</b> that diverge after senior engineer: an <b>individual contributor track</b> (senior → staff → principal) and a <b>management track</b> (engineering manager → senior EM → director), with equivalent seniority, pay bands and respect at each level. Moving between tracks is allowed and normal.</li>
+<li><b>Level expectations</b> written in terms of <b>scope and impact</b> (task → feature → system → multiple teams → organisation), plus dimensions such as technical skill, delivery, collaboration and leadership, with concrete examples per level. Public frameworks can be adapted rather than starting from scratch.</li>
+<li><b>Promotion process:</b> evidence-based packets showing sustained work at the next level, reviewed by a calibration group to keep standards consistent across teams.</li>
+<li><b>Growth mechanisms:</b> regular career conversations (separate from performance reviews), development plans with stretch assignments, mentoring across teams, and visibility opportunities (design reviews, talks).</li>
+<li><b>Staff-level roles defined by real needs:</b> technical leads for areas, architects for cross-team problems; not a title for long tenure.</li>
+</ul>
+<p><b>Rollout:</b> draft with a group of engineers and managers, test it on a few real cases, communicate with examples, and review after a year. The biggest success indicator: strong engineers stay as ICs and still grow in influence and compensation.</p>`,
+keys:["Dual IC and management tracks with parity","Levels defined by scope and impact with examples","Evidence-based, calibrated promotions","Career conversations separate from reviews","Co-created, tested, reviewed; retention as success signal"],
+trade:["Detailed framework: clarity vs box-ticking behaviour","Calibration committees: consistency vs slower decisions"],
+fu:[{q:"How do you stop staff engineer titles inflating?",a:"Define staff scope clearly (multi-team impact), require evidence, calibrate across teams, and keep the number tied to genuine organisational needs."}],
+rf:["Management as the only promotion path","Levels based on years of experience","Opaque promotion decisions"]},
+
+{id:"B082",skill:"Hiring",level:"Lead",type:"Scenario",
+q:"You're asked to build a new six-person team from scratch within six months to launch a new product. How do you approach it?",
+a:`<p><b>What it probes:</b> team building end to end: composition, sequencing hires, culture from day one, and delivering while hiring.</p>
+<p><b>Plan:</b></p>
+<ol>
+<li><b>Understand the product and constraints:</b> technology, domain complexity, timeline to first release, budget, location/remote policy.</li>
+<li><b>Design the team composition:</b> e.g. one senior/lead engineer with architecture strength, two seniors (backend, frontend), two mid-level, one with a QA/automation or DevOps focus. Mix of experience levels so seniors can mentor and juniors bring energy.</li>
+<li><b>Sequence hiring:</b> hire the most senior people first; they shape architecture and help hire the rest. Consider one internal transfer who knows the company's systems and culture.</li>
+<li><b>Hiring process:</b> structured loop with rubrics, a strong pitch (new product, ownership), fast decisions. Account for notice periods (often 2–3 months in India) in the timeline; start sourcing immediately.</li>
+<li><b>Start before the team is complete:</b> with the first hires, do discovery, architecture decisions, and set up the paved road (repo, CI/CD, environments, observability), so later joiners are productive immediately.</li>
+<li><b>Culture from day one:</b> working agreements, code review norms, definition of done, on-call expectations, how decisions are made (ADRs).</li>
+<li><b>Onboarding plan</b> for each hire; regular one-to-ones from the start.</li>
+<li><b>Interim capacity:</b> borrow engineers from other teams or contractors for early work if needed, with knowledge transfer.</li>
+</ol>`,
+keys:["Composition driven by product needs","Senior hires first; possibly an internal transfer","Account for notice periods; source immediately","Foundations and paved road built by early hires","Culture norms and onboarding from day one"],
+trade:["All seniors: fast start vs expensive and less growth dynamic","Contractors early: speed vs knowledge leaving with them"],
+fu:[{q:"What would you do if you couldn't find a strong senior lead in time?",a:"Lead the technical direction yourself temporarily, consider an internal transfer, and avoid compromising the bar for the role that shapes everything else."}],
+rf:["Hires juniors first to save cost","No plan for notice periods","Culture left to emerge by accident"]},
+
+{id:"B083",skill:"Estimation & Planning",level:"Lead",type:"Scenario",
+q:"Leadership asks you how productive your engineering team is and wants metrics. What do you measure, how do you use it, and what do you refuse to measure?",
+a:`<p><b>What it probes:</b> metrics literacy: using measurement to improve systems without creating gaming or surveillance.</p>
+<p><b>What I'd measure (at team/system level):</b></p>
+<ul>
+<li><b>DORA metrics:</b> deployment frequency, lead time for changes, change failure rate, time to restore service. Well researched, linked to organisational performance.</li>
+<li><b>Flow:</b> cycle time from start to production, work in progress, predictability (planned vs delivered).</li>
+<li><b>Outcomes:</b> product metrics the team influences (adoption, conversion, support tickets), reliability against SLOs.</li>
+<li><b>Developer experience</b> (from the SPACE framework idea): periodic surveys on satisfaction, friction points (build times, review waits, unclear requirements).</li>
+<li><b>Allocation:</b> share of time on features, maintenance, incidents and unplanned work.</li>
+</ul>
+<p><b>How to use them:</b> trends over time, discussed with the team to find improvement opportunities (e.g. long review waits), never as targets for individuals. Combine numbers with qualitative context.</p>
+<p><b>What I refuse:</b> lines of code, commit counts, individual story points or velocity comparisons across teams, and individual "productivity scores" from tools. They're easy to game, punish valuable work (reviews, mentoring, design), and erode trust.</p>
+<p>For leadership: a short quarterly report on DORA trends, outcomes delivered, and key improvement initiatives, which answers "are we getting better and delivering value?"</p>`,
+keys:["DORA + flow + outcomes + developer experience","Team/system level, trends, with context","Used for improvement, not individual targets","Refuse LOC, commits, cross-team velocity, individual scores","Quarterly report on trends and outcomes"],
+trade:["More metrics: visibility vs overhead and gaming risk","Individual metrics: apparent accountability vs damaged trust and collaboration"],
+fu:[{q:"How do you identify individual performance issues then?",a:"Through managers' observation, peer feedback, work outcomes and one-to-ones, not activity metrics."}],
+rf:["Lines of code or commit counts","Velocity comparisons across teams","Metrics used to rank individuals"]},
+
+{id:"B084",skill:"Incidents & Ownership",level:"Lead",type:"Scenario",
+q:"Your growing organisation has no formal on-call or incident process: whoever notices a problem fixes it, often the same few people at night. Design the on-call and incident management approach.",
+a:`<p><b>What it probes:</b> building operational maturity that's sustainable and fair.</p>
+<p><b>Design:</b></p>
+<ul>
+<li><b>Ownership:</b> every service has an owning team; that team is on call for it. This creates the incentive to build reliable services.</li>
+<li><b>Rotations:</b> at least 5–6 people per rotation to keep frequency reasonable (one week in five or six); primary and secondary. Fair compensation or time off for on-call, following local labour rules and company policy.</li>
+<li><b>Alerting quality:</b> pages only for urgent, user-impacting issues (SLO burn, critical flows); each with a runbook. Track pages per shift and night pages as a health metric.</li>
+<li><b>Incident process:</b> severity levels with clear criteria; an incident commander role (trained, rotating); a communication template and cadence; a status page for customers; escalation paths to specialists and leadership.</li>
+<li><b>Learning:</b> blameless postmortems for significant incidents, with tracked action items; quarterly review of incident patterns.</li>
+<li><b>Training:</b> shadowing before going on call, game days to practise.</li>
+<li><b>Handover:</b> weekly on-call review: what fired, what was noisy, what to fix.</li>
+</ul>
+<p><b>Rollout:</b> start with the most critical services, reduce noisy alerts first (otherwise the rotation burns people out), and include on-call load in sprint planning.</p>`,
+keys:["Owning team on call for its services","Sustainable rotations with compensation","Actionable alerts with runbooks; measure pager load","Severity levels, IC role, comms cadence, status page","Blameless postmortems, training, weekly review"],
+trade:["Team-owned on-call: ownership vs small teams struggle to staff rotations (combine teams)","Central SRE on-call: relief for teams vs weaker incentive to build reliable services"],
+fu:[{q:"A team of three owns a critical service. How do they do on-call?",a:"Pair with another team for a joint rotation, invest in reducing alerts, and ensure strong runbooks so the secondary can handle common issues."}],
+rf:["Heroes on call indefinitely","No compensation or limits","Noisy alerts unaddressed"]},
+
+{id:"B085",skill:"Stakeholder Pushback",level:"Lead",type:"Scenario",
+q:"The CEO wants a feature that exposes patient data to a new partner shipped in two weeks for a big deal. It hasn't had a security or privacy review, and you believe shipping it as-is is unsafe. What do you do?",
+a:`<p><b>What it probes:</b> courage and judgement with the most senior stakeholder: protecting the company from serious risk while helping achieve the business goal.</p>
+<p><b>Approach:</b></p>
+<ol>
+<li><b>Don't simply refuse or comply.</b> Understand the deal: what does the partner actually need, by when, and what's in the contract?</li>
+<li><b>Make the risk concrete in business terms:</b> regulatory exposure (health data protection laws, breach notification duties), contractual obligations to existing clients about data sharing and consent, potential fines and reputational damage, and the specific technical gaps (no access controls review, no audit logging, unclear data minimisation).</li>
+<li><b>Offer paths to yes:</b>
+  <ul>
+  <li>A minimal, safe first version in two weeks: only the fields the partner needs, de-identified or pseudonymised where possible, strict partner authentication and audit logging, with an expedited review (security and privacy reviewers prioritised for this work).</li>
+  <li>A pilot with synthetic or consented data while full review completes.</li>
+  <li>Sign the deal with a delivery date that allows proper review.</li>
+  </ul></li>
+<li><b>Bring the right people:</b> security, legal/privacy (DPO) in the conversation, so the decision is made with full information.</li>
+<li><b>If overruled on something genuinely unsafe or unlawful:</b> state the risk in writing, escalate through governance channels, and don't personally implement something illegal.</li>
+</ol>
+<p>Most CEOs respond well to "here's how we get this deal safely" rather than "no".</p>`,
+keys:["Understand the business need precisely","Translate risk to regulatory, contractual, reputational terms","Paths to yes: minimal safe scope, expedited review, pilot","Involve security and legal in the decision","Written escalation if overruled on unsafe/unlawful actions"],
+trade:["Shipping fast: deal won vs regulatory and trust risk","Delay: safety vs possible lost deal; reduced-scope version balances both"],
+fu:[{q:"What if the review finds serious issues a week in?",a:"Report immediately with options (scope reduction, delay, compensating controls); don't hide it to meet the date."}],
+rf:["Ships without review because the CEO asked","Flat refusal without alternatives","Doesn't involve legal/privacy"]},
+
+{id:"B086",skill:"Underperformance",level:"Lead",type:"Scenario",
+q:"Leadership says your whole team is 'underperforming': delivery is slow and quality issues keep reaching customers. How do you diagnose and fix a team-level performance problem?",
+a:`<p><b>What it probes:</b> systems thinking about team performance: looking for structural causes before blaming individuals.</p>
+<p><b>Diagnose (2–3 weeks):</b></p>
+<ul>
+<li><b>Data:</b> cycle time breakdown (where does work wait: requirements, review, testing, deployment?), WIP, unplanned work share, change failure rate, defect sources.</li>
+<li><b>Conversations:</b> one-to-ones and a retro focused on obstacles; talk to product, QA and stakeholders.</li>
+<li><b>Common findings:</b> unclear or changing requirements; too many parallel priorities; dependency waits on other teams; slow, flaky pipelines; missing tests; knowledge silos; skill gaps in a key area; low morale after changes; or an expectation mismatch (leadership expects more than capacity allows).</li>
+</ul>
+<p><b>Fix:</b></p>
+<ul>
+<li>Pick the top 2–3 constraints and address them visibly: limit WIP and clarify priorities with product; fix the pipeline; agree a definition of ready for requirements; add tests in the areas causing customer defects; reduce dependencies.</li>
+<li>Reset expectations with leadership using capacity data where needed.</li>
+<li>Address individual issues separately and fairly if they emerge, but don't start there.</li>
+<li>Report progress with metrics every few weeks: cycle time, escaped defects, predictability.</li>
+</ul>`,
+keys:["Data on where work waits and where defects originate","Listen to team and stakeholders","Look for structural constraints first","Fix top constraints; reset expectations with data","Track and report improvement; individuals last"],
+trade:["Quick personnel changes: visible action vs often misses systemic cause","Structural fixes: durable vs take weeks to show results"],
+fu:[{q:"What if the data shows the team is performing reasonably but expectations are unrealistic?",a:"Show leadership the capacity and flow data, compare with industry benchmarks like DORA, and agree realistic expectations or the investment needed to meet theirs."}],
+rf:["Blames individuals first","Pushes overtime","No data"]},
+
+{id:"B087",skill:"Tech Debt",level:"Lead",type:"Scenario",
+q:"Across several teams, how do you decide how much capacity goes to new features, tech debt and reliability, and experimentation? Who decides?",
+a:`<p><b>What it probes:</b> portfolio-level investment thinking and governance.</p>
+<p><b>Approach:</b></p>
+<ul>
+<li><b>Explicit allocation</b> agreed between engineering and product leadership each quarter, e.g. 60–70% roadmap features, 15–25% technical health (debt, reliability, upgrades, developer experience), 5–10% experiments or innovation. The numbers vary by team and situation, but making them explicit prevents health work from being squeezed to zero.</li>
+<li><b>Adjust per team based on signals:</b> a team with frequent incidents, low SLO compliance or slow cycle time gets a larger health share temporarily; a new product team in discovery gets more experiment time.</li>
+<li><b>Decision rights:</b> product decides which features within its share; engineering leads decide technical-health priorities within theirs (with transparency); shared items (large migrations) are decided jointly with leadership.</li>
+<li><b>Accountability:</b> health work has goals and measurable outcomes like any project (e.g. reduce change failure rate, finish upgrade before end of support), reported quarterly.</li>
+<li><b>Exceptions:</b> a critical business moment may temporarily reduce health allocation, as an explicit decision with a date to restore it.</li>
+</ul>`,
+keys:["Explicit quarterly allocation","Adjust by team health signals","Clear decision rights per category","Measurable outcomes for health work","Temporary exceptions with explicit restore date"],
+trade:["Fixed percentages: protects health work vs may not fit every team","Case-by-case: flexible vs health work loses to urgency"],
+fu:[{q:"Product leadership wants 100% features for a quarter. Response?",a:"Possible for a short, explicit period if risks are understood; agree what we stop monitoring/fixing, the risks accepted, and when allocation returns, ideally with data on the cost of past deferrals."}],
+rf:["Health work only 'when there's time'","Engineering decides everything alone","No outcomes measured for debt work"]},
+
+{id:"B088",skill:"Delivery Under Pressure",level:"Lead",type:"Scenario",
+q:"Your team is growing from one team of 7 to three teams of about 6 over the next year. What changes, and how do you set the teams up to deliver well?",
+a:`<p><b>What it probes:</b> organisational design: team boundaries, ownership, communication and leadership as headcount grows.</p>
+<p><b>Key changes:</b></p>
+<ul>
+<li><b>Team boundaries:</b> organise around product areas or business capabilities (e.g. scheduling, results, billing) with clear ownership of services and code, minimising cross-team dependencies for common changes (Conway's law: the architecture will mirror the team structure). Consider team types (stream-aligned product teams, and later a platform team if shared infrastructure grows).</li>
+<li><b>Architecture to match:</b> clear module or service boundaries, APIs and contracts between team areas, ownership recorded (CODEOWNERS, service catalogue).</li>
+<li><b>Leadership:</b> a tech lead per team; develop leads from within where possible (start early, before the split). Possibly an EM per one or two teams.</li>
+<li><b>Communication and coordination:</b> each team has its own planning and rituals; a light cross-team sync (weekly leads meeting), shared architecture forum, shared standards (paved road, guidelines), and joint planning for cross-team initiatives.</li>
+<li><b>Culture continuity:</b> keep shared practices (review norms, incident process, definition of done) and mix original members across teams so knowledge and culture spread.</li>
+<li><b>Hiring and onboarding</b> paced so each team keeps a core of experienced people; avoid doubling a team with new joiners at once.</li>
+</ul>
+<p><b>Sequence:</b> split when the first new hires have ramped up, not before; review boundaries after a quarter based on dependency pain.</p>`,
+keys:["Teams aligned to product/business areas with clear ownership","Architecture boundaries matching teams (Conway)","Develop TLs early; leads sync and shared forums","Keep culture via shared practices and mixed teams","Pace hiring; review boundaries after a quarter"],
+trade:["Feature teams by area: autonomy vs some cross-cutting coordination","Component teams: deep expertise vs handoffs for every feature"],
+fu:[{q:"How do you know the team boundaries are wrong?",a:"Most features need changes from multiple teams, constant coordination meetings, frequent cross-team blocking; then adjust boundaries or architecture."}],
+rf:["Splits by layer (frontend/backend teams)","No ownership mapping","All new hires in one team"]},
+
+{id:"B089",skill:"Delivery Under Pressure",level:"Lead",type:"Behavioral",
+q:"What's your biggest professional failure, and what did it teach you?",
+a:`<p><b>What it probes:</b> honesty, self-awareness, and growth. A real, significant failure with genuine learning is far stronger than a disguised success.</p>
+<p><b>How to choose and tell it</b> <i>(this one must be your own story)</i>:</p>
+<ul>
+<li><b>Pick something real and significant:</b> a project you led that failed or was cancelled, a decision that cost the company, a team situation you handled badly (e.g. losing a good engineer because you ignored warning signs). Not "I worked too hard".</li>
+<li><b>Own your part clearly</b>, without blaming others or circumstances, even if others also contributed.</li>
+<li><b>Show the impact honestly</b> (cost, delay, people affected).</li>
+<li><b>Explain what you did afterwards:</b> how you limited the damage and repaired relationships.</li>
+<li><b>The lesson must show up in later behaviour:</b> "Since then, I…" with a concrete later example where you applied it.</li>
+</ul>
+<p><b>Example structure:</b> "I led a migration where I underestimated the data-quality issues and didn't escalate early; we missed the client's go-live by six weeks and they paid penalties. My part was optimism and avoiding a hard conversation. Since then I run a data audit before committing to migration dates and escalate risks in the week I see them; on our next migration, that early audit found issues that would have cost us a similar delay."</p>`,
+keys:["Real, significant failure","Clear personal ownership","Honest impact","Recovery actions","Lesson proven by later behaviour"],
+fu:[{q:"What would you do differently if it happened today?",a:"Be specific and consistent with the lesson you described; it should sound like a practised habit, not a theory."}],
+rf:["Disguised success","Blames others","No lasting behaviour change","Trivial failure"]},
+
+{id:"B090",skill:"EM Fundamentals",level:"Lead",type:"Behavioral",
+q:"Describe your leadership style. What would your team say are your strengths, and what's your biggest weakness as a leader?",
+a:`<p><b>What it probes:</b> self-awareness and consistency: does your described style match the stories you've told throughout the interview? Interviewers often cross-check against reference calls.</p>
+<p><b>How to answer</b> <i>(write your own; this is a guide)</i>:</p>
+<ul>
+<li><b>Style in 2–3 principles, each backed by a quick example:</b> e.g. "I set clear goals and context, then give ownership: for example, my engineers lead designs and present them" / "I'm direct and fair with feedback: I tell people early and specifically" / "I protect the team's focus: I absorb stakeholder churn and make priorities explicit."</li>
+<li><b>Strengths from others' perspective:</b> use real feedback you've received ("In my last review, two engineers mentioned…"), which is more credible than self-description.</li>
+<li><b>A genuine weakness relevant to leadership, with what you're doing about it:</b> e.g. "I tend to jump into technical problems myself when under pressure, which can take ownership away from the team. I now ask 'who should own this?' before diving in, and my team gives me feedback in retros." Or "I'm still building experience with formal performance management; I've been learning from my manager and would want to work closely with HR early."</li>
+<li><b>Adaptability:</b> how you adjust style for different people (more direction for a new junior, more autonomy for a senior).</li>
+</ul>
+<p>Keep it consistent with your other stories; contradictions undermine everything else.</p>`,
+keys:["2–3 principles with examples","Strengths from real feedback","Genuine, relevant weakness with a mitigation","Adapts style to the person","Consistent with all other answers"],
+fu:[{q:"What would a team member who didn't enjoy working with you say?",a:"Answer honestly with a plausible criticism (e.g. high standards felt demanding) and what you learned or changed."}],
+rf:["Generic buzzwords (servant leader) with no examples","Fake weakness","Inconsistent with earlier stories"]}
+
+
+
+
+];
+
+/* ---------- state ---------- */
+const KEY="lead-bank-reviewed-v1";
+let reviewed={};
+try{reviewed=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){reviewed={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(reviewed))}catch(e){}}
+
+const state={text:"",skill:"all",status:"all",levels:new Set(),types:new Set()};
+const $=s=>document.querySelector(s);
+
+/* ---------- controls ---------- */
+const skills=[...new Set(QS.map(x=>x.skill))];
+$("#skill").innerHTML=`<option value="all">All skills</option>`+skills.map(s=>`<option value="${s}">${s}</option>`).join("");
+function chipRow(el,items,set){
+  el.innerHTML=items.map(i=>`<button type="button" class="chip" aria-pressed="false" data-v="${i}">${i}</button>`).join("");
+  el.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+    if(set.has(v)){set.delete(v);b.setAttribute("aria-pressed","false")}else{set.add(v);b.setAttribute("aria-pressed","true")}render()});
+}
+chipRow($("#levels"),LEVELS,state.levels);
+chipRow($("#types"),TYPES,state.types);
+$("#q").addEventListener("input",e=>{state.text=e.target.value.trim().toLowerCase();render()});
+$("#skill").addEventListener("change",e=>{state.skill=e.target.value;render()});
+$("#status").addEventListener("change",e=>{state.status=e.target.value;render()});
+let allOpen=false;
+$("#toggleAll").addEventListener("click",()=>{allOpen=!allOpen;
+  document.querySelectorAll("details.ans").forEach(d=>d.open=allOpen);
+  $("#toggleAll").textContent=allOpen?"Close all answers":"Open all answers"});
+
+/* ---------- stats ---------- */
+function count(key,vals){return vals.map(v=>`${v} <b>${QS.filter(x=>x[key]===v).length}</b>`).join(" · ")}
+$("#stats").innerHTML=`<span><b>${QS.length}</b> questions loaded</span><span>${count("level",LEVELS)}</span><span>${count("type",TYPES.filter(t=>t!=="Behavioral"))}</span><span>${PARTS}</span>`;
+
+/* ---------- render ---------- */
+const strip=h=>h.replace(/<[^>]+>/g," ");
+function matches(x){
+  if(state.skill!=="all"&&x.skill!==state.skill)return false;
+  if(state.levels.size&&!state.levels.has(x.level))return false;
+  if(state.types.size&&!state.types.has(x.type))return false;
+  if(state.status==="done"&&!reviewed[x.id])return false;
+  if(state.status==="todo"&&reviewed[x.id])return false;
+  if(state.text){const hay=(x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
+    if(!hay.includes(state.text))return false}
+  return true;
+}
+const ul=arr=>`<ul>${arr.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+function item(x,i){
+  const done=!!reviewed[x.id];
+  return `<li class="q${done?" done":""}" id="${x.id}">
+    <div class="qhead"><span class="num">${x.id}</span><div>
+      <p class="qtext">${x.q}</p>
+      <div class="tags"><span class="tag">${x.skill}</span><span class="tag lv lv-${x.level}">${x.level}</span><span class="tag">${x.type}</span>${x.verify?`<span class="tag verify">VERIFY</span>`:""}
+        <label class="check"><input type="checkbox" data-id="${x.id}" ${done?"checked":""}> Reviewed</label></div>
+    </div></div>
+    <div class="body">
+      <details class="ans"><summary>Model answer, key points and red flags</summary><div class="dbody">
+        ${x.a}
+        ${x.tools?`<h4>Tools and metrics to check</h4>${ul(x.tools)}`:""}
+        <h4>What the interviewer listens for</h4>${ul(x.keys)}
+        ${x.trade?`<h4>Trade-offs and "it depends on"</h4>${ul(x.trade)}`:""}
+        <h4 class="rf">Red flags</h4>${ul(x.rf)}
+        ${x.verify?`<p class="note">[VERIFY] ${x.verify}</p>`:""}
+      </div></details>
+      ${(x.fu||[]).map(f=>`<details class="fu ans"><summary><span class="fl">FOLLOW-UP</span><span>${f.q}</span></summary><div class="dbody"><p>${f.a}</p></div></details>`).join("")}
+    </div></li>`;
+}
+function render(){
+  const list=QS.filter(matches);
+  $("#list").innerHTML=list.length?list.map(item).join(""):`<li class="empty">No questions match these filters.</li>`;
+  if(allOpen)document.querySelectorAll("details.ans").forEach(d=>d.open=true);
+  const n=QS.filter(x=>reviewed[x.id]).length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${list.length} shown`;
+  $("#pfill").style.width=(QS.length?n/QS.length*100:0)+"%";
+}
+$("#list").addEventListener("change",e=>{const c=e.target.closest("input[data-id]");if(!c)return;
+  const id=c.dataset.id;if(c.checked)reviewed[id]=1;else delete reviewed[id];save();
+  c.closest("li.q").classList.toggle("done",c.checked);
+  const n=QS.filter(x=>reviewed[x.id]).length;const shown=document.querySelectorAll("li.q").length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${shown} shown`;$("#pfill").style.width=(n/QS.length*100)+"%";});
+render();
+</script>
+
+</html>

@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>TL/EM Interview Prep</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: one reading column; study order as a numbered sequence; banks grouped by interview round as divided rows; a pre-interview checklist at the end */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --good:#2B7A57; --warn:#A6400F;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --good:#5FC79A; --warn:#F08A5D; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --good:#5FC79A; --warn:#F08A5D; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:0 56px}
+.wrap{max-width:860px;margin:0 auto;display:grid;gap:36px}
+header{padding-block:32px 0;display:grid;gap:12px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,6vw,40px);line-height:1.05;margin:0;text-wrap:balance}
+h2{font-family:var(--f-display);font-weight:600;font-size:22px;line-height:1.2;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:64ch}
+.totals{display:flex;flex-wrap:wrap;gap:6px 22px;font-variant-numeric:tabular-nums;color:var(--muted);font-size:14px}
+.totals b{color:var(--ink);font-family:var(--f-display);font-size:24px;font-weight:700;margin-right:6px}
+section{display:grid;gap:14px}
+.sub{color:var(--muted);margin:0;max-width:64ch}
+
+ol.order{list-style:none;margin:0;padding:0;display:grid;gap:0;border-top:1px solid var(--line)}
+ol.order li{display:grid;grid-template-columns:2.2em 1fr;gap:12px;padding:12px 0;border-bottom:1px solid var(--line)}
+.step{font-family:var(--f-mono);font-size:13px;color:var(--accent);padding-top:2px;font-variant-numeric:tabular-nums}
+.step-body{min-width:0}
+.step-body a{font-weight:600}
+.step-body p{margin:2px 0 0;color:var(--muted);font-size:14px}
+
+.group{display:grid;gap:8px}
+.group h3{margin:0;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);font-weight:500}
+.banks{list-style:none;margin:0;padding:0;background:var(--surface);border:1px solid var(--line);border-radius:10px}
+.banks li{display:grid;grid-template-columns:1fr auto;gap:4px 16px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:baseline}
+.banks li:last-child{border-bottom:0}
+.banks .name{min-width:0}
+.banks .count{font-family:var(--f-mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.banks .what{grid-column:1 / -1;color:var(--muted);font-size:14px;margin:0}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+
+.checks{list-style:none;margin:0;padding:0;display:grid;gap:0;border-top:1px solid var(--line)}
+.checks li{border-bottom:1px solid var(--line)}
+.checks label{display:grid;grid-template-columns:22px 1fr;gap:10px;padding:11px 0;cursor:pointer}
+.checks input{width:18px;height:18px;margin:3px 0 0;accent-color:var(--good)}
+.checks .t{min-width:0}
+.checks .t b{font-weight:600}
+.checks .t span{display:block;color:var(--muted);font-size:14px}
+.checks input:checked + .t b{text-decoration:line-through;text-decoration-color:var(--muted)}
+.progress-line{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;color:var(--muted)}
+.progress-line button{font:inherit;font-size:13px;background:none;border:1px solid var(--line);color:var(--muted);border-radius:6px;padding:4px 10px;cursor:pointer}
+.note{font-size:14px;color:var(--muted);border-left:3px solid var(--warn);padding-left:12px;margin:0;max-width:64ch}
+code{font-family:var(--f-mono);font-size:.9em}
+@media (prefers-reduced-motion: reduce){*{scroll-behavior:auto}}
+</style>
+
+<div class="wrap">
+<header>
+  <div class="eyebrow">Senior Tech Lead / Engineering Manager</div>
+  <h1>TL/EM Interview Prep</h1>
+  <p class="lede">Twelve question banks for Senior Tech Lead and Engineering Manager interviews, focused on .NET, Node, AWS and AI. Each bank has its own search, filters and "Mark as reviewed" progress, saved in the browser you study in. Start with the order below; it puts first what every interview loop asks.</p>
+  <div class="totals"><span><b>812</b>questions and cards</span><span><b>12</b>banks</span><span><b>8</b>steps in the study order</span></div>
+</header>
+
+<section aria-labelledby="order-h">
+  <h2 id="order-h">Study order</h2>
+  <p class="sub">Leadership questions and questions about your own projects come up in every TL/EM loop, so prepare your stories first. DSA is last because many EM loops skip it; check your target companies.</p>
+  <ol class="order">
+    <li><span class="step">01</span><div class="step-body"><a href="leadership.html">Leadership &amp; Behavioral</a><p>Build 10–12 true stories. Write B050, B089 and B090 in your own words.</p></div></li>
+    <li><span class="step">02</span><div class="step-body"><a href="system-design.html">System Design Drills</a><p>Practise S030 (enterprise RAG) and S028 (group chat) aloud with a timer.</p></div></li>
+    <li><span class="step">03</span><div class="step-body"><a href="architecture.html">Architecture &amp; Distributed Systems</a><p>Lead questions first; they test judgement interviewers weigh most for senior roles.</p></div></li>
+    <li><span class="step">04</span><div class="step-body"><a href="ai-genai.html">AI &amp; GenAI</a><p>Often the differentiator. G087 (defending a portfolio project) and G086 (the "50% faster" pushback).</p></div></li>
+    <li><span class="step">05</span><div class="step-body"><a href="dotnet.html">.NET Backend</a> and <a href="cloud.html">Cloud &amp; DevOps</a><p>Core stack depth. Expect internals questions on async, EF Core, ECS and IAM.</p></div></li>
+    <li><span class="step">06</span><div class="step-body"><a href="lld.html">LLD &amp; Machine Coding</a><p>Timed practice: L014, L025, L022. Compile each solution in a real project.</p></div></li>
+    <li><span class="step">07</span><div class="step-body"><a href="data.html">Data Layer</a>, <a href="security-testing-observability.html">Security, Testing &amp; Observability</a>, <a href="node.html">Node &amp; NestJS</a>, <a href="frontend.html">Frontend</a><p>Breadth. Review by filter: Advanced and Lead first, Basic only to fill gaps.</p></div></li>
+    <li><span class="step">08</span><div class="step-body"><a href="dsa.html">DSA Refresher</a><p>Only if your targets run DSA rounds. Follow the 6-week plan in D002.</p></div></li>
+  </ol>
+</section>
+
+<section aria-labelledby="banks-h">
+  <h2 id="banks-h">All banks by interview round</h2>
+
+  <div class="group">
+    <h3>Leadership</h3>
+    <ul class="banks">
+      <li><span class="name"><a href="leadership.html">Leadership &amp; Behavioral</a></span><span class="count">90</span><p class="what">STAR templates with what each question probes: decisions, conflict, hiring, underperformance, EM fundamentals.</p></li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Design rounds</h3>
+    <ul class="banks">
+      <li><span class="name"><a href="system-design.html">System Design Drills</a></span><span class="count">45</span><p class="what">Production incidents, debugging drills and end-to-end designs with tools and metrics to check.</p></li>
+      <li><span class="name"><a href="architecture.html">Architecture &amp; Distributed Systems</a></span><span class="count">90</span><p class="what">Messaging, consistency, sagas, outbox, resilience, team-level architecture judgement.</p></li>
+      <li><span class="name"><a href="lld.html">LLD &amp; Machine Coding</a></span><span class="count">30</span><p class="what">C# implementations: parking lot, booking, scheduler, rate limiter, circuit breaker and more.</p></li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Technical depth</h3>
+    <ul class="banks">
+      <li><span class="name"><a href="dotnet.html">.NET Backend</a></span><span class="count">90</span><p class="what">C#, async internals, ASP.NET Core, EF Core, testing, performance.</p></li>
+      <li><span class="name"><a href="node.html">Node &amp; NestJS</a></span><span class="count">50</span><p class="what">Event loop, NestJS architecture, Drizzle, WebSockets at scale.</p></li>
+      <li><span class="name"><a href="data.html">Data Layer</a></span><span class="count">90</span><p class="what">SQL Server, PostgreSQL, DynamoDB, Redis.</p></li>
+      <li><span class="name"><a href="frontend.html">Frontend</a></span><span class="count">40</span><p class="what">React 18/19, Next.js App Router, TypeScript, performance and accessibility.</p></li>
+      <li><span class="name"><a href="cloud.html">Cloud &amp; DevOps</a></span><span class="count">90</span><p class="what">AWS compute, integration, networking and IAM, Azure, Terraform, Docker, CI/CD, Kubernetes basics.</p></li>
+      <li><span class="name"><a href="ai-genai.html">AI &amp; GenAI</a></span><span class="count">90</span><p class="what">LLMs, Bedrock, RAG, OpenSearch, Semantic Kernel, evaluation, LLM security, cost.</p></li>
+      <li><span class="name"><a href="security-testing-observability.html">Security, Testing &amp; Observability</a></span><span class="count">60</span><p class="what">OWASP, OAuth/OIDC, GDPR and DPDP, testing strategy, OpenTelemetry and SLOs.</p></li>
+    </ul>
+  </div>
+
+  <div class="group">
+    <h3>Coding rounds</h3>
+    <ul class="banks">
+      <li><span class="name"><a href="dsa.html">DSA Refresher</a></span><span class="count">47</span><p class="what">15 patterns, 30 classic problems in C#, talk tracks and a 6-week plan.</p></li>
+    </ul>
+  </div>
+</section>
+
+<section aria-labelledby="checks-h">
+  <h2 id="checks-h">Before the first interview</h2>
+  <div class="progress-line"><span id="check-count">0 of 5 done</span><button type="button" id="reset">Clear ticks</button></div>
+  <ul class="checks" id="checks">
+    <li><label><input type="checkbox" id="c6"><span class="t"><b>Write your story bank</b><span>10–12 true STAR stories from your own projects, each tagged to the Leadership questions it answers. Know your real numbers: users, traffic, data volumes, costs and team sizes.</span></span></label></li>
+    <li><label><input type="checkbox" id="c7"><span class="t"><b>Write B050, B089 and B090 in your own words</b><span>Why management, biggest failure, leadership style. These have no sample story on purpose.</span></span></label></li>
+    <li><label><input type="checkbox" id="c8"><span class="t"><b>Check the [VERIFY] items against current docs</b><span>Mostly AWS and Bedrock limits and pricing, OWASP 2025, EU AI Act and DPDP dates.</span></span></label></li>
+    <li><label><input type="checkbox" id="c9"><span class="t"><b>Compile the LLD and DSA C# solutions</b><span>They were reviewed by hand, not compiled. Build each one in a .NET 8 project as part of practice.</span></span></label></li>
+    <li><label><input type="checkbox" id="c10"><span class="t"><b>Do two timed mock interviews</b><span>One system design, one behavioral, spoken aloud, ideally with a peer who will push on follow-ups.</span></span></label></li>
+  </ul>
+  <p class="note">Ticks here and "reviewed" marks inside each bank are stored only in this browser. They won't appear on another device.</p>
+</section>
+</div>
+
+<script>
+(function(){
+  var KEY = "prep-index-checks-public-v1";
+  var boxes = Array.prototype.slice.call(document.querySelectorAll("#checks input[type=checkbox]"));
+  var state = {};
+  try { state = JSON.parse(localStorage.getItem(KEY) || "{}") || {}; } catch (e) { state = {}; }
+  function render(){
+    var done = boxes.filter(function(b){ return b.checked; }).length;
+    document.getElementById("check-count").textContent = done + " of " + boxes.length + " done";
+  }
+  function save(){
+    try { localStorage.setItem(KEY, JSON.stringify(state)); } catch (e) {}
+  }
+  boxes.forEach(function(b){
+    b.checked = !!state[b.id];
+    b.addEventListener("change", function(){ state[b.id] = b.checked; save(); render(); });
+  });
+  document.getElementById("reset").addEventListener("click", function(){
+    state = {}; boxes.forEach(function(b){ b.checked = false; }); save(); render();
+  });
+  render();
+})();
+</script>
+
+</html>

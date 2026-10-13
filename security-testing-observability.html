@@ -1,0 +1,1375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Security, Testing &amp; Observability Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, sticky filter bar, questions as divided rows (not cards), answers in disclosure blocks */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --accent-ink:#FFFFFF; --code:#EEF1F7;
+  --basic:#2B7A57; --inter:#2A4BD7; --adv:#7438BF; --lead:#B05E08;
+  --good:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:28px 18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,5vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=search]{flex:1 1 220px}
+select{flex:0 1 220px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.track{flex:1;height:6px;background:var(--soft);border-radius:999px;overflow:hidden;min-width:80px}
+.fill{height:100%;background:var(--good);width:0;transition:width .3s}
+.sep{width:1px;height:18px;background:var(--line)}
+
+ol.qs{list-style:none;margin:0;padding:0}
+li.q{padding-block:22px;border-bottom:1px solid var(--line);display:grid;gap:12px}
+li.q.done .qtext{color:var(--muted)}
+.qhead{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.num{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:4px;min-width:34px}
+.qtext{font-weight:600;font-size:16.5px;line-height:1.45;margin:0;text-wrap:pretty}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.tag{font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.tag.lv{color:var(--surface);font-weight:500}
+.lv-Basic{background:var(--basic)} .lv-Intermediate{background:var(--inter)} .lv-Advanced{background:var(--adv)} .lv-Lead{background:var(--lead)}
+.tag.verify{background:transparent;border:1px solid var(--verify);color:var(--verify)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);cursor:pointer;margin-left:auto}
+.check input{width:16px;height:16px;accent-color:var(--good)}
+.body{padding-left:46px;display:grid;gap:8px;min-width:0}
+details{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details>summary{cursor:pointer;padding:9px 12px;font-size:14px;font-weight:500;list-style:none;display:flex;gap:8px;align-items:baseline}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px;flex:none}
+details[open]>summary::before{content:"−"}
+.dbody{padding:2px 14px 14px;display:grid;gap:10px;min-width:0}
+.dbody p,.dbody ul,.dbody ol{margin:0}
+.dbody ul,.dbody ol{padding-left:20px}
+.dbody li+li{margin-top:3px}
+h4{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:500}
+h4.rf{color:var(--warn)}
+.fu summary{font-weight:400}
+.fu summary .fl{font-family:var(--f-mono);font-size:11px;color:var(--muted);flex:none}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:3px}
+pre{margin:0;background:var(--code);padding:12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5}
+.body table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0;display:block;overflow-x:auto}
+.body th,.body td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+pre code{background:none;padding:0;font-size:inherit}
+.star dt{font-weight:600}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--verify);padding-left:10px}
+@media (max-width:560px){ .body{padding-left:0} .num{min-width:28px} }
+@media (prefers-reduced-motion:reduce){ .fill{transition:none} }
+</style>
+
+<p style="margin:0 auto;max-width:860px;padding:16px 0 0;font-size:14px"><a href="index.html">&larr; All banks</a></p>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Senior TL / EM interview prep</div>
+  <h1>Security, Testing &amp; Observability</h1>
+  <p class="lede">OWASP and API security, OAuth 2.0, OIDC and JWT, data protection and encryption (GDPR, DPDP), testing strategy beyond unit tests, and observability with OpenTelemetry, SLOs and alerting. Answer out loud before opening.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="bar">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search questions and answers" aria-label="Search">
+    <select id="skill" aria-label="Filter by skill"></select>
+    <select id="status" aria-label="Filter by review status">
+      <option value="all">All questions</option>
+      <option value="todo">Not reviewed</option>
+      <option value="done">Reviewed</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="chips" id="levels" aria-label="Level"></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="chips" id="types" aria-label="Type"></div>
+  </div>
+  <div class="row">
+    <div class="progress" style="flex:1"><span id="ptext">0 / 0 reviewed</span><div class="track"><div class="fill" id="pfill"></div></div></div>
+    <button class="btn" id="toggleAll" type="button">Open all answers</button>
+  </div>
+</div>
+
+<ol class="qs" id="list"></ol>
+</div>
+
+<script>
+const LEVELS=["Basic","Intermediate","Advanced","Lead"];
+const TYPES=["Concept","Scenario","Architecture","Behavioral"];
+const PARTS="Complete: all 3 parts loaded.";
+
+const QS=[
+{id:"T001",skill:"OWASP & API Security",level:"Basic",type:"Concept",
+q:"Walk through the OWASP Top 10 for web applications and the OWASP API Security Top 10. Which items do you see most often in real APIs?",
+a:`<p><b>OWASP Top 10 (2021 edition, still widely referenced):</b> A01 Broken Access Control, A02 Cryptographic Failures, A03 Injection, A04 Insecure Design, A05 Security Misconfiguration, A06 Vulnerable and Outdated Components, A07 Identification and Authentication Failures, A08 Software and Data Integrity Failures, A09 Security Logging and Monitoring Failures, A10 Server-Side Request Forgery.</p>
+<p>A <b>2025 edition</b> was released in late 2025; notable changes include software supply chain failures getting its own category and a new category for mishandling exceptional conditions, with SSRF folded into broken access control [VERIFY final list].</p>
+<p><b>OWASP API Security Top 10 (2023):</b> API1 Broken Object Level Authorization (BOLA), API2 Broken Authentication, API3 Broken Object Property Level Authorization (mass assignment and excessive data exposure), API4 Unrestricted Resource Consumption, API5 Broken Function Level Authorization, API6 Unrestricted Access to Sensitive Business Flows, API7 SSRF, API8 Security Misconfiguration, API9 Improper Inventory Management, API10 Unsafe Consumption of APIs.</p>
+<p><b>Most common in practice:</b></p>
+<ul>
+<li><b>BOLA / broken access control:</b> changing an ID in the URL returns someone else's data. Frameworks authenticate for you but rarely authorize per object.</li>
+<li><b>Excessive data exposure / mass assignment:</b> returning or accepting whole entities instead of DTOs.</li>
+<li><b>Unrestricted resource consumption:</b> no pagination limits, no rate limits, expensive endpoints open to abuse.</li>
+<li><b>Misconfiguration:</b> verbose errors, permissive CORS, debug endpoints, default credentials.</li>
+<li><b>Improper inventory:</b> old API versions and forgotten internal endpoints still exposed.</li>
+</ul>`,
+keys:["Know both lists and their focus","Access control is the #1 real-world issue","API list adds BOLA, property-level authz, resource consumption, inventory","DTOs prevent data exposure/mass assignment","2025 web list adds supply chain, exceptional conditions"],
+fu:[{q:"Why is BOLA so common even in well-built APIs?",a:"Authentication is centralised (middleware), but object-level checks must be written for every endpoint and query. One missed check on one endpoint exposes data, and automated scanners rarely detect it because they don't know which user should own which object."}],
+rf:["Only knows SQL injection and XSS","Confuses authentication with authorization","Unaware of the API-specific list"],
+verify:"OWASP Top 10:2025 final category list."},
+
+{id:"T002",skill:"OWASP & API Security",level:"Basic",type:"Concept",
+q:"How does SQL injection happen in modern code that uses an ORM? How do you prevent it, including for dynamic sorting and filtering?",
+a:`<p>Injection happens whenever <b>user input is concatenated into a query string</b>. ORMs protect normal queries via parameters, but common escape hatches reintroduce the risk:</p>
+<ul>
+<li>Raw SQL built with string interpolation: EF Core's <code>FromSqlRaw</code>/<code>ExecuteSqlRaw</code> with concatenation (the interpolated versions <code>FromSql</code>/<code>FromSqlInterpolated</code> parameterise safely), Dapper with concatenated SQL, Knex/Prisma raw queries.</li>
+<li><b>Dynamic ORDER BY and column names:</b> identifiers can't be parameters, so developers concatenate <code>sortBy</code> directly.</li>
+<li>Dynamic filters built as strings, <code>LIKE</code> patterns, stored procedures that use dynamic SQL internally (<code>EXEC(@sql)</code>).</li>
+</ul>
+<p><b>Prevention:</b></p>
+<ul>
+<li>Parameters for all <b>values</b>, always.</li>
+<li><b>Allow-list identifiers:</b> map user input to known columns.</li>
+</ul>
+<pre><code>var sortColumns = new Dictionary&lt;string, string&gt; {
+    ["name"] = "Name", ["created"] = "CreatedAt" };
+if (!sortColumns.TryGetValue(sortBy, out var column)) column = "CreatedAt";
+var direction = sortDesc ? "DESC" : "ASC";
+var sql = $"SELECT Id, Name FROM Products WHERE CategoryId = @cat ORDER BY {column} {direction}";
+var rows = await conn.QueryAsync&lt;Product&gt;(sql, new { cat = categoryId });</code></pre>
+<ul>
+<li>In stored procedures with dynamic SQL, use <code>sp_executesql</code> with parameters and <code>QUOTENAME</code> for identifiers.</li>
+<li>Least-privilege database accounts (the app user can't drop tables or read other schemas).</li>
+<li>SAST rules for raw-SQL APIs, and code review attention on any query built from strings.</li>
+</ul>`,
+keys:["Injection = input concatenated into query text","ORM escape hatches: raw SQL, dynamic identifiers","Parameters for values; allow-list for identifiers","Safe dynamic SQL in procs: sp_executesql, QUOTENAME","Least privilege DB accounts; SAST"],
+fu:[{q:"Is escaping quotes a valid defence?",a:"No. Escaping is error-prone (encodings, numeric contexts, identifiers) and has been bypassed many times. Use parameters and allow-lists."}],
+rf:["'We use an ORM so we're safe'","Concatenates sort columns","Relies on escaping or input blacklists"]},
+
+{id:"T003",skill:"OWASP & API Security",level:"Basic",type:"Concept",
+q:"Explain the types of XSS and how you defend a React/Next.js application against them. Where does Content Security Policy fit?",
+a:`<ul>
+<li><b>Stored XSS:</b> malicious script saved (e.g. in a comment) and rendered to other users.</li>
+<li><b>Reflected XSS:</b> script in a URL or request reflected back in the response.</li>
+<li><b>DOM-based XSS:</b> client-side code writes untrusted data into the DOM (<code>innerHTML</code>, <code>location</code>, <code>eval</code>).</li>
+</ul>
+<p><b>React's default protection:</b> JSX escapes values rendered as text. The holes are:</p>
+<ul>
+<li><code>dangerouslySetInnerHTML</code> with untrusted HTML: sanitise with a maintained library (DOMPurify) with a strict config, or render markdown to safe elements.</li>
+<li><b>URLs:</b> <code>href={userInput}</code> can be <code>javascript:</code>; validate schemes (allow http/https/mailto).</li>
+<li>Direct DOM APIs and third-party scripts; server-rendered HTML outside React; JSON embedded in script tags without proper escaping.</li>
+</ul>
+<p><b>Content Security Policy</b> is defence in depth: it tells the browser which script sources may execute. A strict CSP using <b>nonces or hashes</b> (<code>script-src 'nonce-…' 'strict-dynamic'</code>) blocks injected inline scripts even if escaping fails. Add <code>object-src 'none'</code>, <code>base-uri 'none'</code>, and roll out with <code>Content-Security-Policy-Report-Only</code> first. Next.js supports nonce-based CSP via middleware, at the cost of dynamic rendering for those pages.</p>
+<p>Also: <code>HttpOnly</code> cookies so scripts can't read session tokens, and avoid storing tokens in <code>localStorage</code>.</p>`,
+keys:["Stored, reflected, DOM-based","React escapes text; risks: dangerouslySetInnerHTML, URLs, DOM APIs","Sanitise HTML; validate URL schemes","Strict nonce/hash CSP as defence in depth; report-only rollout","HttpOnly cookies; no tokens in localStorage"],
+fu:[{q:"Why is a CSP with 'unsafe-inline' nearly useless against XSS?",a:"It allows any inline script, which is exactly what most XSS injects. Nonces or hashes allow only scripts the server explicitly approved."}],
+rf:["'React prevents XSS completely'","Sanitises with home-made regex","CSP with unsafe-inline and wildcards"]},
+
+{id:"T004",skill:"OAuth2, OIDC & JWT",level:"Basic",type:"Concept",
+q:"What is the difference between OAuth 2.0 and OpenID Connect? What's the difference between an ID token and an access token, and which one should your API accept?",
+a:`<p><b>OAuth 2.0</b> is a <b>delegated authorization</b> framework: a client gets an <b>access token</b> to call an API on behalf of a user (or itself), with scopes limiting what it can do. OAuth itself doesn't define how to identify the user.</p>
+<p><b>OpenID Connect (OIDC)</b> is an <b>authentication</b> layer on top of OAuth 2.0: it adds the <b>ID token</b> (a JWT describing who logged in, for the client), the <code>openid</code> scope, the UserInfo endpoint, discovery (<code>.well-known/openid-configuration</code>) and standard claims.</p>
+<table>
+<tr><th></th><th>ID token</th><th>Access token</th></tr>
+<tr><td>Audience</td><td>The client app (<code>aud</code> = client ID)</td><td>The API (resource server)</td></tr>
+<tr><td>Purpose</td><td>Tell the client who the user is</td><td>Authorize API calls</td></tr>
+<tr><td>Format</td><td>Always a JWT</td><td>JWT or opaque, depending on the provider</td></tr>
+</table>
+<p><b>Your API should accept access tokens only</b>, validating that the audience is the API. Accepting ID tokens as API credentials is a common mistake: any client that obtained an ID token for its own audience could call your API, and ID tokens aren't designed to carry API scopes.</p>
+<p>The client should treat the access token as opaque (not parse it for user info); use the ID token or UserInfo for that.</p>`,
+keys:["OAuth = delegated authorization; OIDC = authentication on top","ID token for the client, access token for the API","APIs accept access tokens with correct audience","Access tokens may be opaque","Clients shouldn't parse access tokens"],
+fu:[{q:"What's the 'sub' claim and why prefer it over email as a user key?",a:"sub is the stable, unique identifier of the user at that issuer. Emails can change or be reassigned; key users by (issuer, sub)."}],
+rf:["Says OAuth is for authentication","API accepts ID tokens","Keys users by email"]},
+
+{id:"T005",skill:"OAuth2, OIDC & JWT",level:"Basic",type:"Concept",
+q:"Explain the Authorization Code flow with PKCE. Why were the implicit and password grants dropped, and when do you use client credentials?",
+a:`<p><b>Authorization Code + PKCE:</b></p>
+<ol>
+<li>The client creates a random <code>code_verifier</code> and sends <code>code_challenge = BASE64URL(SHA256(code_verifier))</code> with the authorization request (plus <code>state</code> for CSRF protection, and <code>nonce</code> for OIDC).</li>
+<li>The user authenticates at the authorization server, which redirects back with a short-lived <b>authorization code</b>.</li>
+<li>The client exchanges the code at the token endpoint, sending the original <code>code_verifier</code>. The server checks it matches the challenge, then issues tokens.</li>
+</ol>
+<p>PKCE ensures that an attacker who intercepts the code (via a malicious app registered for the same redirect scheme, logs, or referrer leaks) can't redeem it without the verifier. It's now recommended for <b>all</b> clients, including confidential server-side ones.</p>
+<p><b>Dropped grants</b> (OAuth 2.0 Security Best Current Practice, OAuth 2.1 draft):</p>
+<ul>
+<li><b>Implicit:</b> returned tokens in the URL fragment, exposed to browser history, referrers and injected scripts, with no way to bind them to the client. Replaced by code + PKCE.</li>
+<li><b>Resource Owner Password Credentials:</b> the app handles the user's password directly, defeating the point of OAuth and blocking MFA/SSO.</li>
+</ul>
+<p><b>Client credentials:</b> machine-to-machine, no user. A service authenticates with its own credentials (secret, or better a private-key JWT or mTLS) to get a token for another API, e.g. a nightly job calling the billing API.</p>`,
+keys:["Code flow: code, then exchange at token endpoint","PKCE binds the code to the client via verifier/challenge","state for CSRF, nonce for OIDC replay","Implicit and password grants deprecated, and why","Client credentials for machine-to-machine"],
+fu:[{q:"Does PKCE replace the client secret for server-side apps?",a:"No. Confidential clients still authenticate (secret, private key JWT or mTLS); PKCE adds protection against code interception and injection on top."}],
+rf:["Still recommends implicit flow for SPAs","Uses password grant for first-party apps","Doesn't know what PKCE protects against"]},
+
+{id:"T006",skill:"OAuth2, OIDC & JWT",level:"Basic",type:"Concept",
+q:"What's inside a JWT, and what exactly must an API check when validating one?",
+a:`<p>A JWT (JWS) has three base64url parts: <b>header</b> (<code>alg</code>, <code>kid</code>, <code>typ</code>), <b>payload</b> (claims) and <b>signature</b>. It's signed, <b>not encrypted</b>: anyone can read the claims, so never put secrets or unnecessary personal data in them.</p>
+<p><b>Validation checklist:</b></p>
+<ol>
+<li><b>Signature</b> with a key from the <b>trusted issuer's JWKS</b>, using the <code>kid</code> to choose the key. Cache keys and handle rotation (refresh JWKS when an unknown <code>kid</code> appears, with rate limiting).</li>
+<li><b>Algorithm allow-list:</b> accept only the expected algorithm (e.g. RS256/ES256). Never accept <code>alg: none</code>, and prevent RS/HS confusion (an attacker signing with HS256 using the public key as the HMAC secret).</li>
+<li><b><code>iss</code></b> equals the expected issuer exactly.</li>
+<li><b><code>aud</code></b> contains this API's identifier.</li>
+<li><b><code>exp</code></b> and <b><code>nbf</code></b> with small clock skew (e.g. ≤ 1–2 minutes).</li>
+<li><b>Token type:</b> an access token, not an ID token (e.g. check <code>typ: at+jwt</code> where the issuer sets it, or the absence of ID-token-specific claims).</li>
+<li><b>Authorization claims:</b> scopes/roles needed for the endpoint; then object-level checks in code.</li>
+</ol>
+<p>Use a well-maintained library (Microsoft.IdentityModel / JwtBearer, jose) configured with these parameters rather than hand-written parsing. Also remember JWTs can't be revoked before expiry by default, so keep access tokens short-lived (5–15 minutes).</p>`,
+keys:["Header, payload, signature; signed not encrypted","Verify signature via issuer JWKS and kid","Algorithm allow-list; no none; avoid RS/HS confusion","Check iss, aud, exp/nbf, token type","Short lifetimes; use maintained libraries"],
+fu:[{q:"How do you revoke a JWT access token immediately?",a:"You can't without extra state. Options: short lifetimes plus refresh token revocation, a deny-list of token IDs (jti) checked per request, or using opaque tokens with introspection for high-risk APIs."}],
+rf:["Decodes without verifying","Skips audience check","Puts sensitive data in claims","Long-lived access tokens"]},
+
+{id:"T007",skill:"Data Protection & Encryption",level:"Basic",type:"Concept",
+q:"Explain encryption in transit, at rest, and end-to-end. What does each one actually protect against, and what doesn't it?",
+a:`<ul>
+<li><b>In transit (TLS 1.2/1.3):</b> protects data on the network from eavesdropping and tampering between client and server, or between services. Doesn't protect data once it arrives: the server, its logs and its database see plaintext.</li>
+<li><b>At rest</b> (disk/volume, database TDE, S3 SSE, KMS-managed keys): protects against stolen disks, backups or snapshots accessed outside the system, and supports compliance. It does <b>not</b> protect against anyone who can query through the application or database, because the storage layer decrypts transparently for authorised access (including a compromised app or an attacker with DB credentials).</li>
+<li><b>Application-level / field-level encryption:</b> the app encrypts specific fields before storing; the database and DBAs see ciphertext. Protects sensitive fields from DB-level access and backups, at the cost of searching and indexing.</li>
+<li><b>End-to-end:</b> only the communicating endpoints (users' devices) hold keys; the service provider can't read content. Protects against server compromise and insider access, but makes server-side features (search, moderation, backups, multi-device sync) much harder.</li>
+</ul>
+<p><b>Common misunderstanding:</b> "data is encrypted at rest" is often presented as strong protection; in a breach through the application or with stolen credentials, it doesn't help. Real protection comes from access control, field-level encryption for the most sensitive data, and key management (who can use which KMS key, audited).</p>
+<p>Also check internal traffic: TLS between services and to databases, not just at the load balancer.</p>`,
+keys:["TLS: network eavesdropping/tampering only","At rest: stolen media/backups, not app-level access","Field-level: hides sensitive fields from DB access","E2E: provider can't read; limits server features","Key management and access control matter most"],
+fu:[{q:"Is terminating TLS at the load balancer enough?",a:"Only if the network behind it is trusted and compliance allows. Many standards and zero-trust designs require TLS to the targets and to databases too, which ALB and RDS support."}],
+rf:["Thinks at-rest encryption stops application breaches","Calls server-side encryption 'end-to-end'","Ignores internal traffic"]},
+
+{id:"T008",skill:"Data Protection & Encryption",level:"Basic",type:"Scenario",
+q:"You discover a legacy system stores user passwords as unsalted SHA-256 hashes. How should passwords be stored, and how do you migrate 2 million existing users without forcing a mass password reset?",
+a:`<p><b>Why SHA-256 is wrong:</b> it's fast (billions of guesses per second on GPUs), and unsalted means identical passwords share hashes and precomputed tables work. A leaked table would be cracked largely.</p>
+<p><b>Correct storage:</b> a slow, salted, memory-hard password hash: <b>Argon2id</b> (preferred), scrypt, bcrypt, or PBKDF2 with a high iteration count where FIPS compliance requires it. OWASP's Password Storage Cheat Sheet gives current parameters (e.g. Argon2id with ~19 MiB memory, 2 iterations; PBKDF2-HMAC-SHA256 with 600,000 iterations) [VERIFY current values]. Each hash has its own random salt, stored with algorithm and parameters so they can be upgraded later. ASP.NET Core Identity's <code>PasswordHasher</code> uses PBKDF2 with versioned formats.</p>
+<p><b>Migration without forced reset:</b></p>
+<ol>
+<li><b>Immediately wrap</b> every existing hash: store <code>Argon2id(salt, SHA256(password))</code> marked as a "wrapped legacy" format. Now the database is protected right away for all users.</li>
+<li>On login, verify by computing SHA-256 of the entered password, then Argon2id over it.</li>
+<li><b>On successful login, rehash</b> the plain password with plain Argon2id and replace the record.</li>
+<li>After some months, users who never logged in remain in wrapped form (still safe); optionally force reset for them.</li>
+</ol>
+<p>Also: check breached-password lists at signup/change (k-anonymity APIs like Have I Been Pwned's range API), rate-limit logins, and support MFA. If the old hashes may have leaked already, force resets for affected users.</p>`,
+keys:["Fast unsalted hashes are crackable","Argon2id/scrypt/bcrypt/PBKDF2 with per-user salt and stored params","Wrap legacy hashes immediately","Rehash on successful login","Breached-password checks, rate limiting, MFA"],
+trade:["Wrapping: immediate protection vs slightly more complex verification code","Forced reset: clean vs user friction and support load"],
+fu:[{q:"What's a pepper?",a:"A secret added to all password hashes, stored separately from the database (e.g. in a KMS/HSM). If only the DB leaks, hashes can't be cracked without it. It adds key-management complexity and rotation is harder."}],
+rf:["Suggests SHA-512 or MD5 with salt","Encrypts passwords instead of hashing","Waits for users to log in before protecting hashes"],
+verify:"OWASP Password Storage Cheat Sheet current parameter recommendations."},
+
+{id:"T009",skill:"Testing Strategy",level:"Basic",type:"Concept",
+q:"What are SAST, DAST, SCA and secret scanning? Where does each run in a delivery pipeline, and what does each miss?",
+a:`<ul>
+<li><b>SAST (static analysis):</b> scans source code for vulnerable patterns (injection, unsafe deserialization, weak crypto). Tools: CodeQL, Semgrep, SonarQube. Runs on every PR; fast feedback. Misses runtime and configuration issues and most authorization logic flaws; produces false positives that need tuning.</li>
+<li><b>SCA (software composition analysis):</b> checks dependencies against known vulnerabilities and licences. Tools: Dependabot, Snyk, OWASP Dependency-Check, Trivy. Runs on PRs and on a schedule (new CVEs appear for unchanged code). Misses vulnerabilities in your own code and unknown issues; reachability context is often missing.</li>
+<li><b>Secret scanning:</b> finds keys and passwords in code and history. Tools: gitleaks, GitHub secret scanning with <b>push protection</b> (blocks the push). Runs pre-commit and on push. Once a secret is pushed, rotate it; deleting the commit isn't enough.</li>
+<li><b>DAST (dynamic testing):</b> attacks the running application from outside (OWASP ZAP, Burp). Runs against a staging environment, nightly or pre-release. Finds misconfiguration, missing headers, some injection; struggles with authenticated flows and business logic, and is slower.</li>
+<li><b>Also:</b> IaC scanning (Checkov, tfsec), container image scanning, and manual penetration testing for logic flaws.</li>
+</ul>
+<p><b>None of them reliably finds broken object-level authorization.</b> That needs authorization tests written by the team (user A can't read user B's resource) and penetration tests.</p>`,
+keys:["SAST: code patterns, PR time, false positives","SCA: dependency CVEs and licences, scheduled too","Secret scanning with push protection; rotate leaked secrets","DAST: running app, staging, misconfig; weak on logic","Authorization flaws need team tests and pentests"],
+fu:[{q:"How do you stop SAST findings from being ignored?",a:"Tune rules to remove noisy ones, block only on high-confidence high-severity findings, show results in the PR, and track suppressions with justification."}],
+rf:["Thinks one scanner covers everything","Deletes commit instead of rotating a leaked secret","No authorization tests"]},
+
+{id:"T010",skill:"Testing Strategy",level:"Basic",type:"Concept",
+q:"Explain load, stress, spike and soak testing. What do you measure, and what makes a performance test result trustworthy?",
+a:`<ul>
+<li><b>Load test:</b> expected peak traffic for a sustained period. Does the system meet latency and error targets at normal peak?</li>
+<li><b>Stress test:</b> increase load beyond expected until something breaks. Where is the limit, which component fails first, and does it fail gracefully and recover?</li>
+<li><b>Spike test:</b> sudden jumps (e.g. 10× in a minute, like a marketing push). Do autoscaling and queues absorb it?</li>
+<li><b>Soak (endurance) test:</b> normal load for hours. Finds memory leaks, connection-pool exhaustion, growing queues, log or disk growth.</li>
+</ul>
+<p><b>Measure:</b> latency percentiles (p50, p95, p99, not averages), throughput, error rate, saturation (CPU, memory, DB connections, queue depth), and the same signals for dependencies.</p>
+<p><b>Trustworthy results need:</b></p>
+<ul>
+<li>A <b>realistic workload model</b>: mix of endpoints and user journeys from production traffic, think times, realistic data volumes (a 1,000-row test DB tells you nothing about a 50-million-row one).</li>
+<li>A production-like environment (instance sizes, configuration, data, caches warm or cold as appropriate) or clear caveats.</li>
+<li>A load generator that isn't the bottleneck (enough capacity, open-model arrival rates rather than closed loops that slow down when the system slows).</li>
+<li>Pass/fail criteria defined in advance (e.g. p95 &lt; 300 ms and errors &lt; 0.1% at 2,000 RPS).</li>
+</ul>
+<p>Tools: k6, Gatling, JMeter, Locust; k6 thresholds make tests pass/fail in CI.</p>`,
+keys:["Load, stress, spike, soak: different questions","Percentiles, throughput, errors, saturation","Realistic workload and data volumes","Production-like env; load generator not the bottleneck","Pre-defined pass/fail criteria"],
+fu:[{q:"What's the coordinated omission problem?",a:"Closed-loop load generators wait for slow responses before sending the next request, so they send fewer requests exactly when the system is slow and under-report latency. Use constant arrival-rate executors."}],
+rf:["Reports average latency only","Tests with tiny datasets","No criteria defined beforehand"]},
+
+{id:"T011",skill:"Observability",level:"Basic",type:"Concept",
+q:"What are logs, metrics and traces, and what is OpenTelemetry? Explain its main components.",
+a:`<ul>
+<li><b>Metrics:</b> numeric time series (request rate, error count, latency histogram, queue depth). Cheap to store and query, ideal for dashboards and alerts; aggregated, so little detail per request.</li>
+<li><b>Logs:</b> timestamped event records, ideally structured (JSON with fields). Rich detail for debugging; expensive at volume.</li>
+<li><b>Traces:</b> the path of one request across services as a tree of <b>spans</b> (operation, timing, attributes, parent/child). Show where time goes and which dependency failed.</li>
+</ul>
+<p>They're most useful <b>connected</b>: an alert on a metric → exemplar or filter to slow traces → logs carrying the same <code>trace_id</code>.</p>
+<p><b>OpenTelemetry (OTel)</b> is the vendor-neutral CNCF standard for producing telemetry:</p>
+<ul>
+<li><b>API and SDKs</b> per language (.NET, Node, Java…): create spans, metrics, and logs; configure sampling and exporters.</li>
+<li><b>Instrumentation libraries:</b> automatic spans for HTTP servers/clients, database drivers, messaging (ASP.NET Core, HttpClient, EF Core, AWS SDK).</li>
+<li><b>Semantic conventions:</b> standard attribute names (<code>http.response.status_code</code>, <code>db.system</code>), so tools understand data from any service.</li>
+<li><b>OTLP:</b> the wire protocol.</li>
+<li><b>Collector:</b> a separate process that receives, processes (batching, filtering, redaction, tail sampling) and exports to back-ends (CloudWatch/X-Ray, Grafana, Datadog, Honeycomb…).</li>
+</ul>
+<p>Benefit: instrument once, change back-ends without touching application code. .NET has built-in support via <code>ActivitySource</code>/<code>Meter</code>, which OTel uses.</p>`,
+keys:["Metrics: aggregated, cheap, alerting","Logs: detailed events, structured","Traces: request path as spans","Correlate via trace_id and exemplars","OTel: SDKs, instrumentation, semantic conventions, OTLP, Collector"],
+fu:[{q:"Why run a Collector instead of exporting directly from apps?",a:"It centralises batching, retries, redaction, sampling and routing, keeps credentials for back-ends out of apps, and lets you switch or add back-ends without redeploying services."}],
+rf:["Treats logs as the only signal","Unstructured log strings","Unaware of trace context"]},
+
+{id:"T012",skill:"Observability",level:"Basic",type:"Concept",
+q:"Explain counters, gauges and histograms, and the RED and USE methods. Which metrics would you put on a dashboard for an HTTP API?",
+a:`<ul>
+<li><b>Counter:</b> only increases (requests served, errors). You chart its <b>rate</b>.</li>
+<li><b>Gauge:</b> a value that goes up and down (queue depth, memory in use, active connections).</li>
+<li><b>Histogram:</b> distribution of values in buckets (request duration, payload size). Allows percentiles (p95, p99) to be computed across instances. Averages hide tail latency; percentiles from per-instance averages can't be combined correctly.</li>
+</ul>
+<p><b>RED method</b> (for request-driven services): <b>R</b>ate, <b>E</b>rrors, <b>D</b>uration, per endpoint or operation.</p>
+<p><b>USE method</b> (for resources): <b>U</b>tilisation, <b>S</b>aturation, <b>E</b>rrors for CPU, memory, disk, network, connection pools, thread pools.</p>
+<p><b>HTTP API dashboard:</b></p>
+<ul>
+<li>Request rate by route and status class; error rate (5xx, and 4xx spikes separately).</li>
+<li>Latency p50/p95/p99 by route.</li>
+<li>Saturation: CPU, memory, GC (for .NET), thread pool queue length, DB connection pool usage, in-flight requests.</li>
+<li>Dependencies: latency and errors for DB, cache, downstream APIs.</li>
+<li>Business signals: orders created, logins, payment success rate.</li>
+<li>Deployment markers to correlate changes.</li>
+</ul>
+<p>Top of the dashboard: the SLO status. Keep label cardinality low: route templates (<code>/orders/{id}</code>), not raw URLs.</p>`,
+keys:["Counter (rate), gauge, histogram (percentiles)","RED for services, USE for resources","Per-route rate, errors, latency percentiles","Saturation and dependency panels; business metrics","Deployment markers; low-cardinality labels"],
+fu:[{q:"Why can't you average p99 values from 10 instances?",a:"Percentiles don't aggregate arithmetically. You need the underlying histogram buckets (or raw data) from all instances combined to compute a correct overall p99."}],
+rf:["Dashboards of averages only","Raw URLs or user IDs as metric labels","No saturation metrics"]},
+
+{id:"T013",skill:"OWASP & API Security",level:"Intermediate",type:"Scenario",
+q:"A penetration test finds that GET /api/invoices/{id} returns other customers' invoices when the ID is changed. The API has 120 endpoints. How do you fix this properly, not just for one endpoint?",
+a:`<p><b>Immediate:</b> fix the reported endpoint, check logs for exploitation (requests where the invoice's owner ≠ caller), and assess notification duties if data was accessed.</p>
+<p><b>Systemic fix:</b></p>
+<ol>
+<li><b>Inventory endpoints</b> that take resource identifiers (path, query, body). Classify by data sensitivity.</li>
+<li><b>Make the safe path the default:</b>
+  <ul>
+  <li>Scope queries by owner/tenant at the data-access layer: <code>WHERE Id = @id AND TenantId = @tenant</code>, ideally automatically (EF Core global query filters for tenant isolation, PostgreSQL row-level security).</li>
+  <li>Resource-based authorization policies (ASP.NET Core <code>IAuthorizationService</code> with resource handlers) for rules beyond ownership (shared invoices, roles).</li>
+  <li>Return <b>404</b> rather than 403 for resources the caller can't access, to avoid confirming existence.</li>
+  </ul></li>
+<li><b>Tests:</b> an automated authorization test suite: for each endpoint, user A creates a resource, user B attempts read/update/delete and must fail. Generate the list from the route table so new endpoints can't skip it.</li>
+<li><b>Review checklist</b> and a lint/analyzer rule flagging endpoints without an authorization policy.</li>
+<li>Prefer unguessable IDs (UUIDs) as defence in depth, never as the control.</li>
+</ol>`,
+keys:["Fix, check logs for exploitation, assess notification","Inventory endpoints with identifiers","Scope at data layer (query filters, RLS) + resource policies","Automated cross-user authorization tests from route table","404 for inaccessible resources; UUIDs only as depth"],
+trade:["Global query filters: safe default vs surprises when admin code needs cross-tenant access","RLS in DB: strong enforcement vs harder debugging and connection context setup","Per-endpoint checks: flexible vs easy to forget"],
+fu:[{q:"Why aren't random UUIDs a sufficient fix?",a:"IDs leak through URLs, logs, emails, shared links and other APIs. Security can't depend on secrecy of identifiers; authorization must be checked."}],
+rf:["Fixes only the reported endpoint","Relies on UUIDs","No automated tests","Doesn't check for prior exploitation"]},
+
+{id:"T014",skill:"OWASP & API Security",level:"Intermediate",type:"Scenario",
+q:"A user discovers they can PATCH /api/users/me with {\"role\":\"admin\"} or /api/orders/{id} with {\"totalPrice\": 1} and the changes are saved. What's the vulnerability and how do you prevent it across the codebase?",
+a:`<p>This is <b>mass assignment</b> (OWASP API3: Broken Object Property Level Authorization). The API binds the request body directly onto the entity (or merges JSON into it), so any property the entity has can be set, including ones the user must not control.</p>
+<p><b>Fixes:</b></p>
+<ul>
+<li><b>Input DTOs per operation</b> containing only fields the caller may set (<code>UpdateProfileRequest { DisplayName, Phone }</code>). Map explicitly to the entity. Never bind request bodies to EF/ORM entities.</li>
+<li><b>Server-computed values stay on the server:</b> prices and totals come from the catalogue, status changes go through explicit operations (<code>POST /orders/{id}/cancel</code>), roles change only via admin endpoints with their own authorization.</li>
+<li><b>Field-level authorization</b> where different roles may edit different fields (admin can change <code>role</code>, user can't): separate DTOs or explicit checks.</li>
+<li><b>Reject unknown properties</b> in JSON deserialisation (e.g. <code>JsonUnmappedMemberHandling.Disallow</code> in System.Text.Json, <code>forbidNonWhitelisted</code> in NestJS ValidationPipe) so attempts fail loudly and can be logged.</li>
+<li>Same for responses: <b>output DTOs</b> to avoid exposing internal fields (excessive data exposure).</li>
+<li>Tests that send forbidden fields and assert they're rejected or ignored.</li>
+</ul>`,
+keys:["Mass assignment = binding body onto entities","Per-operation input DTOs with explicit mapping","Server computes prices/totals; state changes via explicit operations","Reject unknown properties","Output DTOs; tests for forbidden fields"],
+trade:["DTOs per operation: safety vs more types and mapping code","Rejecting unknown fields: catches attacks vs breaks lenient clients when contracts evolve"],
+fu:[{q:"How does JSON Patch increase the risk?",a:"JSON Patch can target any path in the document, so applying it to an entity exposes every property. Apply patches to a restricted DTO and validate allowed paths."}],
+rf:["Binds requests to entities","Trusts client-sent prices","Relies on the UI not showing fields"]},
+
+{id:"T015",skill:"OWASP & API Security",level:"Intermediate",type:"Concept",
+q:"When is CSRF still a risk today, given SameSite cookies? How do you protect cookie-based and token-based APIs?",
+a:`<p><b>CSRF</b> tricks a victim's browser into sending an authenticated request (with their cookies) to your site from another site. It only matters when <b>the browser attaches credentials automatically</b>, i.e. cookies (or HTTP auth / client certs). APIs authenticated purely with a bearer token in an <code>Authorization</code> header set by JavaScript aren't vulnerable to classic CSRF (but tokens in JS are exposed to XSS).</p>
+<p><b>SameSite cookies</b> help a lot:</p>
+<ul>
+<li><code>Strict</code>: never sent on cross-site requests (breaks arriving logged-in via external links).</li>
+<li><code>Lax</code> (default in modern browsers for cookies without the attribute): sent on top-level GET navigations from other sites, not on cross-site POSTs, iframes or fetches.</li>
+<li><code>None</code>: always sent (must be <code>Secure</code>); needed for genuine cross-site use (embedded widgets, some SSO).</li>
+</ul>
+<p><b>Remaining risks with Lax:</b> state-changing <b>GET</b> endpoints; <b>same-site</b> attacks from a compromised or user-content subdomain (<code>evil.example.com</code> is same-site with <code>app.example.com</code>); cookies explicitly set to <code>None</code>; older clients.</p>
+<p><b>Defences for cookie-authenticated apps:</b> SameSite=Lax or Strict; never change state on GET; anti-forgery tokens (synchronizer token or double-submit, built into ASP.NET Core and Next.js server actions' origin checks); check <code>Origin</code>/<code>Sec-Fetch-Site</code> headers on state-changing requests; strict CORS (never reflect arbitrary origins with credentials).</p>`,
+keys:["CSRF needs automatically attached credentials (cookies)","Header bearer tokens avoid CSRF but face XSS","SameSite Strict/Lax/None behaviour","Lax gaps: GET state changes, same-site subdomains, None cookies","Anti-forgery tokens, Origin/Fetch Metadata checks, strict CORS"],
+fu:[{q:"Does CORS protect against CSRF?",a:"Not by itself. CORS controls whether a cross-origin script can read the response; simple form posts are still sent. Misconfigured CORS with credentials can make things worse by letting other origins read responses."}],
+rf:["'We use JWT so CSRF doesn't apply' while using cookies","State changes via GET","Reflects any Origin with credentials"]},
+
+{id:"T016",skill:"OWASP & API Security",level:"Intermediate",type:"Scenario",
+q:"Your product has an 'import from URL' feature and outgoing webhooks to customer URLs, running on AWS. A security review flags SSRF. Explain the risk and design the protections.",
+a:`<p><b>SSRF</b> lets an attacker make your server send requests to destinations of their choice, including internal ones your network trusts: the EC2/ECS metadata endpoint (credentials!), internal admin APIs, databases, other VPC services, or localhost ports.</p>
+<p><b>Protections, layered:</b></p>
+<ol>
+<li><b>Validate the destination after DNS resolution:</b> resolve the hostname, reject private, loopback, link-local (169.254.0.0/16 including metadata), and IPv6 equivalents, then connect to <b>that resolved IP</b> (pin it) to defeat DNS rebinding. Re-check on every redirect, or disable redirects.</li>
+<li><b>Allow only http/https</b>, and specific ports (80/443). Reject <code>file://</code>, <code>gopher://</code> and odd URL encodings.</li>
+<li><b>Network isolation:</b> run fetchers in a separate, locked-down component (separate subnet/security group, no access to internal services) and send traffic through an <b>egress proxy</b> that enforces the rules centrally.</li>
+<li><b>Metadata protection:</b> enforce <b>IMDSv2</b> (session token via PUT, hop limit 1) on EC2; for ECS/Lambda, task credentials come from a different endpoint, so block 169.254.170.2 too from the fetcher. Least-privilege roles for the fetcher.</li>
+<li><b>Limit responses:</b> timeouts, max size, content-type checks; don't return raw responses or detailed errors to users (blind SSRF still leaks via timing).</li>
+<li>For webhooks: sign payloads (HMAC), verify destination ownership at registration, and log all outbound requests.</li>
+</ol>`,
+keys:["SSRF reaches metadata, internal APIs, localhost","Validate resolved IP; pin it; handle redirects","Scheme/port allow-lists","Isolated fetcher + egress proxy; least privilege","IMDSv2 and block task metadata; limit responses; sign webhooks"],
+trade:["Isolated fetcher service: strong containment vs extra component","Strict allow-lists: safe vs some customer URLs rejected"],
+fu:[{q:"Why is checking the hostname string before the request not enough?",a:"DNS rebinding: the name resolves to a public IP during validation and to an internal IP at request time. Validate and connect to the same resolved IP, and re-validate redirects."}],
+rf:["Blocklists 'localhost' strings only","Fetches from the main app's network context","Returns raw fetched content and errors"]},
+
+{id:"T017",skill:"OAuth2, OIDC & JWT",level:"Intermediate",type:"Scenario",
+q:"Your mobile app uses long-lived refresh tokens. A user's refresh token was extracted from a compromised device and used from another country. How should refresh tokens be designed to limit this?",
+a:`<p><b>Design principles:</b></p>
+<ul>
+<li><b>Short-lived access tokens</b> (5–15 minutes) so stolen access tokens expire quickly.</li>
+<li><b>Refresh token rotation:</b> every refresh returns a new refresh token and invalidates the old one.</li>
+<li><b>Reuse detection:</b> if an already-used refresh token is presented again, assume theft (either the attacker or the legitimate client is using an old token) and <b>revoke the entire token family</b> (all tokens descended from that login), forcing re-authentication.</li>
+<li><b>Lifetimes:</b> an idle timeout (e.g. 30 days without use) and an absolute lifetime (e.g. 90 days), shorter for sensitive apps.</li>
+<li><b>Sender-constrained tokens:</b> bind tokens to a key held by the client, so a copied token is useless without the key: <b>DPoP</b> (RFC 9449), or mTLS-bound tokens. On mobile, keep the private key in the secure enclave/keystore.</li>
+<li><b>Secure storage:</b> iOS Keychain / Android Keystore-backed storage, not plain preferences.</li>
+<li><b>Revocation and visibility:</b> users can see active sessions/devices and revoke them; revoke on password change; admins can revoke.</li>
+<li><b>Risk signals:</b> impossible travel, new device, unusual patterns trigger step-up authentication.</li>
+</ul>
+<p><b>For this incident:</b> revoke the user's token family, check what the attacker accessed via audit logs, notify the user, and review how the device was compromised.</p>`,
+keys:["Short access tokens","Rotation with reuse detection revoking the family","Idle and absolute lifetimes","Sender-constrained tokens (DPoP/mTLS)","Secure storage, session management UI, risk-based step-up"],
+trade:["Shorter lifetimes: smaller theft window vs more logins","DPoP: stolen tokens useless vs client and server complexity","Aggressive reuse detection: catches theft vs false positives from network retries (use a short grace period)"],
+fu:[{q:"Why might rotation cause false reuse alarms?",a:"A client may send the refresh request, lose the response (network drop), then retry with the old token. A short grace window or idempotent refresh handling avoids logging users out."}],
+rf:["Long-lived non-rotating refresh tokens","No way to revoke sessions","Tokens stored in plain app storage"]},
+
+{id:"T018",skill:"OAuth2, OIDC & JWT",level:"Intermediate",type:"Concept",
+q:"Scopes, roles, permissions and claims are often mixed up. Explain the difference and where authorization decisions should live in a multi-service system.",
+a:`<ul>
+<li><b>Scopes</b> describe what a <b>client application</b> is allowed to do on behalf of the user (<code>orders:read</code>), consented to by the user or granted to the client. They limit delegation; they don't say what the user is allowed to do.</li>
+<li><b>Roles</b> group users (<code>Manager</code>, <code>Support</code>) and usually map to sets of permissions.</li>
+<li><b>Permissions</b> are specific allowed actions (<code>refund:approve</code>), possibly with conditions.</li>
+<li><b>Claims</b> are statements in a token (sub, tenant, roles, scopes) that inputs to authorization decisions can use.</li>
+</ul>
+<p><b>Effective permission = what the client may do (scopes) ∩ what the user may do (roles/permissions) ∩ object-level rules</b> (this user owns this order, same tenant).</p>
+<p><b>Where decisions live:</b></p>
+<ul>
+<li><b>Coarse checks</b> at the edge (API gateway or middleware): valid token, required scope for the API.</li>
+<li><b>Fine-grained and object-level checks</b> in the service that owns the data, because only it knows ownership and state.</li>
+<li>Don't put large permission lists in tokens: they bloat tokens and go stale until expiry. Keep tokens to identity, tenant and coarse roles; fetch detailed permissions from an authorization service or policy engine (e.g. Amazon Verified Permissions/Cedar, OPA, OpenFGA for relationship-based access) with caching.</li>
+</ul>`,
+keys:["Scopes limit the client; roles/permissions limit the user","Effective access is the intersection plus object rules","Coarse at edge, fine-grained in owning service","Don't bloat tokens with permissions","Policy engines for complex authorization"],
+fu:[{q:"What's relationship-based access control (ReBAC)?",a:"Authorization based on relationships between users and objects (owner of, member of a team that has access to a folder), as in Google Zanzibar; OpenFGA and SpiceDB implement it. Good for sharing-heavy apps."}],
+rf:["Uses scopes as user roles","Authorizes everything at the gateway only","Puts hundreds of permissions in JWTs"]},
+
+{id:"T019",skill:"OAuth2, OIDC & JWT",level:"Intermediate",type:"Scenario",
+q:"During a security review, you find that the production API accepts access tokens issued for the staging environment, and also tokens issued to a different internal API by the same identity provider. What's wrong, and how do you fix and prevent it?",
+a:`<p><b>Root causes:</b></p>
+<ul>
+<li><b>Issuer not validated</b> (or staging and production share an issuer/tenant): any token signed by a trusted key is accepted. If staging and prod use the same IdP tenant and keys, staging users (often test accounts with weaker controls) can access production.</li>
+<li><b>Audience not validated:</b> a token issued for API B is accepted by API A. Any service holding a token for B (or a compromised B) can replay it against A: the "confused deputy" problem.</li>
+</ul>
+<p><b>Fix:</b></p>
+<ul>
+<li>Set <code>ValidIssuer</code> and <code>ValidAudience</code> explicitly per environment and per API (in ASP.NET Core JwtBearer: <code>Authority</code> + <code>Audience</code>, with <code>ValidateIssuer</code>/<code>ValidateAudience</code> true, which is the default; check nobody disabled them).</li>
+<li><b>Separate IdP tenants or at least separate issuers and signing keys</b> for production vs non-production.</li>
+<li>Each API registered as its own resource with its own audience; clients request tokens per audience. For service chains, use <b>token exchange</b> (RFC 8693) to get a token for the downstream API instead of forwarding the original.</li>
+<li>Rotate signing keys if non-prod keys or tokens were exposed; review logs for cross-environment token use.</li>
+</ul>
+<p><b>Prevent:</b> a shared, reviewed authentication configuration package for all services; integration tests that send tokens with the wrong issuer, audience, expired, and wrong algorithm, asserting 401; configuration checks in CI.</p>`,
+keys:["Missing issuer validation / shared prod and non-prod issuers","Missing audience validation → confused deputy","Explicit issuer and audience per env and API","Separate tenants/keys; token exchange for downstream calls","Shared auth config + negative token tests"],
+trade:["Separate IdP tenants: strong isolation vs duplicated configuration","Token exchange: correct audiences vs extra round trip to the IdP"],
+fu:[{q:"Why is forwarding the user's token to downstream services risky?",a:"Downstream services must then accept a token for another audience, broadening where it's valid; any service in the chain can replay it anywhere. Token exchange issues narrowly scoped tokens per hop."}],
+rf:["Disables audience validation 'to make it work'","Same IdP keys for staging and prod","No negative tests"]},
+
+{id:"T020",skill:"Data Protection & Encryption",level:"Intermediate",type:"Concept",
+q:"Explain anonymisation, pseudonymisation, tokenisation and encryption of personal data. Which ones take data out of GDPR scope?",
+a:`<ul>
+<li><b>Anonymisation:</b> data is processed so individuals can no longer be identified by any means reasonably likely to be used. Truly anonymous data is <b>outside GDPR</b> (Recital 26). It's hard to achieve: combinations of fields (postcode + birth date + gender) often re-identify people, and aggregated data with small groups can too.</li>
+<li><b>Pseudonymisation:</b> replacing identifiers with pseudonyms, with the re-identification key kept separately (e.g. user ID replaced by a random token in an analytics dataset). It's still <b>personal data under GDPR</b>, but it's a recognised safeguard that reduces risk and supports purposes like analytics.</li>
+<li><b>Tokenisation:</b> replacing a sensitive value (card number, Aadhaar) with a token; the mapping is held in a secure vault. A form of pseudonymisation; common for PCI DSS scope reduction since systems holding only tokens can be out of PCI scope.</li>
+<li><b>Encryption:</b> reversible with the key. Encrypted personal data is still personal data; it's a security measure (and can reduce breach-notification obligations if keys weren't compromised).</li>
+</ul>
+<p><b>Practical uses:</b> analytics and ML on pseudonymised data; test environments with anonymised or synthetic data rather than production copies; tokenisation for payment and ID numbers; <b>crypto-shredding</b> (per-user keys, deleted to make that user's encrypted data unreadable) for erasure in backups and logs.</p>
+<p>India's DPDP Act also distinguishes personal data and requires security safeguards; anonymised data handling and exemptions should be checked with legal [VERIFY].</p>`,
+keys:["Only true anonymisation exits GDPR scope","Pseudonymised data is still personal data","Tokenisation reduces PCI scope","Encryption is a safeguard, not anonymisation","Re-identification risk; crypto-shredding for erasure"],
+fu:[{q:"Is hashing an email address anonymisation?",a:"No. Hashes of emails can be reversed by hashing candidate emails (dictionary attack), and the hash is a stable identifier linking records. At best it's pseudonymisation, better with a secret key (HMAC)."}],
+rf:["Calls hashed emails anonymous","Copies production data to test environments","Thinks encryption removes GDPR obligations"],
+verify:"DPDP Act treatment of anonymised data and rules timeline."},
+
+{id:"T021",skill:"Data Protection & Encryption",level:"Intermediate",type:"Scenario",
+q:"Your app stores customers' national ID numbers and bank account numbers in PostgreSQL. Compliance requires that DBAs and anyone with database access can't read them, but support staff must still look customers up by ID number. Design it.",
+a:`<p><b>Application-level field encryption with a blind index.</b></p>
+<ul>
+<li><b>Encryption:</b> the application encrypts these fields with authenticated encryption (AES-256-GCM) before writing, using <b>envelope encryption</b>: data keys protected by a KMS key. Use a library or the AWS Encryption SDK rather than hand-rolled crypto. The database holds only ciphertext.</li>
+<li><b>Searchable lookup:</b> store a <b>blind index</b> column: <code>HMAC-SHA256(indexKey, normalise(idNumber))</code>, with a separate key from the encryption key. Exact-match lookups compute the HMAC of the search input and query the index column. Truncating the HMAC reduces the risk of confirming values, at the cost of some false positives to filter after decryption.</li>
+<li><b>Access control on decryption:</b> only the service role can use the KMS key; KMS logs every decrypt in CloudTrail. Support staff see masked values (last 4 digits) by default and request full reveal with a reason, which is logged.</li>
+<li><b>Key rotation:</b> KMS key rotation for the wrapping key; a re-encryption job if data keys must change; versioned key IDs stored with ciphertext.</li>
+<li><b>Logging hygiene:</b> never log decrypted values; scrub from errors and traces.</li>
+</ul>
+<p><b>Trade-offs:</b> no range queries, partial matches or sorting on encrypted fields; more complex migrations and reporting; performance cost per decrypt (cache data keys carefully). Alternatives: tokenisation through a vault service (central control, extra dependency), or database features (SQL Server Always Encrypted; PostgreSQL <code>pgcrypto</code> exposes keys to the DB, which doesn't meet the DBA requirement).</p>`,
+keys:["App-level AEAD encryption with KMS envelope keys","Blind index (HMAC, separate key) for exact search","KMS access restricted and audited; masked display + logged reveal","Key versioning and rotation","Trade-offs: no range/partial search; pgcrypto doesn't hide from DBAs"],
+trade:["App-level encryption: protects from DB access vs query limitations","Tokenisation vault: central control vs extra critical dependency","Truncated blind index: less leakage vs false positives"],
+fu:[{q:"Why not use deterministic encryption for search instead of a blind index?",a:"It works for equality search but reveals equal values across rows and uses the same key for data and searching; a separate HMAC index keeps the data encrypted with randomised AEAD and isolates the search key."}],
+rf:["Relies on disk encryption only","Uses pgcrypto with keys in SQL","Plain SHA-256 hash of IDs as index","Logs decrypted values"]},
+
+{id:"T022",skill:"Testing Strategy",level:"Intermediate",type:"Scenario",
+q:"Five services talk over REST. Providers regularly break consumers with changes that pass their own tests, and end-to-end tests catch it late or not at all. Introduce consumer-driven contract testing: how does it work and how do you roll it out?",
+a:`<p><b>How it works (e.g. Pact):</b></p>
+<ol>
+<li>The <b>consumer</b> writes tests against a mock provider describing the requests it sends and the parts of responses it relies on. Running them produces a <b>contract (pact file)</b>.</li>
+<li>Contracts are published to a <b>broker</b> (Pact Broker or PactFlow), versioned with the consumer's Git SHA and branch/environment.</li>
+<li>The <b>provider</b> CI fetches relevant contracts and <b>verifies</b> them against the real provider (with <b>provider states</b> to set up data, e.g. "order 123 exists").</li>
+<li>Before deploying either side, <b><code>can-i-deploy</code></b> checks the broker: is this version compatible with what's deployed in the target environment?</li>
+</ol>
+<p>Contracts include only what consumers use, so providers can freely change anything else.</p>
+<p><b>Rollout:</b></p>
+<ul>
+<li>Start with the one or two integrations that break most often. A team on each side, pairing on the first contracts.</li>
+<li>Add provider verification to CI, initially non-blocking (report-only), then blocking once stable.</li>
+<li>Add <code>can-i-deploy</code> gates to deployment pipelines, and record deployments in the broker.</li>
+<li>Webhooks: when a consumer publishes a changed contract, trigger provider verification.</li>
+<li>Reduce end-to-end tests to a few critical journeys once contracts cover integration points.</li>
+</ul>
+<p><b>Limits:</b> contracts check structure and agreed examples, not business behaviour or performance; they need discipline from consumers to keep them minimal; and async messaging needs message pacts or schema-registry compatibility checks instead.</p>`,
+keys:["Consumer tests generate contracts of what they use","Broker versions contracts by SHA/branch/environment","Provider verifies with provider states","can-i-deploy gates deployments","Incremental rollout; fewer E2E tests; limits"],
+trade:["Contract tests: fast, precise integration checks vs setup and team discipline","E2E tests: real behaviour vs slow, flaky, late","Schema-only checks (OpenAPI diff): cheap vs don't know what consumers use"],
+fu:[{q:"How does contract testing differ from validating against an OpenAPI spec?",a:"OpenAPI diffing tells you if the spec changed in a breaking way generally; consumer contracts tell you whether a change breaks an actual consumer's usage, allowing changes to fields nobody uses. Bi-directional approaches combine both."}],
+rf:["Relies only on E2E tests for integration","Contracts written by the provider guessing consumer needs","No deployment gate"]},
+
+{id:"T023",skill:"Testing Strategy",level:"Intermediate",type:"Scenario",
+q:"A marketing campaign is expected to bring 10× normal traffic for two days, three weeks from now. Plan the load testing.",
+a:`<ol>
+<li><b>Build the workload model:</b> from analytics and production logs, which journeys (landing page, sign-up, search, checkout), in what mix, at what arrival rate at peak. Campaign traffic differs from normal: more new users, more sign-ups, fewer logged-in returning users. Include bursts (an email blast arrives at once).</li>
+<li><b>Set targets with product:</b> e.g. 10× peak RPS with p95 &lt; 500 ms and error rate &lt; 0.5% on critical journeys; define which non-critical features may degrade.</li>
+<li><b>Environment:</b> a production-sized staging environment with production-like data volumes, or carefully controlled tests in production off-peak. Third-party dependencies (payment, email, SMS) are stubbed or their providers warned, so tests don't spam real users or hit their rate limits.</li>
+<li><b>Scripts:</b> k6 (or Gatling) scenarios with constant arrival-rate executors, realistic test data (unique users, varied products), thresholds as pass/fail criteria.</li>
+<li><b>Run in stages:</b> baseline (1×), 3×, 5×, 10×, and 15× for headroom; a spike test; a few-hour soak at 10×.</li>
+<li><b>Observe everything during runs:</b> app metrics, DB (connections, locks, slow queries), caches, queues, autoscaling events, cold starts, third-party quotas.</li>
+<li><b>Fix and repeat:</b> typical findings are DB connection limits, missing indexes, autoscaling too slow (pre-scale before the campaign), cache stampedes, and quotas (Lambda concurrency, API Gateway, SES).</li>
+<li><b>Operational plan:</b> pre-warm/pre-scale, feature flags to shed non-critical load, a rollback plan, and an on-call schedule for the campaign days.</li>
+</ol>`,
+keys:["Workload model from real data, campaign-shaped","Targets agreed with product; acceptable degradation","Prod-like env and data; stub third parties","Staged runs incl. spike and soak; observe all layers","Fix bottlenecks; pre-scale, load-shedding flags, on-call plan"],
+trade:["Testing in production: realistic vs risk to real users","Staging tests: safe vs environment differences","Pre-scaling: reliability vs cost"],
+fu:[{q:"Autoscaling worked in the test but took 4 minutes to add capacity. What do you do?",a:"Scheduled scaling to pre-provision capacity before the campaign window, lower scale-out thresholds, faster-starting tasks, and buffers like queues for non-interactive work."}],
+rf:["Tests only the homepage","Uses average latency","Hits real payment or email providers","No plan for scaling ahead of time"]},
+
+{id:"T024",skill:"Observability",level:"Intermediate",type:"Scenario",
+q:"An order flows through an API, an SQS queue, a worker, Kafka and two more services. When something fails, engineers can't connect the logs across these steps. How do you implement end-to-end correlation?",
+a:`<p><b>Use distributed tracing with context propagation</b>, and put the trace context into logs.</p>
+<ul>
+<li><b>HTTP hops:</b> OpenTelemetry instrumentation propagates the <b>W3C Trace Context</b> (<code>traceparent</code>, <code>tracestate</code>) headers automatically in ASP.NET Core/HttpClient and Node HTTP libraries.</li>
+<li><b>Message hops:</b> inject the trace context into <b>message metadata</b> when producing, and extract it when consuming.
+  <ul>
+  <li>SQS: message attributes (watch the 10-attribute limit), or the <code>AWSTraceHeader</code> system attribute used by X-Ray.</li>
+  <li>Kafka: record headers.</li>
+  </ul>
+  OTel messaging instrumentation does this for many clients; otherwise use the propagator API manually. Per OTel messaging conventions, consumer spans often use <b>span links</b> to the producer context (especially for batches) rather than strict parent/child.</li>
+<li><b>Logs:</b> configure logging to include <code>trace_id</code> and <code>span_id</code> on every line (automatic with OTel log bridges for <code>ILogger</code>, pino/winston instrumentation). Also log a business <b>correlation ID</b> (order ID) as a structured field.</li>
+<li><b>Outbox and retries:</b> store trace context in the outbox row so the published event links back to the originating request; keep it on retried and DLQ'd messages.</li>
+<li><b>Back-end:</b> traces and logs in tools that link them (X-Ray/CloudWatch, Grafana Tempo + Loki, Datadog, Honeycomb).</li>
+</ul>
+<p>Then "find order 123" → its trace → every span and log across all services, including how long it waited in each queue.</p>`,
+keys:["W3C Trace Context over HTTP via OTel","Inject/extract context in SQS attributes / Kafka headers","Span links for async consumers and batches","trace_id + business ID in structured logs","Carry context through outbox, retries, DLQ"],
+trade:["Full tracing: complete picture vs volume and cost (needs sampling)","Business correlation IDs: easy search vs not a full trace"],
+fu:[{q:"How do you measure time spent waiting in a queue?",a:"Record the publish timestamp in the message (or use the broker's sent timestamp) and compute the difference at consume time as a metric; the producer and consumer spans also show the gap."}],
+rf:["Relies on timestamps to match logs","Drops context at queues","Unstructured logs without trace IDs"]},
+
+{id:"T025",skill:"Observability",level:"Intermediate",type:"Concept",
+q:"Define SLI, SLO, SLA and error budget. Write SLOs for a checkout API and explain how the error budget is used.",
+a:`<ul>
+<li><b>SLI (indicator):</b> a measured ratio of good events to valid events, e.g. the proportion of checkout requests that return non-5xx within 800 ms.</li>
+<li><b>SLO (objective):</b> the target for an SLI over a window: 99.9% over 28 days.</li>
+<li><b>SLA (agreement):</b> a contractual commitment to customers with consequences (credits). Usually looser than internal SLOs, so you breach the SLO first and have time to react.</li>
+<li><b>Error budget:</b> 100% − SLO. At 99.9% over 28 days, about <b>40 minutes</b> of total failure, or the equivalent number of failed requests (0.1% of all requests).</li>
+</ul>
+<p><b>Checkout SLOs (example):</b></p>
+<ul>
+<li><b>Availability:</b> 99.9% of checkout POST requests succeed (non-5xx, excluding client errors), measured at the load balancer, over 28 days.</li>
+<li><b>Latency:</b> 99% of checkout requests complete within 1 s; 95% within 400 ms.</li>
+<li><b>Correctness</b> (often forgotten): 99.99% of completed payments have a matching order record within 5 minutes (from a reconciliation job).</li>
+</ul>
+<p><b>Using the budget:</b> it makes reliability vs speed an explicit decision. If budget remains, the team ships features and takes reasonable risks. If it's burning fast or exhausted, an agreed policy kicks in: pause risky releases, prioritise reliability work, require extra review. Alerting is based on <b>burn rate</b> (how fast the budget is being consumed), not on individual errors.</p>
+<p>Choose SLOs from user expectations and current performance; 100% is never the right target.</p>`,
+keys:["SLI ratio good/valid; SLO target over window; SLA contractual","Error budget = 1 − SLO (≈40 min/28d at 99.9%)","Availability, latency and correctness SLOs","Budget policy governs release vs reliability work","Burn-rate alerting; never 100%"],
+fu:[{q:"Where should you measure the SLI: in the service or at the edge?",a:"As close to the user as practical (load balancer, API gateway, or synthetic/RUM), since in-service metrics miss failures before the request reaches the app."}],
+rf:["Sets 100% targets","Uses CPU as an SLI","No policy for budget exhaustion","SLA equal to SLO"]},
+{id:"T026",skill:"OWASP & API Security",level:"Intermediate",type:"Scenario",
+q:"Your login endpoint gets 2 million attempts a day from thousands of IPs (credential stuffing), and attackers also brute-force the 6-digit password-reset OTP. Per-IP rate limiting isn't stopping it. How do you defend these flows?",
+a:`<p>These are <b>abuse of sensitive business flows</b> (OWASP API6) plus weak resource limits (API4). Distributed attacks defeat per-IP limits, so defend on several dimensions.</p>
+<p><b>Credential stuffing:</b></p>
+<ul>
+<li><b>Rate limits per account</b> (failed attempts per username, with progressive delays) as well as per IP, per IP range/ASN and per device fingerprint. Avoid hard lockouts that let attackers lock out real users; use increasing delays and challenges.</li>
+<li><b>Bot defences:</b> AWS WAF Bot Control and account-takeover prevention managed rules, CAPTCHA or proof-of-work challenges triggered by risk signals (new device, suspicious IP reputation, high failure rates).</li>
+<li><b>Breached-password checks</b> at login and signup; force reset when a match appears.</li>
+<li><b>MFA</b>, ideally phishing-resistant (passkeys), at least for risky logins.</li>
+<li><b>Uniform responses and timing</b> so attackers can't enumerate valid usernames.</li>
+</ul>
+<p><b>Password-reset OTP:</b></p>
+<ul>
+<li>A 6-digit code has 1 million possibilities; limit <b>attempts per code</b> (e.g. 5) and invalidate it after that; short expiry (10 minutes); one active code per account; rate-limit code requests (also prevents SMS-pumping fraud costs).</li>
+<li>Prefer long random links in email over short numeric codes where possible.</li>
+<li>Bind the reset to the session or device that requested it.</li>
+</ul>
+<p><b>Detection:</b> dashboards and alerts on failed-login rates, success rates from new devices, reset requests and SMS spend; notify users of new-device logins.</p>`,
+keys:["Distributed attacks defeat per-IP limits","Per-account, per-device, per-ASN limits with progressive delays","Bot control/ATP rules, risk-based challenges","Breached-password checks, MFA/passkeys, uniform responses","OTP: attempt limits, short expiry, request limits; monitoring"],
+trade:["Account lockout: stops guessing vs enables denial of service on users","CAPTCHA: blocks bots vs friction and accessibility","SMS OTP: familiar vs cost, SIM-swap and pumping fraud"],
+fu:[{q:"What is SMS pumping fraud?",a:"Attackers trigger many OTP SMS to premium-rate numbers they profit from, running up your messaging bill. Rate-limit OTP requests per account, phone and country, and monitor spend."}],
+rf:["Per-IP limits only","Hard lockout after 3 failures","Unlimited OTP attempts","Different error messages for unknown users"]},
+
+{id:"T027",skill:"OWASP & API Security",level:"Intermediate",type:"Scenario",
+q:"Users can upload profile pictures and documents (PDF, DOCX) which other users can view. List the attacks and design a secure upload pipeline on AWS.",
+a:`<p><b>Attacks:</b> malware distribution; <b>stored XSS</b> via HTML or SVG files served from your domain; content-type spoofing (a script named <code>.jpg</code>); path traversal in filenames; huge files or decompression bombs (zip bombs, image "pixel floods"); exploits against parsers (image libraries, PDF/Office processors); unauthorized access to others' files via guessable URLs.</p>
+<p><b>Pipeline:</b></p>
+<ol>
+<li><b>Upload directly to S3</b> with a <b>pre-signed POST</b> limited by content-length range, key prefix and short expiry. The key is generated by the server (random UUID), never from the user's filename.</li>
+<li>Files land in a <b>quarantine bucket</b>. An S3 event triggers processing: check the real type by magic bytes (not the extension or <code>Content-Type</code>), enforce an allow-list (JPEG, PNG, PDF, DOCX), size and dimension limits.</li>
+<li><b>Malware scan</b> (e.g. Amazon GuardDuty Malware Protection for S3, or ClamAV in a sandboxed task) [VERIFY].</li>
+<li><b>Re-encode images</b> (decode and write a new JPEG/PNG), which strips metadata (GPS EXIF) and payloads. Reject or convert SVG. Optionally convert documents to PDF or render previews in an isolated environment.</li>
+<li>Move clean files to the <b>serving bucket</b>; mark the database record as available.</li>
+<li><b>Serve safely:</b> via CloudFront from a <b>separate domain</b> (e.g. <code>usercontent.example.net</code>) so any script can't access your app's cookies; set <code>Content-Disposition: attachment</code> for documents, correct <code>Content-Type</code>, <code>X-Content-Type-Options: nosniff</code>. Access through authorization checks and short-lived signed URLs for private files.</li>
+</ol>`,
+keys:["Attacks: malware, XSS via HTML/SVG, spoofed types, bombs, parser exploits, IDOR","Pre-signed upload with limits; server-generated keys","Quarantine → magic-byte check, allow-list, limits, malware scan","Re-encode images; neutralise SVG/HTML","Serve from separate domain with safe headers and signed URLs"],
+trade:["Re-encoding: removes payloads vs CPU cost and quality loss","Separate content domain: isolation vs extra DNS/CDN setup","Async scanning: scalable vs delay before files are visible"],
+fu:[{q:"Why is serving uploads from your main domain dangerous?",a:"An uploaded HTML or SVG file can run script in your origin, reading cookies/local storage and calling your APIs as the victim. A separate domain contains that."}],
+rf:["Trusts file extension or Content-Type","Uses user filenames as storage keys","Serves uploads inline from the app domain","No malware scanning for shared files"],
+verify:"GuardDuty Malware Protection for S3 availability and pricing."},
+
+{id:"T028",skill:"OAuth2, OIDC & JWT",level:"Intermediate",type:"Concept",
+q:"Why is 'logout' hard in OIDC-based apps? Explain the different sessions involved and how to implement logout properly.",
+a:`<p><b>Several independent sessions exist:</b></p>
+<ul>
+<li>The <b>application session</b> (your cookie, or tokens held by the client).</li>
+<li>The <b>identity provider session</b> (the IdP's own cookie), which lets users log in again silently.</li>
+<li>Issued <b>tokens</b>: access tokens (often JWTs, valid until expiry) and refresh tokens.</li>
+<li>Sessions in <b>other apps</b> that share the same IdP (SSO).</li>
+</ul>
+<p>Clearing only your cookie leaves the IdP session alive: clicking "log in" signs the user straight back in, which looks like logout didn't work, a real problem on shared computers.</p>
+<p><b>Proper logout:</b></p>
+<ol>
+<li>Clear the local session and server-side session state.</li>
+<li><b>Revoke the refresh token</b> at the IdP (token revocation endpoint, RFC 7009).</li>
+<li><b>RP-initiated logout:</b> redirect to the IdP's <code>end_session_endpoint</code> with <code>id_token_hint</code> and <code>post_logout_redirect_uri</code>, ending the IdP session.</li>
+<li>For SSO across apps: <b>back-channel logout</b> (the IdP calls each app's logout endpoint server-to-server with a logout token) or front-channel logout (iframes, less reliable due to third-party cookie blocking).</li>
+<li>Access tokens already issued remain valid until expiry, so keep them short-lived; for high-security APIs, check a revocation list or use introspection.</li>
+</ol>
+<p>Also handle "log out all devices" (revoke all refresh tokens for the user) and logout after password change or account compromise.</p>`,
+keys:["App session, IdP session, tokens, other SSO apps","Clearing local cookie isn't logout","Revoke refresh tokens; RP-initiated logout","Back-channel logout for SSO apps","Short-lived access tokens; log out all devices"],
+fu:[{q:"Why is front-channel logout increasingly unreliable?",a:"It relies on loading each app in hidden iframes with their cookies; browsers now block or partition third-party cookies, so those requests often don't carry the session."}],
+rf:["Deletes the cookie only","Never revokes refresh tokens","Long-lived JWTs with no revocation strategy"]},
+
+{id:"T029",skill:"Data Protection & Encryption",level:"Intermediate",type:"Concept",
+q:"Which GDPR (and India DPDP Act) requirements directly shape engineering decisions? Give concrete examples of how each shows up in system design.",
+a:`<ul>
+<li><b>Lawful basis and consent:</b> record which basis applies per processing purpose; for consent, store who consented to what, when, and which version of the text, and support withdrawal that actually stops processing. DPDP is consent-centric, with "consent managers" as a defined role [VERIFY].</li>
+<li><b>Purpose limitation and data minimisation:</b> collect only fields you need; don't reuse support data for marketing without a basis; avoid "log everything forever".</li>
+<li><b>Storage limitation:</b> retention periods per data category with automated deletion jobs (including backups, logs and analytics copies, or a documented approach for them).</li>
+<li><b>Data subject rights:</b> access/export (find all data about a person across services: needs a data map and per-service export APIs), rectification, <b>erasure</b> (deletion or anonymisation across databases, search indexes, caches, data lake), portability (machine-readable export), objection to processing.</li>
+<li><b>Security of processing:</b> encryption, access control, audit logs, pseudonymisation where possible.</li>
+<li><b>Breach notification:</b> GDPR requires notifying the supervisory authority within <b>72 hours</b> of becoming aware (and individuals when high risk); DPDP requires notifying the Data Protection Board and affected individuals [VERIFY timelines in DPDP Rules]. Engineering needs detection, logs to determine scope, and an incident process.</li>
+<li><b>Privacy by design and DPIAs:</b> assessments for high-risk processing (large-scale sensitive data, profiling, new tech like AI).</li>
+<li><b>Processors and transfers:</b> DPAs with vendors (cloud, LLM providers, analytics), and rules for transfers outside the EU (SCCs, adequacy) or restricted countries under DPDP.</li>
+</ul>
+<p>The engineering foundation for most of these is a <b>data inventory</b>: what personal data each service holds, why, for how long, and where it flows.</p>`,
+keys:["Consent/basis records and withdrawal","Minimisation and purpose limits","Automated retention and deletion","Rights: access, erasure, portability need a data map","Breach notification (GDPR 72h), DPIAs, processors and transfers"],
+fu:[{q:"Do you have to delete data from backups for an erasure request?",a:"Regulators generally accept that backups can't be edited easily if they're protected, kept for a limited time, and erased data isn't restored into live systems (re-apply deletions after restore). Crypto-shredding is an alternative. Document the approach."}],
+rf:["Treats GDPR as a legal-only concern","No data inventory","Retention 'forever'","Consent stored as a single boolean"],
+verify:"DPDP Rules: consent manager provisions and breach notification timelines."},
+
+{id:"T030",skill:"Testing Strategy",level:"Intermediate",type:"Architecture",
+q:"Twelve services share one staging environment. Teams block each other, data is constantly broken, and nobody trusts staging results. Design a better test environment strategy.",
+a:`<p><b>Target: test most things without a shared environment, and make shared environments trustworthy for what remains.</b></p>
+<ul>
+<li><b>Shift integration testing left:</b> each service tests against real dependencies it owns (Testcontainers for its DB, queues via LocalStack or containers) and <b>contract tests</b> for other services. Most bugs get caught before any shared environment.</li>
+<li><b>Ephemeral environments per PR</b> for services where a full-stack check is valuable: deploy the changed service (and maybe its direct dependencies) into a namespace or separate ECS services with a unique URL, wired to shared stable versions of the others; destroyed on merge. Costs are controlled by TTLs and small instance sizes.</li>
+<li><b>Service virtualisation</b> (WireMock, mock servers) for third parties and slow or unstable dependencies.</li>
+<li><b>One shared pre-production environment</b> that mirrors production versions and is deployed only through the pipeline (no manual deploys of branches), used for end-to-end smoke tests, performance tests and release verification. It's owned (someone fixes it when broken) and monitored like production.</li>
+<li><b>Test data management:</b> seed scripts and factories that create isolated data per test run (unique tenant or user per test), resettable datasets, synthetic data instead of copies of production personal data.</li>
+</ul>
+<p><b>Rollout:</b> start by stopping manual branch deploys to staging and adding contract tests for the noisiest integrations; then pilot ephemeral environments for the 2–3 most active services.</p>`,
+keys:["Move integration testing into service pipelines","Contract tests for cross-service compatibility","Ephemeral per-PR environments with TTLs","Service virtualisation for third parties","Pipeline-only, owned pre-prod; isolated synthetic test data"],
+trade:["Ephemeral envs: isolation vs cost and setup complexity","Shared staging: realistic integration vs contention and drift","Mocks: speed and stability vs drift from real behaviour"],
+fu:[{q:"How do you keep ephemeral environments affordable?",a:"Deploy only changed services and route to shared baseline versions for the rest, use small sizes and spot capacity, auto-destroy after merge or a TTL, and share expensive infrastructure (one DB cluster with per-env schemas)."}],
+rf:["Adds more shared staging environments","Manual branch deploys","Copies production personal data into test","No owner for pre-prod"]},
+
+{id:"T031",skill:"Testing Strategy",level:"Intermediate",type:"Concept",
+q:"What is property-based testing? Give examples where it finds bugs that example-based tests miss, and how you'd introduce it in a .NET or TypeScript codebase.",
+a:`<p><b>Example-based tests</b> check specific inputs you thought of. <b>Property-based tests</b> state a rule that must hold for <b>all</b> inputs; the framework generates hundreds of random inputs (including edge cases like empty, huge, negative, Unicode) and, when one fails, <b>shrinks</b> it to the smallest failing case.</p>
+<p><b>Good properties:</b></p>
+<ul>
+<li><b>Round-trip:</b> <code>deserialize(serialize(x)) == x</code>, <code>decrypt(encrypt(x)) == x</code>, parsing then formatting.</li>
+<li><b>Invariants:</b> after any sequence of cart operations, the total equals the sum of line items and is never negative; an allocation algorithm never assigns more than available stock.</li>
+<li><b>Equivalence with a reference:</b> an optimised implementation matches a simple, obviously-correct one.</li>
+<li><b>Idempotence:</b> applying a discount normalisation twice gives the same result as once.</li>
+</ul>
+<p><b>Typical bugs found:</b> rounding errors in money calculations, time-zone and DST boundaries, empty collections, Unicode normalisation and casing, integer overflow, ordering assumptions.</p>
+<p><b>Tools:</b> FsCheck or CsCheck (.NET, works with xUnit), fast-check (TypeScript), Hypothesis (Python).</p>
+<pre><code>// fast-check example
+fc.assert(fc.property(fc.array(lineItemArb), items =&gt; {
+  const cart = items.reduce((c, i) =&gt; c.add(i), Cart.empty());
+  return cart.total() === items.reduce((s, i) =&gt; s + i.price * i.qty, 0);
+}));</code></pre>
+<p><b>Introducing it:</b> start with pure domain logic (pricing, parsing, scheduling) where properties are clear; record the seed of failures for reproducibility; keep generated input counts modest in CI.</p>`,
+keys:["Properties over generated inputs, with shrinking","Round-trip, invariants, reference equivalence, idempotence","Finds rounding, time zone, empty/Unicode, overflow bugs","FsCheck/CsCheck, fast-check, Hypothesis","Start with pure domain logic; record seeds"],
+fu:[{q:"What's stateful (model-based) property testing?",a:"Generate random sequences of operations against the real system and a simple model, checking they agree after each step. Good for caches, state machines and APIs."}],
+rf:["Thinks it's just random fuzzing without properties","Applies it to UI tests first","Doesn't record seeds for failures"]},
+
+{id:"T032",skill:"Observability",level:"Intermediate",type:"Scenario",
+q:"Your on-call engineers receive about 200 alerts a week. Most are ignored, and a real outage last month was noticed by customers first. How do you redesign alerting?",
+a:`<p><b>Diagnose:</b> export a month of alerts: how many led to action? Which fire repeatedly? Who owns each? Typically most are cause-based (CPU &gt; 80%, single errors, disk warnings), flapping, or duplicated across tools.</p>
+<p><b>Principles for the new setup:</b></p>
+<ul>
+<li><b>Page only on user-visible symptoms</b> that need human action now: SLO burn-rate alerts on availability and latency, critical business flows (checkout success rate, payment failures), and things that will become user-visible soon (queue age growing, certificate expiring in 7 days).</li>
+<li><b>Everything else is a ticket or a dashboard</b>, not a page: high CPU with healthy latency isn't an emergency.</li>
+<li><b>Every page has an owner and a runbook</b> link: what it means, how to check, how to mitigate.</li>
+<li><b>Tune for flapping:</b> evaluation windows, hysteresis, grouping related alerts into one incident.</li>
+<li><b>Severity routing:</b> P1 pages, P2 notifies the team channel in working hours.</li>
+<li><b>Cover the gap that bit you:</b> the customer-found outage likely lacked a symptom alert; add synthetic checks for critical journeys and end-to-end success metrics.</li>
+</ul>
+<p><b>Keep it healthy:</b> review alerts weekly in the on-call handover (delete or fix any alert that fired without needing action), track pages per shift and off-hours pages as an on-call health metric, and set a target (e.g. under 2 pages per on-call shift on average).</p>`,
+keys:["Measure actionability of existing alerts","Page on symptoms/SLO burn, not causes","Owner + runbook per page; non-urgent → tickets","Synthetic checks for critical journeys","Weekly alert review; on-call health metrics"],
+trade:["Fewer pages: less fatigue vs risk of missing early warnings (use tickets/dashboards)","Symptom alerts: user-relevant vs less precise about cause"],
+fu:[{q:"Should you alert on every 5xx error?",a:"No. Individual errors happen; alert on error rate relative to traffic over a window (SLO burn rate), and investigate sporadic errors through dashboards and error tracking."}],
+rf:["Adds more alerts to catch the outage","CPU thresholds as pages","Alerts without runbooks or owners"]},
+
+{id:"T033",skill:"Observability",level:"Intermediate",type:"Concept",
+q:"Tracing every request is too expensive at your volume. Explain head-based vs tail-based sampling, and how you'd keep the traces that matter.",
+a:`<ul>
+<li><b>Head-based sampling:</b> the decision is made at the start of a trace (e.g. keep 5%), propagated in the trace context so all services follow it (parent-based sampling). Cheap and simple, but random: most error and slow traces are discarded because you decide before knowing the outcome.</li>
+<li><b>Tail-based sampling:</b> spans are buffered until the trace completes, then a policy decides: keep all traces with errors, all slower than a threshold, all for specific routes or VIP tenants, and a small percentage of the rest. Implemented in the <b>OpenTelemetry Collector</b> (tail sampling processor) or vendor back-ends.</li>
+</ul>
+<p><b>Tail sampling requirements:</b> all spans of a trace must reach the same collector instance (a load-balancing exporter routing by trace ID in a two-tier collector setup), memory for buffering (decision wait of e.g. 10–30 s), and handling of long-running traces.</p>
+<p><b>A practical setup:</b></p>
+<ul>
+<li>Head-sample generously at the edge if needed to cap volume (e.g. 20–50%), then tail-sample in the collector: 100% errors, 100% above the latency SLO, 100% for flagged debug sessions, 1–5% baseline.</li>
+<li><b>Metrics aren't sampled:</b> compute RED metrics from all requests (in the app, or via a span-metrics connector before sampling), so dashboards stay accurate.</li>
+<li>Record the sampling rate on spans so back-ends can extrapolate counts.</li>
+</ul>`,
+keys:["Head: early, random, cheap; loses interesting traces","Tail: decide after completion; keep errors/slow","Tail needs trace-ID routing and buffering","Combine head cap with tail policies","Metrics from unsampled data; record sampling rate"],
+trade:["Tail sampling: keeps important traces vs collector infrastructure and memory","Higher head rate: more data vs cost"],
+fu:[{q:"Why must all spans of a trace go to the same collector for tail sampling?",a:"The decision needs the complete trace (to see if any span errored or how long it took). If spans are spread across instances, each sees a partial trace and decides inconsistently."}],
+rf:["Samples logs and metrics randomly too","Head sampling only and wonders why error traces are missing","Computes request metrics from sampled traces"]},
+
+{id:"T034",skill:"OWASP & API Security",level:"Advanced",type:"Architecture",
+q:"You're launching a public partner API with webhooks back to partners. How do you run a threat model for it, and how do you make threat modelling a routine part of your team's design process?",
+a:`<p><b>Threat model in four questions</b> (Shostack's framework): what are we building, what can go wrong, what will we do about it, did we do a good job?</p>
+<ol>
+<li><b>Model the system:</b> a data-flow diagram: partners → API gateway → services → DB; our webhook sender → partner endpoints; secrets store; admin portal. Mark <b>trust boundaries</b> (internet/partner, our VPC, third parties).</li>
+<li><b>Identify threats per element with STRIDE:</b>
+  <ul>
+  <li><b>Spoofing:</b> stolen partner credentials; forged webhooks to partners (they can't verify it's us).</li>
+  <li><b>Tampering:</b> modified requests or webhook payloads.</li>
+  <li><b>Repudiation:</b> partner disputes an order they placed.</li>
+  <li><b>Information disclosure:</b> BOLA across partners, verbose errors.</li>
+  <li><b>Denial of service:</b> one partner floods the API; slow partner endpoints exhaust our webhook workers.</li>
+  <li><b>Elevation of privilege:</b> partner keys with admin scope; SSRF via webhook URLs.</li>
+  </ul></li>
+<li><b>Mitigations:</b> OAuth client credentials or mTLS per partner with scoped access; partner-scoped data access; per-partner rate limits and quotas; signed webhooks (HMAC with timestamp, rotation support) and replay protection; SSRF controls on webhook URLs; isolated, bounded webhook delivery queues with retries and circuit breakers per partner; audit logs of all partner actions.</li>
+<li><b>Validate:</b> security tests for each mitigation; pentest before launch.</li>
+</ol>
+<p><b>Making it routine:</b> a lightweight template in the design doc (diagram + STRIDE table + decisions), triggered by criteria (new external interface, new data type, auth changes); 60-minute sessions with a security champion; threats tracked as backlog items; revisit when the design changes. Tools like OWASP Threat Dragon help, but the conversation matters more than the tool.</p>`,
+keys:["Four-question framework; DFD with trust boundaries","STRIDE per element with concrete threats","Mitigations: scoped auth, quotas, signed webhooks, SSRF controls, isolated delivery, audit","Validate with tests and pentest","Routine: template, triggers, champions, tracked threats"],
+trade:["Formal heavy process: thorough vs skipped under time pressure","Lightweight template: adopted vs may miss subtle threats (pair with champions)"],
+fu:[{q:"How should partners verify our webhooks?",a:"We sign the body plus a timestamp with a per-partner secret (HMAC-SHA256); partners verify the signature with constant-time comparison and reject old timestamps to prevent replay. Support two active secrets for rotation."}],
+rf:["Threat model as a one-off document nobody reads","No trust boundaries","Unsigned webhooks","One shared API key for all partners"]},
+
+{id:"T035",skill:"OWASP & API Security",level:"Advanced",type:"Concept",
+q:"Explain insecure deserialization in .NET and prototype pollution in Node.js. Which code patterns are dangerous, and what are the safe alternatives?",
+a:`<p><b>.NET deserialization:</b> deserialisers that instantiate <b>types named in the payload</b> let attackers construct "gadget" objects whose constructors, setters or finalisers run dangerous code (e.g. execute processes), leading to remote code execution.</p>
+<ul>
+<li><b><code>BinaryFormatter</code></b> (and <code>SoapFormatter</code>, <code>NetDataContractSerializer</code>, <code>LosFormatter</code>): inherently unsafe with untrusted data. Obsolete since .NET 5 and its implementation removed in .NET 9 (throws by default). Legacy .NET Framework code still uses it.</li>
+<li><b>Newtonsoft.Json with <code>TypeNameHandling</code></b> set to <code>All</code>/<code>Auto</code>/<code>Objects</code> on untrusted input: payloads specify <code>$type</code>. Use <code>None</code>, or a strict <code>SerializationBinder</code> allow-list.</li>
+<li>Safe: <code>System.Text.Json</code> (no arbitrary type loading; polymorphism only via declared <code>[JsonDerivedType]</code>), deserialising to specific DTOs.</li>
+</ul>
+<p><b>Node.js prototype pollution:</b> merging untrusted JSON into objects with keys like <code>__proto__</code> or <code>constructor.prototype</code> modifies <code>Object.prototype</code>, so every object gains attacker-chosen properties. Impact ranges from bypassed checks (<code>if (user.isAdmin)</code> now true) to RCE via gadgets in libraries (e.g. options passed to <code>child_process</code>).</p>
+<ul>
+<li>Dangerous: recursive merge/deep-set utilities, query-string parsers creating nested objects, <code>lodash.merge</code> on old versions.</li>
+<li>Safe: validate input against schemas (zod, class-validator) and copy only expected fields; use <code>Object.create(null)</code> or <code>Map</code> for dictionaries from user keys; reject <code>__proto__</code>/<code>constructor</code>/<code>prototype</code> keys; keep libraries updated; Node's <code>--disable-proto=delete</code> option as hardening.</li>
+</ul>`,
+keys:["Type-naming deserialisers enable gadget chains/RCE","BinaryFormatter obsolete, removed in .NET 9; TypeNameHandling risks","System.Text.Json + DTOs as safe default","Prototype pollution via __proto__ merges","Schema validation, null-prototype objects, key rejection, updates"],
+fu:[{q:"How would you find BinaryFormatter usage in a large legacy codebase?",a:"Search and use analyzers: the SYSLIB0011 obsoletion warning in modern .NET, Roslyn security analyzers (CA2300 series), and SAST rules; also check indirect use via older libraries (e.g. ViewState, remoting, caching providers)."}],
+rf:["TypeNameHandling.All on API input","Deep-merges request bodies into config objects","Unaware BinaryFormatter is dangerous"]},
+
+{id:"T036",skill:"OWASP & API Security",level:"Advanced",type:"Scenario",
+q:"News breaks that several popular npm packages were compromised with malware that steals tokens during install (as happened in the 2025 npm supply-chain attacks). Your frontend and Node services use hundreds of dependencies. What do you do today, and what do you change permanently?",
+a:`<p><b>Today (incident response):</b></p>
+<ol>
+<li><b>Determine exposure:</b> search lockfiles across all repos (and CI caches, base images) for the affected packages and versions; check when they were installed (CI logs, developer machines).</li>
+<li>If affected: treat <b>every secret available during install as compromised</b>: npm tokens, GitHub tokens, cloud credentials in CI, <code>.env</code> files on developer machines. <b>Rotate them</b>, check audit logs (npm publish history, GitHub, CloudTrail) for misuse, and look for indicators named in the advisories (new repos, workflows, published packages) [VERIFY specific IoCs per incident].</li>
+<li>Pin to known-good versions, clear caches, rebuild images from clean state.</li>
+</ol>
+<p><b>Permanent changes:</b></p>
+<ul>
+<li><b>Lockfiles and <code>npm ci</code></b> everywhere; dependency changes reviewed like code.</li>
+<li><b>Block install scripts</b> by default (<code>--ignore-scripts</code>, or package managers that disable dependency lifecycle scripts unless allow-listed, such as pnpm's default in recent versions [VERIFY]).</li>
+<li><b>Cooldown for new versions:</b> don't adopt releases younger than a few days (Renovate <code>minimumReleaseAge</code>, package-manager release-age settings), since most malicious versions are detected and removed within hours or days.</li>
+<li><b>Private registry proxy</b> (Artifactory, CodeArtifact) with policy and the ability to block versions centrally.</li>
+<li><b>Least-privilege CI:</b> no long-lived tokens; OIDC credentials scoped per job; install steps run without access to deploy secrets; network egress restrictions in CI where feasible.</li>
+<li>Developer machines: no long-lived cloud credentials in plain files; use SSO-based short-lived credentials.</li>
+<li><b>SBOMs</b> for each build to answer "are we affected?" in minutes, and SCA alerts.</li>
+<li>For packages you publish: 2FA, trusted publishing (OIDC) and provenance.</li>
+</ul>`,
+keys:["Find exposure via lockfiles, CI logs, images","Assume install-time secrets compromised; rotate; audit","Lockfiles, npm ci, blocked install scripts","Release-age cooldown; private registry proxy","Least-privilege CI, short-lived dev creds, SBOMs, trusted publishing"],
+trade:["Blocking install scripts: removes a major vector vs breaks packages with native builds (allow-list them)","Cooldown: avoids fresh malware vs delays urgent security patches (allow overrides)"],
+fu:[{q:"Why do lifecycle scripts matter so much?",a:"postinstall and similar scripts run arbitrary code with the installing user's permissions as soon as you install, before any of your code runs, with access to environment variables and files like ~/.npmrc."}],
+rf:["Only bumps the package version","Doesn't rotate secrets","Long-lived tokens in CI","No lockfiles"],
+verify:"Details and IoCs of the 2025 npm compromises; pnpm/npm defaults for lifecycle scripts and release-age settings."},
+
+{id:"T037",skill:"OAuth2, OIDC & JWT",level:"Advanced",type:"Architecture",
+q:"Your B2B SaaS must let each enterprise customer sign in with their own identity provider (Entra ID, Okta, Google Workspace; some SAML, some OIDC), while smaller customers use email/password. Design the identity architecture.",
+a:`<p><b>Use an identity broker</b> rather than integrating each IdP into your app: Amazon Cognito, Auth0/Okta Customer Identity, Microsoft Entra External ID, Keycloak, or similar. Your app trusts <b>one issuer</b> (the broker); the broker federates to each customer's IdP via SAML or OIDC.</p>
+<p><b>Key design points:</b></p>
+<ul>
+<li><b>Tenant mapping:</b> each enterprise connection belongs to exactly one tenant. Tokens issued by the broker carry a <b>tenant ID claim derived from the connection</b>, not from anything the user or IdP asserts freely.</li>
+<li><b>Home realm discovery:</b> the user enters their email; the domain maps to the tenant's IdP (verified domains only, proved via DNS TXT records), then redirect. Fall back to password login for tenants without SSO.</li>
+<li><b>Don't trust email claims from arbitrary IdPs</b> for account linking: in multi-tenant IdPs, a user may be able to set an unverified email (the "nOAuth" class of issues with Entra apps using mutable claims). Link by (connection, immutable subject ID), and only auto-link to an existing account under strict rules.</li>
+<li><b>Provisioning:</b> just-in-time creation at first login with default role, plus <b>SCIM</b> for enterprise customers so deprovisioning in their IdP disables access in yours promptly.</li>
+<li><b>Role mapping:</b> map IdP group claims to app roles per tenant, configurable by tenant admins.</li>
+<li><b>Policies per tenant:</b> enforce SSO-only for tenants that require it (block password login for their domain), MFA requirements, session lifetimes.</li>
+<li><b>Self-service SSO setup</b> for tenant admins (metadata upload, test connection), because manual setup doesn't scale.</li>
+<li>Certificate and secret rotation for SAML/OIDC connections, with expiry monitoring.</li>
+</ul>`,
+keys:["Broker federates; app trusts one issuer","Tenant claim derived from connection","Home realm discovery with verified domains","Link by immutable subject, not email (nOAuth)","JIT + SCIM provisioning; group→role mapping; per-tenant policies; self-service setup"],
+trade:["Managed broker: fast, many protocols vs per-MAU cost and vendor limits","Self-hosted Keycloak: control and cost vs operating a critical system","SCIM: prompt deprovisioning vs implementation effort"],
+fu:[{q:"A customer's employee leaves; they're disabled in Okta but still have a valid session in your app. What should happen?",a:"With SCIM, the deprovision event disables the user and revokes their sessions and refresh tokens immediately. Without it, access continues until session/refresh expiry, so keep lifetimes reasonable for SSO tenants."}],
+rf:["Trusts tenant or email claims from any IdP","Hand-integrates each IdP in the app","No deprovisioning strategy","Unverified domain mapping"]},
+
+{id:"T038",skill:"OAuth2, OIDC & JWT",level:"Advanced",type:"Scenario",
+q:"Forty partners call your API using static API keys in a header. Keys have leaked twice (once in a public GitHub repo), rotation is a manual email exchange, and you can't tell which partner app made a call. Design the move to something better.",
+a:`<p><b>Options compared:</b></p>
+<ul>
+<li><b>API keys:</b> simple, but long-lived bearer secrets, usually unscoped, hard to rotate, easy to leak.</li>
+<li><b>OAuth 2.0 client credentials with client secret:</b> short-lived access tokens with scopes; the secret is still a static shared secret.</li>
+<li><b>Client credentials with <code>private_key_jwt</code></b> (RFC 7523): the partner holds a private key and signs a short assertion; you store only the public key (or fetch their JWKS URL). Nothing secret stored on your side; rotation by publishing a new key.</li>
+<li><b>mTLS</b> (client certificates, and certificate-bound tokens per RFC 8705): strong, but certificate management is heavier for partners.</li>
+</ul>
+<p><b>Plan:</b></p>
+<ol>
+<li>Introduce OAuth client credentials via your authorization server (or a gateway like API Gateway with a Cognito/IdP authorizer), with per-partner clients, scopes, and <code>private_key_jwt</code> preferred.</li>
+<li><b>Self-service partner portal:</b> register apps, upload public keys or JWKS URL, rotate without emailing anyone, see usage.</li>
+<li><b>Migration:</b> run both mechanisms in parallel; per-partner deadline; usage dashboards showing who still uses API keys; then retire keys.</li>
+<li>Meanwhile, harden API keys: hash them at rest, show prefixes for identification, enable <b>secret-scanning partner programs</b> (GitHub can notify providers when their key format is found publicly, if you register a recognisable key format) [VERIFY], per-key quotas and IP allow-lists for sensitive partners.</li>
+<li>Audit logs per client ID; anomaly alerts (new geography, volume spikes).</li>
+</ol>`,
+keys:["API keys: long-lived, unscoped, leak-prone","Client credentials; prefer private_key_jwt or mTLS","Self-service portal for registration and rotation","Parallel run with deadlines and usage tracking","Interim hardening: hashed keys, recognisable format for secret scanning, quotas, audit"],
+trade:["private_key_jwt: no shared secret vs partners must manage keys","mTLS: strong binding vs certificate operations burden","Keeping API keys: simplest for partners vs ongoing leak risk"],
+fu:[{q:"Why make API keys recognisable (prefix + checksum)?",a:"Secret scanners can detect them reliably with few false positives, enabling automatic revocation or notification when leaked, and support staff can identify key type and owner from the prefix."}],
+rf:["Emails new keys to partners","Stores API keys in plaintext","No per-partner identity in logs","Big-bang migration without parallel run"],
+verify:"GitHub secret scanning partner program requirements."},
+
+{id:"T039",skill:"OAuth2, OIDC & JWT",level:"Advanced",type:"Concept",
+q:"How do you design MFA and step-up authentication for sensitive actions (changing bank details, approving payouts)? Which factors resist phishing, and what's usually the weakest link?",
+a:`<p><b>Factor strength:</b></p>
+<ul>
+<li><b>SMS/voice OTP:</b> weakest: SIM swap, interception, phishable (user types it into a fake site).</li>
+<li><b>TOTP apps and push notifications:</b> better, but still phishable via real-time proxy phishing kits (adversary-in-the-middle), and push suffers from "MFA fatigue" (spam until approved). Number matching reduces fatigue attacks.</li>
+<li><b>Passkeys / FIDO2 WebAuthn</b> (platform authenticators or security keys): <b>phishing-resistant</b>, because the credential is bound to the site's origin; a fake domain can't use it.</li>
+</ul>
+<p><b>Step-up design:</b></p>
+<ul>
+<li>Normal login establishes a session at a certain assurance level. For a sensitive action, the API checks the token's <b>authentication context</b>: <code>acr</code> (assurance level), <code>amr</code> (methods used) and <code>auth_time</code>.</li>
+<li>If insufficient or too old (e.g. strong auth more than 5 minutes ago), return a challenge (e.g. RFC 9470 step-up challenge: <code>insufficient_user_authentication</code>) and the client re-authenticates via the IdP with <code>acr_values</code> and <code>max_age</code>.</li>
+<li>Enforce in the API, not only in the UI.</li>
+<li>Add transaction signing for very high-risk actions: the user approves the specific details (amount, account) on their authenticator.</li>
+</ul>
+<p><b>Weakest link: account recovery.</b> If "lost my phone" resets MFA via email or a support call, attackers use that path. Secure recovery: multiple registered passkeys, recovery codes, identity verification with waiting periods and notifications for high-value accounts, and alerts when factors change.</p>`,
+keys:["SMS < TOTP/push < passkeys (phishing-resistant)","Push fatigue; number matching","Step-up via acr/amr/auth_time; API enforces","RFC 9470 challenge; max_age; transaction signing","Account recovery is the weakest link"],
+fu:[{q:"Why are passkeys phishing-resistant?",a:"The browser only offers the credential to the origin (relying party ID) it was registered for, and the signed challenge includes the origin, so a look-alike domain can't obtain a usable assertion."}],
+rf:["Considers SMS OTP strong MFA","Step-up enforced only in the frontend","Ignores recovery flows"]},
+
+{id:"T040",skill:"Data Protection & Encryption",level:"Advanced",type:"Scenario",
+q:"Your SaaS runs in an AWS Mumbai region. A large EU customer requires their data to stay in the EU, and your support and engineering teams are in India. How do you design for data residency, and what counts as a 'transfer'?",
+a:`<p><b>Key point:</b> under GDPR, a transfer isn't only copying data out of the EU; <b>remote access</b> from India to EU-stored personal data (support staff viewing records, engineers querying a database) is also a transfer to a third country. So storing in Frankfurt alone doesn't settle it.</p>
+<p><b>Architecture:</b></p>
+<ul>
+<li><b>Regional deployment (cells):</b> an EU stack (e.g. eu-central-1) for EU tenants' data: databases, object storage, search indexes, backups, logs and analytics copies, and AI services (Bedrock in-region or EU-scoped inference profiles). A tenant is pinned to a region at onboarding.</li>
+<li><b>Global vs regional data:</b> keep only minimal global data (tenant directory, routing, billing identifiers) in a global control plane; everything with personal data stays regional.</li>
+<li><b>Telemetry hygiene:</b> logs and traces shipped to central tools must not carry personal data, or must stay regional too.</li>
+<li><b>Access from India:</b> legal basis for transfer (EU Standard Contractual Clauses with a transfer impact assessment, as India has no EU adequacy decision [VERIFY]); technical limits: least-privilege, just-in-time access with approval and logging, masked views by default, and possibly an EU-based support tier for the customer's most sensitive data.</li>
+<li><b>Sub-processors:</b> list them per region in the DPA (cloud, email, LLM providers), and ensure they process EU data in the EU where promised.</li>
+<li><b>Indian law:</b> the DPDP Act allows transfers outside India except to countries the government restricts (a negative-list approach) [VERIFY current rules], relevant if Indian customers' data moves the other way.</li>
+</ul>
+<p><b>Trade-off:</b> each region adds operational cost (deployments, on-call, DR). Build the platform so regions are stamped from the same IaC, and make region a first-class tenant attribute from the start.</p>`,
+keys:["Remote access is a transfer under GDPR","Regional cells: all personal data incl. backups, logs, AI services","Minimal global control plane","SCCs + TIA; JIT, masked, logged access from India","Sub-processor regions; DPDP negative list; IaC-stamped regions"],
+trade:["Per-region stacks: compliance and isolation vs ops cost","EU support tier: lowest transfer risk vs staffing cost","Central observability: convenience vs residency leaks"],
+fu:[{q:"What commonly breaks residency promises unnoticed?",a:"Central logging/APM tools in another region, error trackers capturing request bodies, analytics pipelines, backups replicated to a DR region outside the EU, and third-party SaaS (email, support desk) storing data elsewhere."}],
+rf:["Thinks storage location alone ensures compliance","Ships EU logs with PII to a global tool","No DPA/sub-processor review"],
+verify:"EU adequacy status for India and DPDP cross-border transfer rules."},
+
+{id:"T041",skill:"Testing Strategy",level:"Advanced",type:"Scenario",
+q:"After two outages caused by dependency failures that 'should have been handled' by retries and fallbacks, leadership asks you to introduce chaos engineering. How do you start safely, and what do you expect to find?",
+a:`<p><b>Chaos engineering</b> is running controlled experiments that inject failures to verify the system behaves as you believe. It's not random breakage.</p>
+<p><b>Start safely:</b></p>
+<ol>
+<li><b>Pick hypotheses from real risks</b> (the two outages first): "If the payment provider times out for 2 minutes, checkout degrades to 'pay later' and error rate stays under 1%." "If one AZ loses instances, the service stays within SLO."</li>
+<li><b>Define steady state</b> with metrics (SLIs) and abort conditions (stop if error rate exceeds X).</li>
+<li><b>Start in staging</b>, small blast radius, with the team watching (a <b>game day</b>). Use tooling: AWS Fault Injection Service (stop tasks, CPU/memory stress, network latency and packet loss, API throttling errors), toxiproxy or fault-injection middleware for dependency latency/errors in tests.</li>
+<li>Run, observe, and write up findings; fix; re-run.</li>
+<li>Move to <b>production</b> gradually: low-traffic periods, a small percentage of traffic, with automatic stop conditions (FIS supports CloudWatch alarm stop conditions).</li>
+<li>Automate proven experiments to run regularly (e.g. monthly), so regressions are caught.</li>
+</ol>
+<p><b>What you typically find:</b> timeouts longer than callers' timeouts (so retries never help); retries without backoff causing retry storms; fallbacks never tested and broken; circuit breakers misconfigured; health checks that don't detect a broken dependency (or that kill healthy instances when a dependency fails); alerts that don't fire; runbooks that are wrong; autoscaling slower than assumed.</p>
+<p>Also valuable: it trains the on-call team in a calm setting.</p>`,
+keys:["Hypothesis-driven experiments, not random breakage","Steady-state SLIs and abort conditions","Staging game days first; FIS/toxiproxy","Gradual production experiments with stop conditions; automate","Typical findings: timeouts, retry storms, broken fallbacks, health checks, alerts"],
+trade:["Production experiments: realistic vs risk to users (limit blast radius)","Staging only: safe vs environment differences hide issues"],
+fu:[{q:"What's a common timeout misconfiguration chaos tests reveal?",a:"The caller times out at 5 s but the client library to the dependency waits 30 s, with retries inside; requests pile up, threads or connections are exhausted, and the failure cascades. Timeouts must shrink as you go deeper in the call chain."}],
+rf:["Randomly kills production without hypotheses","No abort conditions","Treats it as a one-off event"]},
+
+{id:"T042",skill:"Testing Strategy",level:"Advanced",type:"Architecture",
+q:"Some failures only appear with real production traffic and data. Design safe ways to 'test in production' for a B2C platform.",
+a:`<p>Testing in production complements pre-production testing; it needs controls so tests don't harm real users.</p>
+<ul>
+<li><b>Progressive delivery:</b> canary releases (small percentage of traffic) with automatic rollback on SLO-based metrics; blue/green for quick switch-back.</li>
+<li><b>Feature flags:</b> deploy dark, enable for internal users, then a percentage, then everyone; kill switches for risky features. Flag hygiene: owners and expiry, so stale flags get removed.</li>
+<li><b>Shadow (dark) traffic:</b> copy real requests to a new version that processes them but whose responses are discarded; compare outputs and performance. Writes must go to separate storage or be disabled; avoid side effects (emails, payments).</li>
+<li><b>Synthetic monitoring:</b> scripted journeys (login, search, checkout with a test card) running every few minutes from multiple regions (CloudWatch Synthetics, Checkly). Test accounts and test data are clearly marked and excluded from business metrics and analytics.</li>
+<li><b>Real user monitoring</b> (RUM) to see actual client-side performance and errors.</li>
+<li><b>A/B tests</b> with guardrail metrics.</li>
+<li><b>Controlled fault injection</b> (chaos) with stop conditions.</li>
+</ul>
+<p><b>Safeguards:</b> test tenants flagged in the data model; payment provider test modes or real low-value transactions refunded automatically; no test actions reaching real users (notifications suppressed for test accounts); observability good enough to detect problems within minutes; and clear ownership of each mechanism.</p>`,
+keys:["Canary/blue-green with automated rollback","Feature flags with ownership and expiry","Shadow traffic without side effects","Synthetic monitoring with marked test data; RUM","Safeguards: test tenants, suppressed notifications, fast detection"],
+trade:["Shadow traffic: realistic validation vs double compute and side-effect risk","Synthetic tests in prod: early detection vs polluted data if not isolated","Many flags: control vs complexity and flag debt"],
+fu:[{q:"How do you keep synthetic checkout tests from distorting business metrics?",a:"Mark synthetic accounts/orders with a flag at creation, exclude them in analytics and finance pipelines, and use payment test modes or immediate automatic refunds."}],
+rf:["'Testing in production' means skipping staging tests","Shadow traffic that sends real emails","Flags never cleaned up"]},
+
+{id:"T043",skill:"Observability",level:"Advanced",type:"Scenario",
+q:"Your metrics bill (CloudWatch custom metrics / managed Prometheus) jumped 6× in a month and queries became slow. You suspect cardinality. How do you find and fix the cause?",
+a:`<p><b>Cardinality</b> is the number of unique time series: each unique combination of metric name and label values is a separate series. Labels with unbounded values multiply series counts.</p>
+<p><b>Find the cause:</b></p>
+<ul>
+<li>Prometheus: query series counts per metric and label (<code>count by (__name__)</code>, TSDB status page, top label values). CloudWatch: each unique dimension combination is a billed custom metric; check counts per namespace and metric in Cost Explorer and <code>ListMetrics</code>.</li>
+<li>Correlate with recent deploys: typical culprits are a new label with <code>user_id</code>, <code>order_id</code>, <code>session_id</code>, raw URL paths (<code>/orders/8f3a…</code> instead of <code>/orders/{id}</code>), full error messages, pod or task IDs on high-churn workloads, or a histogram with many buckets multiplied by many labels.</li>
+</ul>
+<p><b>Fix:</b></p>
+<ul>
+<li>Remove or bound the label: use route templates, normalise status codes into classes, cap label values (top N + "other").</li>
+<li>Move per-entity detail to <b>traces and logs</b> (high-cardinality data belongs there; you search it, you don't aggregate it).</li>
+<li>Drop or relabel at the collector (OTel Collector transform/filter processors, Prometheus <code>metric_relabel_configs</code>) to stop the bleed without waiting for app deploys.</li>
+<li>Reduce histogram buckets to those that matter for SLOs; consider exponential histograms.</li>
+<li>For CloudWatch, Embedded Metric Format with selected dimensions, or high-cardinality fields kept as log properties queried with Logs Insights instead of dimensions.</li>
+</ul>
+<p><b>Prevent:</b> a label policy (allowed labels per metric), series-count alerts per service, cost dashboards per team, and review of new metrics in PRs.</p>`,
+keys:["Cardinality = unique label combinations","Find via series counts per metric/label and recent deploys","Culprits: IDs, raw paths, error messages, task IDs, bucket explosion","Fix: bound labels, move detail to traces/logs, drop at collector","Prevent: label policy, series alerts, cost per team"],
+trade:["Fewer labels: cheaper, faster vs less slicing ability","High-cardinality observability tools (event-based): rich queries vs different cost model"],
+fu:[{q:"How do you analyse per-customer latency if you can't label by customer?",a:"Use traces or wide structured events with customer ID as an attribute, queried in a tool built for high-cardinality analysis, or label only by customer tier, or for a small allow-listed set of top customers."}],
+rf:["User IDs as metric labels","Raw URLs as labels","Fixes only by paying more"]},
+
+{id:"T044",skill:"Observability",level:"Advanced",type:"Concept",
+q:"Explain multi-window, multi-burn-rate SLO alerting. Work through the numbers for a 99.9% SLO over 30 days.",
+a:`<p><b>Burn rate</b> = how fast you're consuming the error budget relative to the rate that would exactly use it up by the end of the window. Burn rate 1 = you'll end the 30 days at exactly 0 budget; burn rate 10 = you'd exhaust it in 3 days.</p>
+<p>With a 99.9% SLO, the budget is 0.1% errors. Burn rate = observed error rate / 0.1%.</p>
+<p><b>Why not alert on a simple threshold?</b> Short windows are noisy (pages on blips); long windows react slowly and keep firing after recovery. Multi-window, multi-burn-rate alerts (from Google's SRE Workbook) balance detection time, precision and reset time.</p>
+<p><b>Typical configuration</b> (30-day window):</p>
+<table>
+<tr><th>Severity</th><th>Budget consumed</th><th>Long window</th><th>Burn rate</th><th>Short window</th></tr>
+<tr><td>Page</td><td>2%</td><td>1 hour</td><td>14.4</td><td>5 minutes</td></tr>
+<tr><td>Page</td><td>5%</td><td>6 hours</td><td>6</td><td>30 minutes</td></tr>
+<tr><td>Ticket</td><td>10%</td><td>3 days</td><td>1</td><td>6 hours</td></tr>
+</table>
+<p>Example: 14.4 = 2% of budget in 1 hour: (0.02 × 720 hours) / 1 hour = 14.4. At 99.9%, that's an error rate above 14.4 × 0.1% = <b>1.44%</b> sustained over the last hour <b>and</b> over the last 5 minutes.</p>
+<p>The <b>short window</b> (1/12 of the long one) ensures the alert stops quickly once the problem is fixed, rather than firing for the rest of the hour.</p>
+<p><b>Caveat:</b> low-traffic services make error rates noisy (one failure out of 50 requests is 2%); use minimum request counts, longer windows, or synthetic traffic.</p>`,
+keys:["Burn rate = error rate / budget rate","Thresholds alone are noisy or slow","14.4× over 1h+5m, 6× over 6h+30m, 1× over 3d+6h","Short window speeds alert reset","Low traffic needs minimum counts or synthetic traffic"],
+fu:[{q:"How long until the budget is exhausted at burn rate 14.4?",a:"30 days / 14.4 ≈ 2.1 days, which is why it pages: sustained, it would consume the whole month's budget in about two days."}],
+rf:["Alerts when error rate > 0","Single fixed window","Can't relate burn rate to budget"]},
+
+{id:"T045",skill:"Observability",level:"Advanced",type:"Architecture",
+q:"Design observability for an event-driven order pipeline: API → SQS → workers → Kafka → several consumers → notifications. What do you measure, alert on, and visualise?",
+a:`<p>Async systems fail <b>silently</b>: the API returns 202 and users wait forever. Observability must track flow and freshness, not just request errors.</p>
+<p><b>Per queue/topic:</b></p>
+<ul>
+<li><b>Age of oldest message</b> (SQS <code>ApproximateAgeOfOldestMessage</code>) and <b>consumer lag</b> (Kafka, in messages and in time). Lag in time is what users feel.</li>
+<li>Messages in, out, in-flight; processing rate vs arrival rate.</li>
+<li><b>DLQ depth</b> and DLQ arrival rate (any message there is a failed business operation).</li>
+<li>Retry counts and poison-message patterns.</li>
+</ul>
+<p><b>Per consumer:</b> processing duration histogram, error rate by error type, idempotency hits (duplicates detected), concurrency and throttling, rebalances (Kafka).</p>
+<p><b>End-to-end:</b> <b>freshness/latency SLI</b>: time from order accepted to final step (notification sent) for each order, from timestamps carried in events; percentage of orders completing within 2 minutes. Traces across hops (context in message headers) for per-order debugging.</p>
+<p><b>Business reconciliation:</b> counts at each stage per hour (orders created vs processed vs notified); alert when they diverge beyond a threshold, which catches dropped messages that no error log mentions.</p>
+<p><b>Alerts:</b> page on SLO burn for end-to-end freshness and on stuck pipelines (oldest message age rising, zero throughput with non-zero backlog); ticket on DLQ arrivals with owner triage; no pages on transient retry spikes.</p>
+<p><b>Dashboard:</b> a flow view, one row per stage: arrival rate, backlog, age, errors, DLQ.</p>`,
+keys:["Async fails silently; measure flow and freshness","Oldest message age / lag in time; DLQ depth","Consumer duration, errors, duplicates, rebalances","End-to-end freshness SLI + traces via headers","Stage-count reconciliation; alerts on stuck pipelines and burn"],
+trade:["Reconciliation jobs: catch silent loss vs extra queries and storage","Per-message tracing: debuggability vs cost (sample)"],
+fu:[{q:"Why is queue depth alone a poor alert?",a:"Depth depends on traffic: 10,000 messages may be fine at peak if processed in seconds, while 10 messages stuck for an hour is an outage. Age of oldest message reflects user impact."}],
+rf:["Monitors only API errors","Alerts on queue depth thresholds","Ignores the DLQ","No end-to-end freshness metric"]},
+{id:"T046",skill:"OWASP & API Security",level:"Advanced",type:"Scenario",
+q:"A single customer's script brought your API down by calling a search endpoint with pageSize=100000, a leading-wildcard filter, and an export endpoint in a loop. Your rate limiter counts requests, and they were within limits. What's the real problem and how do you fix it?",
+a:`<p>This is <b>unrestricted resource consumption</b> (OWASP API4). Request-count limits treat a cheap health check and a 100,000-row wildcard search as equal; the cost per request varies by orders of magnitude.</p>
+<p><b>Fixes, from input to infrastructure:</b></p>
+<ul>
+<li><b>Hard caps on inputs:</b> maximum page size (e.g. 100), cursor-based pagination, maximum filter complexity (no leading wildcards on unindexed columns, limited <code>IN</code> list sizes, bounded date ranges), maximum request body size.</li>
+<li><b>Cost-based limits:</b> assign a cost to operations (search = 10 units, export = 100) and rate-limit units per client per minute. For GraphQL, query depth and complexity limits do the same.</li>
+<li><b>Timeouts everywhere:</b> statement timeouts in the database, request timeouts, cancellation propagated to queries so abandoned requests stop consuming resources.</li>
+<li><b>Expensive operations become async jobs:</b> exports run as queued jobs with per-tenant concurrency limits (one export at a time), results delivered via download link.</li>
+<li><b>Isolation:</b> per-tenant concurrency limits (bulkheads) so one client can't consume all DB connections; read replicas or a search engine for heavy queries.</li>
+<li><b>Quotas and visibility:</b> per-client usage dashboards, alerts on unusual consumption, and documented limits in the API contract with clear 429 responses and <code>Retry-After</code>.</li>
+</ul>
+<p>Also talk to the customer: they probably had a legitimate need (bulk sync) that deserves a proper bulk API or data export feed.</p>`,
+keys:["Request counts ignore cost per request","Cap page size, filter complexity, ranges, body size","Cost-based rate limits; GraphQL complexity limits","Timeouts and cancellation; async exports","Per-tenant bulkheads; documented limits; give a proper bulk path"],
+trade:["Strict caps: protection vs breaking existing integrations (version or announce)","Async exports: stable API vs more product work","Cost-based limits: fair vs harder to explain to clients"],
+fu:[{q:"How would you introduce a page-size cap without breaking existing clients?",a:"Measure current usage, announce the limit with a deprecation window, return the capped page with a next cursor (clients following pagination keep working), and contact the few clients exceeding it."}],
+rf:["Only lowers the request rate limit","No database statement timeouts","Synchronous unlimited exports"]},
+
+{id:"T047",skill:"OWASP & API Security",level:"Advanced",type:"Concept",
+q:"Review the security-relevant HTTP headers and CORS configuration for a web app with a separate API. Which mistakes do you see most often in CORS?",
+a:`<p><b>Response headers for the web app:</b></p>
+<ul>
+<li><b><code>Strict-Transport-Security</code></b>: <code>max-age=31536000; includeSubDomains</code> (add <code>preload</code> only when every subdomain is HTTPS-ready, since it's hard to undo).</li>
+<li><b><code>Content-Security-Policy</code></b>: strict nonce/hash-based script policy; <code>frame-ancestors 'none'</code> (or allowed origins) to prevent clickjacking, superseding <code>X-Frame-Options</code>.</li>
+<li><b><code>X-Content-Type-Options: nosniff</code></b>; <b><code>Referrer-Policy: strict-origin-when-cross-origin</code></b> (or stricter, so tokens in URLs don't leak); <b><code>Permissions-Policy</code></b> to disable camera, microphone, geolocation unless needed.</li>
+<li>Cookies: <code>Secure</code>, <code>HttpOnly</code>, <code>SameSite</code>, <code>__Host-</code> prefix for session cookies.</li>
+<li>Remove version-revealing headers (<code>Server</code>, <code>X-Powered-By</code>).</li>
+</ul>
+<p><b>CORS</b> relaxes the browser's same-origin policy for reading responses. Common mistakes:</p>
+<ul>
+<li><b>Reflecting the request's <code>Origin</code></b> back in <code>Access-Control-Allow-Origin</code> with <code>Allow-Credentials: true</code>: any website can make authenticated requests and read responses.</li>
+<li><b>Broken origin matching:</b> regex or suffix checks that allow <code>example.com.attacker.net</code> or <code>attackerexample.com</code>; allowing any subdomain when some subdomains host user content.</li>
+<li>Allowing the <code>null</code> origin (sandboxed iframes, file URLs can send it).</li>
+<li>Thinking CORS is an access control for the API: non-browser clients ignore it entirely; server-side authorization is still required.</li>
+<li>Missing <code>Vary: Origin</code> when the allowed origin varies, causing caches to serve the wrong CORS header.</li>
+</ul>
+<p>Best practice: an explicit allow-list of exact origins per environment, credentials only where needed, and tests that check disallowed origins get no CORS headers.</p>`,
+keys:["HSTS, CSP with frame-ancestors, nosniff, Referrer-Policy, Permissions-Policy","Secure cookie attributes; hide version headers","CORS: reflected origin + credentials is the classic flaw","Broken matching, null origin, user-content subdomains","CORS isn't API access control; Vary: Origin; exact allow-lists"],
+fu:[{q:"Why is 'Access-Control-Allow-Origin: *' less dangerous than reflecting origins with credentials?",a:"Browsers refuse to send credentials or expose responses for credentialed requests when the wildcard is used, so it's only suitable for public, non-personalised data. Reflection with credentials exposes authenticated data."}],
+rf:["Reflects any Origin with credentials","Regex suffix matching for origins","Treats CORS as authorization"]},
+
+{id:"T048",skill:"OAuth2, OIDC & JWT",level:"Advanced",type:"Scenario",
+q:"Your identity provider rotated its token-signing keys. For about 20 minutes, several services rejected every request with 401, while others were fine. What went wrong, and how should key rotation be handled on both sides?",
+a:`<p><b>Likely causes in the failing services:</b></p>
+<ul>
+<li><b>JWKS cached too long without refresh-on-miss:</b> new tokens carried a new <code>kid</code> the service didn't know, and it wouldn't fetch the JWKS again until its cache expired.</li>
+<li><b>Keys pinned in configuration</b> (a hard-coded public key or certificate) instead of fetched from the JWKS endpoint.</li>
+<li>Custom validation code that only used the first key in the JWKS.</li>
+<li>Network policies blocking the JWKS endpoint from some services, which only showed up when a refresh was needed.</li>
+</ul>
+<p><b>Correct consumer behaviour:</b> fetch keys from the issuer's discovery document/JWKS; cache them; on an unknown <code>kid</code>, refresh the JWKS immediately (rate-limited to avoid being used for DoS); keep serving with cached keys if the JWKS endpoint is briefly unavailable. Standard libraries (Microsoft.IdentityModel's configuration manager, jose's remote JWKS) do this if configured normally.</p>
+<p><b>Correct issuer behaviour:</b> <b>publish the new key in the JWKS before signing with it</b> (e.g. days ahead), switch signing to the new key, keep the old key published until all tokens signed with it have expired, then remove it. Announce schedules for planned rotations.</p>
+<p><b>Prevention:</b> a shared auth library or configuration across services; an integration test that rotates keys in a test IdP; monitoring of 401 rates per service with alerts; and runbooks for emergency rotation (compromised key), where you can't pre-publish and must force clients to refresh.</p>`,
+keys:["Long JWKS cache without refresh on unknown kid","Pinned keys or custom validation bugs","Refresh on miss (rate-limited), tolerate JWKS outages","Issuer pre-publishes new keys, keeps old until tokens expire","Shared library, rotation tests, 401 monitoring, emergency runbook"],
+trade:["Long JWKS caching: fewer calls vs slow reaction to rotation","Refresh on unknown kid: fast recovery vs abuse risk (rate-limit it)"],
+fu:[{q:"How does an emergency rotation (compromised key) differ?",a:"The old key must be removed immediately, invalidating all tokens it signed, so users must re-authenticate; you can't wait for pre-publication. Services must refresh JWKS promptly, so refresh-on-miss and short caches matter."}],
+rf:["Hard-codes signing certificates","Caches JWKS for days","Blames the IdP without fixing clients"]},
+
+{id:"T049",skill:"Data Protection & Encryption",level:"Advanced",type:"Architecture",
+q:"Enterprise customers of your multi-tenant SaaS ask for 'bring your own key' so they can revoke your access to their data. Design per-tenant encryption with AWS KMS, including what happens on revocation and offboarding.",
+a:`<p><b>Options, increasing customer control:</b></p>
+<ol>
+<li><b>Per-tenant KMS keys in your account:</b> isolation and per-tenant audit and crypto-shredding, but the customer doesn't control the key.</li>
+<li><b>Customer-managed key in the customer's AWS account (BYOK via cross-account KMS):</b> the customer creates a KMS key and grants your service role permission (key policy and/or grants) to use it. They can revoke by changing the policy or disabling the key.</li>
+<li><b>External key store (XKS):</b> key material held in the customer's HSM outside AWS ("hold your own key"); strongest control, highest latency and operational risk [VERIFY].</li>
+</ol>
+<p><b>Design:</b></p>
+<ul>
+<li><b>Envelope encryption:</b> each tenant's data is encrypted with data keys; data keys are encrypted by the tenant's KMS key (plus the tenant ID as <b>encryption context</b>, which is logged in CloudTrail and must match on decrypt, preventing cross-tenant mix-ups).</li>
+<li><b>Coverage:</b> the hard part. Databases, object storage, search indexes, caches, queues, backups and logs all hold tenant data. Use the AWS Encryption SDK or app-level encryption for fields and objects; S3 SSE-KMS with the tenant key per prefix/bucket; for shared databases, application-level encryption of sensitive columns. Be honest with customers about which components are covered.</li>
+<li><b>Performance and limits:</b> cache data keys briefly (Encryption SDK caching) to stay within KMS request quotas and latency budgets; cross-account calls count against quotas.</li>
+<li><b>Revocation:</b> if the customer disables their key, decryption fails: the service must degrade gracefully for that tenant (clear errors, no crash loops), and cached data keys must expire quickly so revocation is effective within a defined time.</li>
+<li><b>Offboarding:</b> crypto-shredding (schedule deletion of per-tenant keys you own) makes remaining copies, including backups, unreadable.</li>
+<li><b>Operations:</b> monitoring of key state per tenant, runbooks for accidental key disablement by the customer, contractual terms on availability when they control the key.</li>
+</ul>`,
+keys:["Per-tenant keys → cross-account CMK (BYOK) → XKS (HYOK)","Envelope encryption with tenant ID encryption context","Coverage across DB, S3, search, caches, backups, logs","Data-key caching vs revocation latency; KMS quotas","Graceful degradation on revocation; crypto-shredding on offboarding"],
+trade:["Customer-held keys: trust and control vs availability depends on customer","Data-key caching: performance vs slower revocation","Full coverage: strong promise vs big engineering effort (search, analytics)"],
+fu:[{q:"Why use encryption context?",a:"It binds ciphertext to its tenant: decryption requires the same context, so a bug that tries to decrypt tenant A's data in tenant B's context fails, and CloudTrail logs show which tenant each decrypt was for."}],
+rf:["Claims full BYOK while search indexes hold plaintext","No plan for customer revoking the key","One KMS call per field read with no caching"],
+verify:"KMS external key store details and KMS request quotas."},
+
+{id:"T050",skill:"Testing Strategy",level:"Advanced",type:"Architecture",
+q:"You're migrating a business-critical monolith to services using the strangler fig pattern. How do you make sure behaviour doesn't change, especially for logic nobody fully understands?",
+a:`<ol>
+<li><b>Characterisation tests first:</b> capture the monolith's <b>current</b> behaviour (including odd behaviour) for the area being extracted: approval/snapshot tests over many real input cases (sanitised production samples), asserting outputs exactly. They document what the system does, not what it should do.</li>
+<li><b>Contract at the seam:</b> define the API between the monolith and the new service; consumer-driven contract tests keep both sides compatible as they evolve.</li>
+<li><b>Parallel run (shadowing):</b> route real requests to both the old path and the new service; serve the old result to users, compare the new one in the background, log differences with inputs. Tools like GitHub's Scientist pattern formalise this. Fix differences until the mismatch rate is near zero (and explain any accepted differences).</li>
+<li><b>Data reconciliation:</b> if data moves to a new store, run reconciliation jobs comparing records/aggregates between old and new until confidence is high.</li>
+<li><b>Gradual cutover:</b> feature flag or routing by percentage, tenant or region; monitoring of business metrics (orders completed, invoice totals) per path; fast switch-back.</li>
+<li><b>Retire with evidence:</b> remove the old path once mismatch and incident metrics are stable for an agreed period.</li>
+</ol>
+<p>Side effects need care in shadow mode: the new service must not send emails, charge cards or publish events while shadowing (use dry-run modes or separate sinks).</p>`,
+keys:["Characterisation tests capture current behaviour","Contract tests at the seam","Shadow/parallel run with diff logging","Data reconciliation between stores","Flagged gradual cutover; retire with evidence; no side effects in shadow"],
+trade:["Parallel run: high confidence vs double compute and diff tooling","Characterisation tests: lock in bugs too vs safety during refactor","Gradual cutover: low risk vs longer dual maintenance"],
+fu:[{q:"The diff shows the new service rounds differently in 0.3% of cases. What do you do?",a:"Determine which is correct with the business owner. If the old behaviour is relied upon (e.g. invoice totals), replicate it; if it's a bug, fix it deliberately with sign-off and communication, not as an accidental side effect of migration."}],
+rf:["Rewrites from requirements docs only","No comparison with real traffic","Shadow traffic triggers real side effects","Big-bang cutover"]},
+
+{id:"T051",skill:"Observability",level:"Advanced",type:"Scenario",
+q:"After a release, p99 latency of a .NET API tripled with no errors, no obvious slow spans, and CPU only slightly higher. Traces show time spread across 'the service itself'. How do you find the cause?",
+a:`<p>When traces show the time is inside the process rather than in dependencies, you need <b>runtime metrics and profiling</b>.</p>
+<ol>
+<li><b>Confirm the change:</b> compare old vs new version side by side (canary metrics, or traces filtered by <code>service.version</code>). Diff the release: dependency upgrades, logging changes, serialisation changes, new middleware, configuration changes.</li>
+<li><b>Runtime metrics</b> (.NET 8+ exposes them via <code>System.Runtime</code> meters / <code>dotnet-counters</code>): GC pause time and frequency, gen 2 collections, allocation rate, <b>thread pool queue length</b> and thread count (thread pool starvation from new sync-over-async code shows as rising queue length with low CPU), lock contention count, exception count (exceptions used for control flow are expensive).</li>
+<li><b>Profiling:</b> continuous profiling (Pyroscope/Grafana, Datadog, or similar) lets you compare CPU and allocation flame graphs between versions in production. Otherwise capture <code>dotnet-trace</code> on one instance under load, or <code>dotnet-dump</code> for thread stacks when latency spikes.</li>
+<li><b>Correlate with exemplars:</b> latency histogram exemplars link a slow bucket to specific traces; add custom spans around suspected code to narrow down.</li>
+</ol>
+<p><b>Typical culprits:</b> a logging change serialising large objects on every request; synchronous I/O or <code>.Result</code> causing thread pool starvation; a regex without timeout or compiled options in a hot path; increased allocations causing gen 2 GCs; a new library doing reflection per call; lock contention on a shared cache.</p>
+<p><b>Then:</b> fix, verify with the same metrics, and add a performance regression test or benchmark for that path.</p>`,
+keys:["In-process time → runtime metrics and profiling","Compare versions; diff the release","GC, allocations, thread pool queue, lock contention, exceptions","Continuous profiling / dotnet-trace / dotnet-dump","Exemplars and custom spans; add regression benchmark"],
+trade:["Continuous profiling: always-on evidence vs small overhead and cost","Ad-hoc traces: no ongoing cost vs need to catch the problem live"],
+fu:[{q:"How does thread pool starvation show up in metrics?",a:"Thread pool queue length grows, thread count climbs slowly (injection rate is limited), CPU stays low, and latency rises across all endpoints, often after introducing blocking calls in async code."}],
+rf:["Only looks at dependency spans","Rolls back without understanding","No runtime metrics collected"]},
+
+{id:"T052",skill:"OWASP & API Security",level:"Lead",type:"Architecture",
+q:"Your 40-engineer product company has no dedicated security team. Enterprise customers increasingly send security questionnaires and pentest requirements. Design the security program you'd build as engineering lead.",
+a:`<p><b>Goal:</b> raise the baseline across all teams cheaply, find what's left, and produce evidence customers trust. Aim for practices that run without a large security staff.</p>
+<p><b>Foundations (first quarter):</b></p>
+<ul>
+<li><b>Ownership:</b> one accountable person (often me or a staff engineer) plus <b>security champions</b> in each team (part-time, trained, with time allocated).</li>
+<li><b>Paved road:</b> secure defaults in templates: auth library, input validation, secrets management, logging without PII, security headers, dependency pinning.</li>
+<li><b>Automated checks in CI:</b> secret scanning with push protection, SCA, SAST tuned for low noise, IaC and container scanning. Block only high-confidence critical findings.</li>
+<li><b>Identity and access:</b> SSO and MFA everywhere, least-privilege cloud access, no long-lived keys, offboarding checklist.</li>
+<li><b>Logging and detection:</b> CloudTrail, GuardDuty, Security Hub, alerting routed to on-call.</li>
+<li><b>Incident response plan</b> including regulatory timelines (GDPR 72 hours, CERT-In 6 hours for India).</li>
+</ul>
+<p><b>Next (quarters 2–3):</b> lightweight threat modelling for new features; annual third-party pentest plus retests; vulnerability management SLAs by severity; security training tied to real findings; vendor/third-party risk reviews; a public vulnerability disclosure policy (security.txt), later a bug bounty when the team can handle the volume.</p>
+<p><b>Compliance:</b> SOC 2 Type II or ISO 27001 if customers demand it. Many controls above produce the evidence; automate evidence collection (compliance platforms) rather than spreadsheets.</p>
+<p><b>Metrics:</b> open critical/high findings and their age, time to remediate, secrets incidents, MFA coverage, percentage of services on the paved road, and security questionnaire turnaround time. Hire a dedicated security engineer once the program's scale justifies it.</p>`,
+keys:["Accountable owner + security champions","Paved road with secure defaults","Automated CI checks with low noise; identity hygiene; detection","Incident plan with regulatory timelines (GDPR, CERT-In)","Threat modelling, pentests, vuln SLAs, disclosure policy; SOC 2/ISO evidence; metrics"],
+trade:["Champions model: scales cheaply vs depends on allocated time","Strict blocking gates: safety vs friction and bypass","Early bug bounty: more findings vs noise the team can't handle"],
+fu:[{q:"How do you protect champions' time?",a:"Make it explicit in planning (e.g. 10–20% capacity), include it in their goals and recognition, and give them a regular forum and direct access to whoever owns the program."}],
+rf:["Buys tools without owners","Blocks every PR on noisy SAST","No incident plan","Treats compliance as the goal instead of security"]},
+
+{id:"T053",skill:"OWASP & API Security",level:"Lead",type:"Scenario",
+q:"Two weeks before a launch for a major customer, the pentest report arrives with 47 findings: 2 critical, 6 high, the rest medium and low. The team can't fix everything in time. How do you decide and communicate?",
+a:`<p><b>Triage by real risk, not only by the report's severity:</b> for each finding, assess exploitability in our context (internet-facing? authentication required? data involved?), impact, and effort to fix. Pentest severities are a starting point; some "high" findings are low-risk in context, and some "medium" ones chain into something serious. Ask the pentesters to clarify where needed.</p>
+<p><b>Decision rules I'd propose:</b></p>
+<ul>
+<li><b>Criticals and exploitable highs</b> (e.g. BOLA exposing customer data, auth bypass): fix before launch, non-negotiable, and get a <b>retest</b>. If a fix can't land in time, delay the affected feature or put a compensating control in place (disable endpoint, WAF rule, feature flag off).</li>
+<li><b>Remaining highs and important mediums:</b> fix if feasible, otherwise compensating controls plus a dated remediation plan.</li>
+<li><b>Lower findings:</b> into the backlog with SLAs.</li>
+</ul>
+<p><b>Formal risk acceptance:</b> anything not fixed before launch is documented with the risk, compensating controls, owner and deadline, and accepted by the accountable business owner (not decided silently by engineering).</p>
+<p><b>Communicate:</b> to leadership, a one-page summary: what we fix, what we defer and why, the residual risk, and the plan. To the customer (often contractually required): transparent status, the retest results for critical items, and the remediation timeline; customers tend to respect a clear plan more than silence.</p>
+<p><b>Afterwards:</b> root-cause categories (e.g. 10 findings from missing authorization checks) drive systemic fixes: shared middleware, tests, and earlier pentests or threat modelling so findings arrive before the deadline crunch.</p>`,
+keys:["Contextual risk triage, not raw severity","Criticals/exploitable highs fixed + retested, or feature delayed/controlled","Compensating controls and dated plans for the rest","Formal risk acceptance by accountable business owner","Transparent communication; systemic root-cause fixes; earlier testing"],
+trade:["Delay launch: lower risk vs business and customer impact","Ship with compensating controls: on time vs residual risk and follow-up burden"],
+fu:[{q:"What is a compensating control?",a:"An alternative measure that reduces the risk while the proper fix is pending, such as a WAF rule blocking the attack pattern, disabling a feature, extra monitoring and alerting, or restricting access by IP."}],
+rf:["Ships with known criticals unaddressed","Engineering silently accepts risk","Fixes findings one by one without root-cause analysis","Hides findings from the customer"]},
+
+{id:"T054",skill:"OAuth2, OIDC & JWT",level:"Lead",type:"Scenario",
+q:"For a new product, a senior engineer proposes building authentication in-house ('it's just JWTs and a users table') instead of using Cognito, Auth0, Entra External ID or Keycloak. How do you decide?",
+a:`<p><b>What "auth" really includes:</b> secure password storage and migration, MFA and passkeys, account recovery, email verification, brute-force and credential-stuffing protection, session and refresh-token management, key rotation, social login, enterprise SSO (SAML/OIDC) and SCIM later, audit logs, compliance evidence, and ongoing security patching. Each is a known source of serious vulnerabilities when built from scratch.</p>
+<p><b>Comparison criteria:</b></p>
+<ul>
+<li><b>Risk:</b> auth is high-impact; a managed service or mature open-source product has been attacked and hardened at scale.</li>
+<li><b>Roadmap:</b> enterprise SSO and SCIM are often required within a year for B2B; building them is months of work.</li>
+<li><b>Cost:</b> managed services price per monthly active user; at large B2C scale this can be significant. Model it at current and projected MAU. Keycloak is free but needs operating (HA, upgrades, security patches).</li>
+<li><b>Lock-in:</b> can you export users, including password hashes, if you leave? Some providers allow it, some only on request or not at all [VERIFY per vendor]; this affects future migration.</li>
+<li><b>Customisation and UX:</b> hosted login pages vs fully custom flows; limits on token customisation and triggers.</li>
+</ul>
+<p><b>My usual recommendation:</b> use a managed or established identity product, keep authorization (roles, permissions, tenancy) in our own system, and wrap the provider behind our own thin interfaces. I'd ask the engineer to list the specific limitations that make building attractive; if they're real (e.g. unusual login flows, extreme scale cost), evaluate Keycloak or a provider that supports those needs before writing our own.</p>`,
+keys:["Auth is much more than JWTs and a users table","Security risk and roadmap (SSO, SCIM) favour buying","Model MAU cost; Keycloak ops cost","Check hash export/lock-in and customisation limits","Buy identity, own authorization, thin wrapper; take engineer's concerns seriously"],
+trade:["Managed: fast, hardened vs MAU cost and vendor limits","Keycloak: control, no license vs operating a critical service","In-house: full control vs large security risk and effort"],
+fu:[{q:"What would you keep in-house even with a managed IdP?",a:"Authorization: roles, permissions, tenant membership and object-level rules, plus user profile data. The IdP handles authentication and identity federation."}],
+rf:["Builds custom auth for a standard B2B product","Ignores MAU pricing at scale","Doesn't check user export options","Puts all authorization logic in the IdP"],
+verify:"Password hash export support for Cognito, Auth0 and Entra External ID."},
+
+{id:"T055",skill:"Data Protection & Encryption",level:"Lead",type:"Scenario",
+q:"You learn that an S3 bucket containing customer data exports was publicly readable for three weeks due to a Terraform change. Customers are in the EU and India. You're the engineering lead. Walk through the response.",
+a:`<p><b>First hour: contain and preserve.</b></p>
+<ul>
+<li>Block public access on the bucket (and enforce account-level Block Public Access), revert the Terraform change, and check for other buckets with the same pattern.</li>
+<li>Start an incident with security, legal/DPO, and leadership. Preserve evidence: bucket policy history, CloudTrail, access logs.</li>
+</ul>
+<p><b>Scope: was data actually accessed?</b></p>
+<ul>
+<li>Check <b>S3 server access logs</b> or <b>CloudTrail data events</b> for GetObject requests from unknown principals/IPs. If neither was enabled, you <b>can't prove non-access</b> and must assume exposure.</li>
+<li>Inventory what was in the bucket: which customers, which data categories, how many individuals.</li>
+</ul>
+<p><b>Notifications (legal leads, engineering supplies facts quickly):</b></p>
+<ul>
+<li><b>GDPR:</b> notify the lead supervisory authority within <b>72 hours</b> of becoming aware, unless unlikely to result in risk; notify affected individuals if high risk. As a processor for business customers, notify the controllers (your customers) without undue delay.</li>
+<li><b>India:</b> CERT-In directions require reporting certain cyber incidents within <b>6 hours</b> of noticing; the DPDP Act requires notifying the Data Protection Board and affected individuals [VERIFY current rules and timelines].</li>
+<li>Customer contracts often have their own notification clauses.</li>
+</ul>
+<p><b>Following weeks:</b></p>
+<ul>
+<li>Blameless postmortem: why could a Terraform change make a bucket public? Missing controls: policy-as-code checks on plans, account-level Block Public Access, SCPs, AWS Config rules with alerts, review of plans touching data stores.</li>
+<li>Reduce exposure by design: exports with short-lived pre-signed URLs and automatic expiry/deletion, encryption with KMS keys whose policy limits access.</li>
+<li>Enable access logging/data events on sensitive buckets so the next investigation can determine scope.</li>
+<li>Follow through with affected customers and update security questionnaires and documentation honestly.</li>
+</ul>`,
+keys:["Contain, revert, check similar buckets, preserve evidence","Determine access via S3 logs/CloudTrail data events; else assume exposure","GDPR 72h; processor notifies controllers; CERT-In 6h; DPDP; contracts","Postmortem: policy-as-code, account BPA, SCPs, Config alerts","Design changes: expiring exports, KMS restrictions, logging enabled"],
+trade:["Notify early with partial facts: compliance and trust vs uncertainty (update later)","Assuming exposure: safe vs broader notifications"],
+fu:[{q:"Would SSE-KMS encryption have prevented exposure?",a:"Yes, partially: with SSE-KMS, anonymous public reads fail because the requester has no permission to use the KMS key. That's a useful defence in depth, but the root issue is the public bucket policy."}],
+rf:["Fixes the bucket and tells nobody","Unaware of notification deadlines","Claims no access without logs","Blames the engineer who changed Terraform"],
+verify:"DPDP Rules breach notification requirements and timelines; CERT-In reporting scope."},
+
+{id:"T056",skill:"Testing Strategy",level:"Lead",type:"Scenario",
+q:"Your company has a separate QA team that runs a two-week manual regression cycle before every release. Leadership wants weekly releases. Developers say testing is 'QA's job'. How do you change quality ownership?",
+a:`<p><b>Reframe:</b> quality is built by the team that writes the code; QA expertise shifts from <b>executing</b> regression to <b>designing</b> how quality is assured. The two-week cycle is a symptom of missing automation and late feedback.</p>
+<p><b>Plan:</b></p>
+<ol>
+<li><b>Analyse the regression suite:</b> which cases have found bugs in the last year, which areas break most, which cases are obsolete. Usually a small portion catches most issues.</li>
+<li><b>Automate by risk:</b> developers write unit, integration and contract tests as part of definition of done; QA engineers, paired with developers, automate the highest-value regression journeys as end-to-end tests. Retire low-value manual cases.</li>
+<li><b>Embed QA engineers in product teams</b> (rather than a separate gate), focusing on test strategy per feature, exploratory testing of new functionality, test data and environments, and coaching.</li>
+<li><b>Release safety nets</b> that reduce the need for exhaustive pre-release testing: feature flags, canary releases, monitoring and fast rollback.</li>
+<li><b>Gradual cadence change:</b> two-week → one-week releases once the critical automated suite is green and trusted; track change failure rate and escaped defects to show quality holds.</li>
+</ol>
+<p><b>People side:</b> QA engineers may fear for their jobs; be explicit that their role grows (automation, quality engineering) and invest in training. Developers who say "testing is QA's job" need clear expectations (tests in definition of done, reviews check tests) and support, not lectures. Leadership needs to accept a few weeks of slower feature delivery while automation is built.</p>`,
+keys:["Team owns quality; QA designs and coaches","Analyse regression suite value; automate by risk","Embed QA in teams; exploratory testing","Flags, canaries, monitoring as safety nets","Gradual cadence change with quality metrics; address people concerns"],
+trade:["Embedded QA: faster feedback vs less independent gatekeeping","Automation investment: future speed vs short-term feature slowdown","Removing manual cycle: speed vs risk until automation matures"],
+fu:[{q:"Is there still a place for manual testing?",a:"Yes: exploratory testing of new features, usability, and complex scenarios that are expensive to automate. What goes away is repetitive manual regression of stable functionality."}],
+rf:["Fires QA and tells developers to test","Keeps the manual cycle and adds more testers","No metrics to show quality is maintained"]},
+
+{id:"T057",skill:"Testing Strategy",level:"Lead",type:"Scenario",
+q:"The VP of Engineering announces an 80% code-coverage target for every team by next quarter, tied to performance reviews. How do you respond?",
+a:`<p>Support the goal (fewer regressions, more confidence) while pushing back on the mechanism, because <b>a coverage target tied to reviews will be gamed</b>: tests that execute code without meaningful assertions, tests for trivial getters, and effort spent on easy code instead of risky code (Goodhart's law).</p>
+<p><b>What coverage does and doesn't tell you:</b> low coverage is a useful signal that code is untested; high coverage doesn't show tests are good. Coverage is uneven in value: 50% covering payment and auth logic beats 90% covering DTOs.</p>
+<p><b>What I'd propose instead:</b></p>
+<ul>
+<li><b>Outcome metrics</b> for quality: change failure rate, escaped defects by severity, incidents caused by changes, time to restore.</li>
+<li><b>Coverage as a diagnostic, not a target:</b> track it, look at critical modules specifically, and require that <b>new or changed code</b> in risky areas has tests (diff coverage in PRs, reviewed by humans).</li>
+<li><b>Test quality signals:</b> mutation testing on critical modules (Stryker for .NET/JS) shows whether tests detect changes; flaky-test rate.</li>
+<li><b>Practices:</b> a regression test with every bug fix; test strategy per team reviewed periodically.</li>
+<li>Keep quality metrics <b>out of individual performance reviews</b>; use them for team improvement conversations.</li>
+</ul>
+<p>I'd bring data: our recent incidents and whether coverage would have prevented them, which usually makes the case better than argument.</p>`,
+keys:["Agree with the goal, challenge the mechanism","Coverage targets get gamed (Goodhart)","Coverage is a diagnostic; risk-weighted","Outcome metrics, diff coverage on risky code, mutation testing","Keep metrics out of individual reviews; argue with incident data"],
+trade:["Coverage target: simple to track vs gaming and misdirected effort","Outcome metrics: meaningful vs slower feedback and harder attribution"],
+fu:[{q:"What does mutation testing measure?",a:"It makes small changes to the code (flip a condition, change an operator) and checks whether tests fail. Surviving mutants show code that tests execute but don't actually verify."}],
+rf:["Accepts the target and pressures the team","Dismisses testing improvements entirely","Ties coverage to individual reviews"]},
+
+{id:"T058",skill:"Testing Strategy",level:"Lead",type:"Architecture",
+q:"Your team builds software for clinical laboratories, where customers and auditors require validated releases and traceability from requirements to tests. Releases currently take a month of documentation work. Design a quality process that satisfies auditors without a month-long release cycle.",
+a:`<p><b>Principle:</b> generate the evidence <b>continuously from the delivery pipeline</b>, rather than writing documents at the end. Auditors want proof that requirements are specified, risks assessed, changes controlled and verified, not a specific amount of paper.</p>
+<p><b>Components:</b></p>
+<ul>
+<li><b>Requirements and risks as code-linked items:</b> each requirement (and risk control) has an ID in the issue tracker; risk classification per feature (e.g. a result-reporting change is high risk, a UI colour change low risk), following the customer's quality framework and applicable regulations [VERIFY specific standards, e.g. ISO 15189 for labs, IEC 62304 if software is a medical device].</li>
+<li><b>Traceability:</b> tests reference requirement IDs (tags/attributes); the pipeline generates a <b>traceability matrix</b> automatically: requirement → tests → results for this build.</li>
+<li><b>Risk-based verification:</b> high-risk changes require specific test types (automated verification of calculations and result flags, independent review, sometimes manual validation scripts executed and signed electronically); low-risk changes need standard automated tests and review.</li>
+<li><b>Change control in the pipeline:</b> PR approvals, linked tickets, immutable artefacts, recorded deployments; electronic signatures where required (with audit trails).</li>
+<li><b>Release evidence pack</b> generated per release: included changes, risk assessments, test results, traceability matrix, known issues, approvals.</li>
+<li><b>Validation environments</b> with production-like configuration for customer-facing validation scripts, refreshed per release.</li>
+</ul>
+<p><b>Rollout:</b> agree the approach with QA/regulatory and one friendly customer auditor early; pilot on one release; measure release prep time. A realistic goal is release evidence in days rather than a month, with much of it automated.</p>`,
+keys:["Continuous evidence from the pipeline, not end-of-cycle documents","Requirement and risk IDs linked to tests","Auto-generated traceability matrix","Risk-based verification depth; change control with approvals and signatures","Per-release evidence pack; agree approach with regulatory early"],
+trade:["Automated evidence: fast releases vs upfront tooling and discipline","Risk-based depth: efficient vs needs consistent risk classification"],
+fu:[{q:"How do you handle manual validation steps that must remain?",a:"Keep them only for high-risk items, script them precisely, run them in a validation environment, capture results and signatures electronically, and link them into the same traceability report."}],
+rf:["Writes documents by hand after development","Same heavy process for every change","No link between tests and requirements"],
+verify:"Applicable lab/medical software standards and regulations for the target markets."},
+
+{id:"T059",skill:"Observability",level:"Lead",type:"Scenario",
+q:"You're asked to introduce SLOs across ten teams that have never used them. Product managers are sceptical ('another engineering metric'). How do you roll it out so it changes decisions rather than becoming dashboard theatre?",
+a:`<p><b>Start from users and decisions, not tooling.</b></p>
+<ol>
+<li><b>Pick critical user journeys</b> with product: sign in, search, checkout, report generation. For each, agree on SLIs that reflect user experience (success rate, latency, freshness) and targets based on current performance and user expectations.</li>
+<li><b>Pilot with two teams</b> whose services matter most and who are willing. Get SLIs measured accurately (at the edge where possible), dashboards and burn-rate alerts in place.</li>
+<li><b>Agree an error budget policy with product <i>before</i> it's needed:</b> e.g. if a service has spent its budget for the window, the next sprint prioritises reliability work, and risky launches need extra review. Product signs off on it; that's what makes SLOs change decisions.</li>
+<li><b>Use SLOs in existing rituals:</b> SLO status in sprint reviews and monthly ops reviews; incidents reported as budget consumed; planning discussions refer to budget.</li>
+<li><b>Show value with stories:</b> e.g. "We delayed a release because checkout was burning budget, found a connection leak, avoided a weekend outage." Or the reverse: "We had plenty of budget, so we shipped faster with less ceremony." That second story wins product managers over.</li>
+<li><b>Expand</b> to other teams with templates, a short guide and office hours; review SLO targets quarterly.</li>
+</ol>
+<p><b>Avoid theatre:</b> too many SLOs per service (2–4 is enough), SLOs nobody looks at, targets of 99.99% where users wouldn't notice 99.5%, and SLOs on internal metrics like CPU.</p>`,
+keys:["Start from critical user journeys with product","Pilot teams; accurate SLIs; burn-rate alerts","Error budget policy agreed with product in advance","Embed in existing rituals; tell value stories both ways","Few SLOs per service; realistic targets; quarterly review"],
+trade:["Strict budget policies: reliability focus vs feature delays","Loose adoption: easy vs SLOs ignored"],
+fu:[{q:"What if a team constantly misses its SLO?",a:"Either the target is unrealistic for current architecture (adjust it with product consciously) or reliability work is needed (budget policy prioritises it). Persistent misses with no action mean the SLO isn't being used and should be discussed at leadership level."}],
+rf:["Mandates SLOs via tooling only","No product involvement","Dozens of SLOs per service","No error budget policy"]},
+
+{id:"T060",skill:"Observability",level:"Lead",type:"Architecture",
+q:"Your observability spend has grown to 15% of the cloud bill across CloudWatch, a commercial APM tool and an ELK cluster nobody owns. Design an observability strategy covering tooling, cost and ownership.",
+a:`<p><b>Assess first:</b> spend by tool, team and signal type (logs usually dominate); what's actually used (dashboards viewed, alerts that fired, queries run); duplicated data shipped to several tools; retention settings.</p>
+<p><b>Strategy:</b></p>
+<ul>
+<li><b>Instrument once with OpenTelemetry</b> and route through <b>OTel Collectors</b>. This decouples applications from vendors, lets you filter, sample and redact centrally, and makes later tool changes cheaper.</li>
+<li><b>Consolidate tools</b> by use case: one primary platform for traces/metrics/APM, one for logs (could be the same). Decide by capability, team skills and total cost (including people time to run self-hosted stacks like ELK; an unowned ELK cluster is both a cost and a risk). Typical options: CloudWatch + X-Ray (AWS-native, cheap at small scale), Grafana stack (managed or self-hosted), or a commercial platform (Datadog, New Relic, Honeycomb). Run a time-boxed evaluation on real workloads.</li>
+<li><b>Cost controls:</b> log levels and sampling (DEBUG off in production by default); drop noisy logs at the collector; tiered retention (hot for 7–15 days, archive to S3 for compliance, queryable with Athena); tail sampling for traces; cardinality limits for metrics; per-team cost attribution and budgets.</li>
+<li><b>Ownership:</b> a small platform group owns the observability stack, collectors, standards and cost; teams own their instrumentation, dashboards, alerts and SLOs, and see their own costs.</li>
+<li><b>Standards:</b> semantic conventions, required resource attributes (service, version, team, environment), log schema, PII redaction rules.</li>
+</ul>
+<p><b>Target:</b> a cost budget (e.g. under a set percentage of infrastructure spend), measured quarterly, alongside usefulness measures (incident detection time, time to diagnose).</p>`,
+keys:["Assess spend vs actual usage; logs usually dominate","OTel + Collectors decouple from vendors","Consolidate tools by use case; evaluate on real workloads","Cost controls: levels, filtering, tiered retention, sampling, cardinality","Platform owns stack/standards; teams own instrumentation and see costs"],
+trade:["Commercial platform: features and less ops vs high cost at volume","Self-hosted: cheaper licence vs people and reliability cost","Aggressive filtering: lower cost vs risk of missing data during incidents"],
+fu:[{q:"How do you avoid cutting logs you'll need in an incident?",a:"Keep full detail for short hot retention and archive raw logs cheaply to S3; drop only proven-noisy categories; allow temporary dynamic log-level increases per service during investigations."}],
+rf:["Adds another tool","Cuts retention blindly","No ownership of shared stack","No per-team cost visibility"]}
+
+
+
+];
+
+/* ---------- state ---------- */
+const KEY="sec-bank-reviewed-v1";
+let reviewed={};
+try{reviewed=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){reviewed={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(reviewed))}catch(e){}}
+
+const state={text:"",skill:"all",status:"all",levels:new Set(),types:new Set()};
+const $=s=>document.querySelector(s);
+
+/* ---------- controls ---------- */
+const skills=[...new Set(QS.map(x=>x.skill))];
+$("#skill").innerHTML=`<option value="all">All skills</option>`+skills.map(s=>`<option value="${s}">${s}</option>`).join("");
+function chipRow(el,items,set){
+  el.innerHTML=items.map(i=>`<button type="button" class="chip" aria-pressed="false" data-v="${i}">${i}</button>`).join("");
+  el.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+    if(set.has(v)){set.delete(v);b.setAttribute("aria-pressed","false")}else{set.add(v);b.setAttribute("aria-pressed","true")}render()});
+}
+chipRow($("#levels"),LEVELS,state.levels);
+chipRow($("#types"),TYPES,state.types);
+$("#q").addEventListener("input",e=>{state.text=e.target.value.trim().toLowerCase();render()});
+$("#skill").addEventListener("change",e=>{state.skill=e.target.value;render()});
+$("#status").addEventListener("change",e=>{state.status=e.target.value;render()});
+let allOpen=false;
+$("#toggleAll").addEventListener("click",()=>{allOpen=!allOpen;
+  document.querySelectorAll("details.ans").forEach(d=>d.open=allOpen);
+  $("#toggleAll").textContent=allOpen?"Close all answers":"Open all answers"});
+
+/* ---------- stats ---------- */
+function count(key,vals){return vals.map(v=>`${v} <b>${QS.filter(x=>x[key]===v).length}</b>`).join(" · ")}
+$("#stats").innerHTML=`<span><b>${QS.length}</b> questions loaded</span><span>${count("level",LEVELS)}</span><span>${count("type",TYPES.filter(t=>t!=="Behavioral"))}</span><span>${PARTS}</span>`;
+
+/* ---------- render ---------- */
+const strip=h=>h.replace(/<[^>]+>/g," ");
+function matches(x){
+  if(state.skill!=="all"&&x.skill!==state.skill)return false;
+  if(state.levels.size&&!state.levels.has(x.level))return false;
+  if(state.types.size&&!state.types.has(x.type))return false;
+  if(state.status==="done"&&!reviewed[x.id])return false;
+  if(state.status==="todo"&&reviewed[x.id])return false;
+  if(state.text){const hay=(x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
+    if(!hay.includes(state.text))return false}
+  return true;
+}
+const ul=arr=>`<ul>${arr.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+function item(x,i){
+  const done=!!reviewed[x.id];
+  return `<li class="q${done?" done":""}" id="${x.id}">
+    <div class="qhead"><span class="num">${x.id}</span><div>
+      <p class="qtext">${x.q}</p>
+      <div class="tags"><span class="tag">${x.skill}</span><span class="tag lv lv-${x.level}">${x.level}</span><span class="tag">${x.type}</span>${x.verify?`<span class="tag verify">VERIFY</span>`:""}
+        <label class="check"><input type="checkbox" data-id="${x.id}" ${done?"checked":""}> Reviewed</label></div>
+    </div></div>
+    <div class="body">
+      <details class="ans"><summary>Model answer, key points and red flags</summary><div class="dbody">
+        ${x.a}
+        ${x.tools?`<h4>Tools and metrics to check</h4>${ul(x.tools)}`:""}
+        <h4>What the interviewer listens for</h4>${ul(x.keys)}
+        ${x.trade?`<h4>Trade-offs and "it depends on"</h4>${ul(x.trade)}`:""}
+        <h4 class="rf">Red flags</h4>${ul(x.rf)}
+        ${x.verify?`<p class="note">[VERIFY] ${x.verify}</p>`:""}
+      </div></details>
+      ${(x.fu||[]).map(f=>`<details class="fu ans"><summary><span class="fl">FOLLOW-UP</span><span>${f.q}</span></summary><div class="dbody"><p>${f.a}</p></div></details>`).join("")}
+    </div></li>`;
+}
+function render(){
+  const list=QS.filter(matches);
+  $("#list").innerHTML=list.length?list.map(item).join(""):`<li class="empty">No questions match these filters.</li>`;
+  if(allOpen)document.querySelectorAll("details.ans").forEach(d=>d.open=true);
+  const n=QS.filter(x=>reviewed[x.id]).length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${list.length} shown`;
+  $("#pfill").style.width=(QS.length?n/QS.length*100:0)+"%";
+}
+$("#list").addEventListener("change",e=>{const c=e.target.closest("input[data-id]");if(!c)return;
+  const id=c.dataset.id;if(c.checked)reviewed[id]=1;else delete reviewed[id];save();
+  c.closest("li.q").classList.toggle("done",c.checked);
+  const n=QS.filter(x=>reviewed[x.id]).length;const shown=document.querySelectorAll("li.q").length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${shown} shown`;$("#pfill").style.width=(n/QS.length*100)+"%";});
+render();
+</script>
+
+</html>

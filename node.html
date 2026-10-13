@@ -1,0 +1,1115 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Node &amp; NestJS Question Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, sticky filter bar, questions as divided rows (not cards), answers in disclosure blocks */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --accent-ink:#FFFFFF; --code:#EEF1F7;
+  --basic:#2B7A57; --inter:#2A4BD7; --adv:#7438BF; --lead:#B05E08;
+  --good:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:28px 18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,5vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=search]{flex:1 1 220px}
+select{flex:0 1 220px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.track{flex:1;height:6px;background:var(--soft);border-radius:999px;overflow:hidden;min-width:80px}
+.fill{height:100%;background:var(--good);width:0;transition:width .3s}
+.sep{width:1px;height:18px;background:var(--line)}
+
+ol.qs{list-style:none;margin:0;padding:0}
+li.q{padding-block:22px;border-bottom:1px solid var(--line);display:grid;gap:12px}
+li.q.done .qtext{color:var(--muted)}
+.qhead{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.num{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:4px;min-width:34px}
+.qtext{font-weight:600;font-size:16.5px;line-height:1.45;margin:0;text-wrap:pretty}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.tag{font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.tag.lv{color:var(--surface);font-weight:500}
+.lv-Basic{background:var(--basic)} .lv-Intermediate{background:var(--inter)} .lv-Advanced{background:var(--adv)} .lv-Lead{background:var(--lead)}
+.tag.verify{background:transparent;border:1px solid var(--verify);color:var(--verify)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);cursor:pointer;margin-left:auto}
+.check input{width:16px;height:16px;accent-color:var(--good)}
+.body{padding-left:46px;display:grid;gap:8px;min-width:0}
+details{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details>summary{cursor:pointer;padding:9px 12px;font-size:14px;font-weight:500;list-style:none;display:flex;gap:8px;align-items:baseline}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px;flex:none}
+details[open]>summary::before{content:"−"}
+.dbody{padding:2px 14px 14px;display:grid;gap:10px;min-width:0}
+.dbody p,.dbody ul,.dbody ol{margin:0}
+.dbody ul,.dbody ol{padding-left:20px}
+.dbody li+li{margin-top:3px}
+h4{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:500}
+h4.rf{color:var(--warn)}
+.fu summary{font-weight:400}
+.fu summary .fl{font-family:var(--f-mono);font-size:11px;color:var(--muted);flex:none}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:3px}
+pre{margin:0;background:var(--code);padding:12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5}
+pre code{background:none;padding:0;font-size:inherit}
+.star dt{font-weight:600}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--verify);padding-left:10px}
+@media (max-width:560px){ .body{padding-left:0} .num{min-width:28px} }
+@media (prefers-reduced-motion:reduce){ .fill{transition:none} }
+</style>
+
+<p style="margin:0 auto;max-width:860px;padding:16px 0 0;font-size:14px"><a href="index.html">&larr; All banks</a></p>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Senior TL / EM interview prep</div>
+  <h1>Node.js / NestJS Backend</h1>
+  <p class="lede">The Node.js runtime, NestJS, TypeScript for backends, Drizzle ORM with PostgreSQL, and WebSockets at scale: the stack of your current role. Answer out loud before opening.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="bar">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search questions and answers" aria-label="Search">
+    <select id="skill" aria-label="Filter by skill"></select>
+    <select id="status" aria-label="Filter by review status">
+      <option value="all">All questions</option>
+      <option value="todo">Not reviewed</option>
+      <option value="done">Reviewed</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="chips" id="levels" aria-label="Level"></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="chips" id="types" aria-label="Type"></div>
+  </div>
+  <div class="row">
+    <div class="progress" style="flex:1"><span id="ptext">0 / 0 reviewed</span><div class="track"><div class="fill" id="pfill"></div></div></div>
+    <button class="btn" id="toggleAll" type="button">Open all answers</button>
+  </div>
+</div>
+
+<ol class="qs" id="list"></ol>
+</div>
+
+<script>
+const LEVELS=["Basic","Intermediate","Advanced","Lead"];
+const TYPES=["Concept","Scenario","Architecture","Behavioral"];
+const PARTS="Complete: both parts loaded.";
+
+const QS=[
+
+/* ================= BASIC ================= */
+{id:"J001",skill:"Node.js Runtime",level:"Basic",type:"Concept",
+q:"Explain the Node.js event loop. Where do promises, process.nextTick, timers and I/O callbacks run, and what does the libuv thread pool do?",
+a:`<p>Node runs JavaScript on <b>one main thread</b>. The event loop, implemented by libuv, cycles through phases:</p>
+<ul>
+<li><b>timers:</b> <code>setTimeout</code> and <code>setInterval</code> callbacks that are due.</li>
+<li><b>pending callbacks</b> for some system operations.</li>
+<li><b>poll:</b> waits for and runs I/O callbacks (sockets, files).</li>
+<li><b>check:</b> <code>setImmediate</code> callbacks.</li>
+<li><b>close</b> callbacks.</li>
+</ul>
+<p>Between each callback, Node drains the <b>microtask queues</b>: first <code>process.nextTick</code>, then promise reactions (<code>.then</code>, continuations after <code>await</code>). A long chain of microtasks can therefore starve I/O.</p>
+<p>Network I/O uses the OS's non-blocking mechanisms (epoll, kqueue), so it needs no extra threads. Some work can't be done that way: file system operations, DNS lookups via <code>dns.lookup</code>, crypto such as <code>pbkdf2</code> and <code>scrypt</code>, and zlib. That work runs on the <b>libuv thread pool</b>, 4 threads by default (<code>UV_THREADPOOL_SIZE</code>).</p>
+<p>The key consequence: any synchronous CPU work in your JavaScript <b>blocks every request</b> on that process.</p>`,
+keys:["Single JS thread, event loop phases","Microtasks drained between callbacks; nextTick before promises","Network I/O non-blocking, no thread per request","libuv pool (4 by default) for fs/dns/crypto/zlib","Sync CPU work blocks everyone"],
+fu:[{q:"Twenty concurrent requests each hash a password with bcrypt (async) and responses slow down a lot. Why?",a:"Async bcrypt and crypto work run on the libuv pool, which has only 4 threads by default, so requests queue for a pool thread. Options: raise UV_THREADPOOL_SIZE (it's a per-process setting), tune the hash cost, or move hashing to dedicated workers if load is high."}],
+rf:["\"Node is single-threaded so it can't do concurrent I/O\"","Unaware of the libuv pool","Thinks await creates a thread"]},
+
+{id:"J002",skill:"Node.js Runtime",level:"Basic",type:"Concept",
+q:"CommonJS vs ES modules in Node.js: what are the differences, and what practical problems do they cause in a NestJS/TypeScript service?",
+a:`<p><b>CommonJS</b> (<code>require</code>/<code>module.exports</code>) loads synchronously and resolves at runtime; <code>require</code> can be called anywhere. <b>ES modules</b> (<code>import</code>/<code>export</code>) are statically analysable, load asynchronously, support top-level <code>await</code>, and are the JavaScript standard. Node decides per file: <code>.mjs</code>/<code>.cjs</code> extensions, or the <code>"type"</code> field in <code>package.json</code>.</p>
+<p><b>Practical problems:</b></p>
+<ul>
+<li>NestJS projects compile TypeScript to <b>CommonJS</b> by default. More and more npm packages ship <b>ESM-only</b>. Historically, <code>require()</code> of an ESM package threw <code>ERR_REQUIRE_ESM</code>, forcing dynamic <code>import()</code> workarounds or pinning old versions. Recent Node versions (22.12+, and backported to 20.19) allow <code>require()</code> of synchronous ESM by default, which eases this a lot.</li>
+<li>TypeScript's <code>module</code>/<code>moduleResolution</code> settings (<code>NodeNext</code>) must match what Node actually does. In ESM, relative imports need file extensions.</li>
+<li>Test tooling (Jest) has needed extra configuration for ESM. Some teams switch to Vitest for that reason.</li>
+</ul>`,
+keys:["Sync/dynamic vs static/async","How Node decides module type","ESM-only packages in CJS Nest apps","require(esm) availability in newer Node","tsconfig module settings and test tooling"],
+fu:[{q:"How would you consume an ESM-only package from a CommonJS NestJS app on an older Node version?",a:"Use dynamic import() inside an async function, or a provider factory that awaits the import at startup, and make sure TypeScript doesn't transpile the import() into require() (with module NodeNext, it preserves dynamic imports). Or pin the last CommonJS version of the package as a stopgap."}],
+rf:["Doesn't know packages can be ESM-only","Sets random tsconfig options until it compiles"],
+verify:"require(esm) default enablement by Node version (22.12+, 20.19+); confirm for your runtime."},
+
+{id:"J003",skill:"NestJS",level:"Basic",type:"Concept",
+q:"How do NestJS modules, providers and dependency injection work? What are the injection scopes?",
+a:`<p>A <b>module</b> (<code>@Module</code>) groups related controllers and <b>providers</b> (services, repositories, factories) and declares:</p>
+<ul>
+<li><code>imports</code>: other modules whose exported providers it needs.</li>
+<li><code>providers</code>: what it creates.</li>
+<li><code>exports</code>: what it makes available to importers.</li>
+</ul>
+<p>Nest builds a DI container per application. It resolves constructor parameters by type or token (<code>@Inject(TOKEN)</code> for interfaces and values), and supports custom providers: <code>useClass</code>, <code>useValue</code>, <code>useFactory</code> (with async factories for setup like DB connections), and <code>useExisting</code>.</p>
+<p><b>Scopes:</b></p>
+<ul>
+<li><b>DEFAULT</b> (singleton): one instance shared across the app. Most providers should be this.</li>
+<li><b>REQUEST:</b> a new instance per request. The scope <b>bubbles up</b>: anything depending on a request-scoped provider also becomes request-scoped, which has a performance cost.</li>
+<li><b>TRANSIENT:</b> a new instance for each consumer that injects it.</li>
+</ul>`,
+keys:["imports/providers/exports","Custom providers and tokens","Async factory providers","Three scopes; singleton default","Request scope bubbles up and costs performance"],
+fu:[{q:"How do you get per-request data (user, tenant, correlation ID) without making half the app request-scoped?",a:"Use AsyncLocalStorage (for example through nestjs-cls) to hold request context that singleton services can read, set in middleware. Alternatively pass context explicitly as method arguments. Both avoid the request-scope bubbling cost."}],
+rf:["Makes everything request-scoped","Doesn't know scope bubbling","Circular imports fixed with forwardRef everywhere"]},
+
+{id:"J004",skill:"NestJS",level:"Basic",type:"Concept",
+q:"Describe the NestJS request lifecycle. In which order do middleware, guards, interceptors, pipes and exception filters run?",
+a:`<ol>
+<li><b>Middleware:</b> global, then module-bound. Express- or Fastify-style functions for raw request concerns such as logging, correlation IDs, and body parsing tweaks.</li>
+<li><b>Guards:</b> global, then controller, then route. They decide whether the request may proceed (authentication and authorization) and have access to the execution context and route metadata.</li>
+<li><b>Interceptors (before):</b> global, controller, route. They wrap the handler, for timing, caching, or transforming the request.</li>
+<li><b>Pipes:</b> validate and transform handler arguments (DTO validation, <code>ParseIntPipe</code>).</li>
+<li><b>Route handler</b> (controller method).</li>
+<li><b>Interceptors (after),</b> in reverse order: transform the response via the RxJS stream.</li>
+<li><b>Exception filters:</b> route, controller, then global. They catch exceptions thrown anywhere above and shape the error response.</li>
+</ol>
+<p>Choosing the right hook matters. Auth belongs in guards, not middleware, because guards know which handler and metadata (<code>@Roles()</code>) apply. Validation belongs in pipes. Cross-cutting response shaping goes in interceptors.</p>`,
+keys:["Correct order","Guards have handler metadata, middleware doesn't","Pipes for argument validation/transform","Interceptors wrap via RxJS","Filters catch and shape errors"],
+fu:[{q:"Where would you put request timing that should include guard time?",a:"Middleware, or a global interceptor if you only want handler time. Interceptors run after guards, so they don't include guard time; middleware runs first and sees the whole request."}],
+rf:["Does auth in middleware without route metadata","Validates manually inside every handler","Can't place pipes in the order"]},
+
+{id:"J005",skill:"NestJS",level:"Basic",type:"Scenario",
+q:"Clients send extra fields like role: 'admin' in a profile update, and they end up saved in the database. How do you fix input validation in NestJS?",
+a:`<p>This is <b>mass assignment</b>: the request body is passed straight into the database update.</p>
+<p><b>Fix with DTOs and a global <code>ValidationPipe</code>:</b></p>
+<pre><code>// main.ts
+app.useGlobalPipes(new ValidationPipe({
+  whitelist: true,             // strip properties without decorators
+  forbidNonWhitelisted: true,  // or reject them with 400
+  transform: true,             // instantiate DTO classes, convert types
+}));
+
+// update-profile.dto.ts
+export class UpdateProfileDto {
+  @IsOptional() @IsString() @MaxLength(80) displayName?: string;
+  @IsOptional() @IsUrl() avatarUrl?: string;
+}</code></pre>
+<ul>
+<li>Use separate DTOs per operation (create vs update). Never reuse the database model type as the input type.</li>
+<li>Map explicitly from the DTO to the update object in the service, so only intended columns can change.</li>
+<li>Privileged fields (role, verified) only change through dedicated, authorised endpoints.</li>
+</ul>
+<p>Alternatives: zod schemas with a zod validation pipe, which also gives inferred TypeScript types.</p>`,
+keys:["Names mass assignment","ValidationPipe whitelist/forbidNonWhitelisted/transform","DTO per operation, not DB model","Explicit mapping in service","Privileged fields via dedicated endpoints"],
+fu:[{q:"What does transform: true change, and is there any risk?",a:"It converts plain objects into DTO class instances and primitive route or query values into declared types (string to number). Implicit conversion can surprise you: an empty string may become 0. Prefer explicit @Type() decorators or pipes where it matters."}],
+rf:["Spreads req.body into an ORM update","Validates only on the client","Uses the DB schema type as request type"]},
+
+{id:"J006",skill:"TypeScript",level:"Basic",type:"Concept",
+q:"Explain type vs interface, structural typing, and the difference between any, unknown and never.",
+a:`<p>TypeScript is <b>structurally typed</b>: a value is compatible with a type if it has the required shape, regardless of its declared name or class.</p>
+<p><b>interface vs type:</b> both describe object shapes. Interfaces can be <b>merged</b> by redeclaring (useful for augmenting library types) and extended with <code>extends</code>. Type aliases can express <b>unions, intersections, mapped and conditional types</b>, and primitives. Common practice: interfaces for object contracts, types for unions and computed types. Consistency matters more than which you pick.</p>
+<p><b>any</b> switches type checking off for that value, and it spreads. <b>unknown</b> is the safe "could be anything": you must narrow it (typeof, instanceof, a validation function) before use. Use it for external input and caught errors. <b>never</b> is the type with no values: functions that always throw, impossible branches, and exhaustiveness checks.</p>`,
+keys:["Structural typing","Interface merging vs type alias expressiveness","any disables checking and spreads","unknown requires narrowing; use for external data","never for impossible cases / exhaustiveness"],
+fu:[{q:"What type is the error in catch (e) under strict settings, and how should you handle it?",a:"With useUnknownInCatchVariables (part of strict), it's unknown. Narrow it: if (e instanceof Error) use e.message, otherwise convert safely. Anything can be thrown in JavaScript, not only Error objects."}],
+rf:["Uses any for external data","Thinks TypeScript is nominally typed like C#","Can't explain unknown"]},
+
+{id:"J007",skill:"TypeScript",level:"Basic",type:"Scenario",
+q:"A function typed to receive User with a non-optional email crashes in production with 'Cannot read properties of undefined'. The code compiles cleanly. How is that possible, and how do you prevent it?",
+a:`<p>TypeScript types are <b>erased at compile time</b>. Nothing checks them at runtime. If data comes from outside (an HTTP body, a queue message, a third-party API, a DB row with a nullable column typed as non-null, or <code>JSON.parse</code>), the type is just an <b>assertion</b> the compiler trusts. Common sources:</p>
+<ul>
+<li><code>as User</code> casts.</li>
+<li><code>any</code> leaking in from untyped libraries or <code>JSON.parse</code>.</li>
+<li>Non-null assertions (<code>!</code>).</li>
+<li>Hand-written types that don't match the real schema.</li>
+</ul>
+<p><b>Prevention:</b></p>
+<ul>
+<li><b>Validate at every boundary</b> with a runtime schema: zod, valibot, or class-validator for Nest DTOs. With zod, derive the type from the schema (<code>z.infer</code>), so the type and the validation can't drift apart.</li>
+<li>Derive DB types from the schema definition (Drizzle infers row types, including nullability).</li>
+<li>Turn on <code>strict</code>, ban <code>as</code> casts and <code>any</code> via ESLint (<code>@typescript-eslint/no-explicit-any</code>, <code>no-unsafe-*</code> rules), and review <code>!</code> usage.</li>
+</ul>`,
+keys:["Types erased at runtime","Casts, any and ! as escape hatches","Runtime validation at boundaries","Types derived from schemas","Strict mode and lint rules"],
+fu:[{q:"Is validating every internal function call necessary?",a:"No. Validate where untrusted or external data enters (HTTP, queues, files, third-party APIs, the DB edge). Inside the boundary, rely on the compiler. Validating everywhere costs performance and adds noise."}],
+rf:["\"TypeScript guarantees types at runtime\"","Casts JSON.parse results with as","No validation library"]},
+
+{id:"J008",skill:"Drizzle ORM",level:"Basic",type:"Concept",
+q:"What is Drizzle ORM, how does it differ from Prisma or TypeORM, and how does its migration workflow work?",
+a:`<p>Drizzle defines the schema <b>in TypeScript</b> (<code>pgTable('users', { id: uuid().primaryKey(), … })</code>) and infers row and insert types from it. It offers two query styles:</p>
+<ul>
+<li>A <b>SQL-like query builder</b> (<code>db.select().from(users).where(eq(users.id, id))</code>), which maps closely to SQL, so you know what's generated.</li>
+<li>A <b>relational queries API</b> (<code>db.query.users.findMany({ with: { posts: true } })</code>) for nested loads.</li>
+</ul>
+<p>It's lightweight, with no code generation step and no query engine binary, which is good for serverless start-up.</p>
+<ul>
+<li><b>Prisma:</b> its own schema language plus a generated client, with a very high-level API. Historically it shipped a separate query engine (moved toward a TypeScript-based engine in newer versions).</li>
+<li><b>TypeORM:</b> decorator-based entities with active-record or data-mapper patterns, more "classic ORM" behaviour, and a history of rough edges.</li>
+</ul>
+<p><b>Migrations</b> with <code>drizzle-kit</code>:</p>
+<ul>
+<li><code>generate</code> diffs the TypeScript schema against prior snapshots and writes SQL migration files for review.</li>
+<li><code>migrate</code> applies them, tracked in a migrations table.</li>
+<li><code>push</code> syncs the schema directly without migration files, which is for prototyping only.</li>
+<li><code>pull</code> introspects an existing database.</li>
+</ul>`,
+keys:["Schema in TS, inferred types","SQL-like builder + relational API","Lightweight, serverless-friendly","Comparison to Prisma/TypeORM","generate/migrate vs push"],
+fu:[{q:"Why might a team choose Drizzle over Prisma for a new PostgreSQL service?",a:"SQL transparency (queries look like SQL, which makes performance reasoning easier), no generation step or engine binary, good TypeScript inference, and easy access to PostgreSQL-specific features. Prisma offers a higher-level API and mature tooling, which some teams prefer."}],
+rf:["Uses drizzle-kit push in production","Doesn't know how types are inferred","Can't compare with other ORMs"],
+verify:"Prisma's engine architecture changed in recent versions; check current state before comparing."},
+
+{id:"J009",skill:"WebSockets & Real-time",level:"Basic",type:"Concept",
+q:"WebSockets, Server-Sent Events or long polling: how do you choose for a real-time feature?",
+a:`<ul>
+<li><b>WebSockets:</b> full-duplex, persistent connection over one TCP connection after an HTTP Upgrade. The right choice when the client also sends frequent messages: chat, typing indicators, presence, collaborative editing. It costs connection state on the server, load balancer configuration, scaling across instances, and reconnection handling.</li>
+<li><b>Server-Sent Events (SSE):</b> a one-way stream from server to client over plain HTTP (<code>text/event-stream</code>), with automatic browser reconnection and <code>Last-Event-ID</code> resume built in. Simpler and proxy-friendly. Good for notifications, live feeds and LLM token streaming. The client sends data with normal HTTP requests. Under HTTP/1.1, browsers limit concurrent connections per domain.</li>
+<li><b>Long polling:</b> the client makes a request that the server holds until data arrives, then the client asks again. It works everywhere and suits low-frequency updates, but has higher latency and overhead.</li>
+<li><b>Mobile push</b> (APNs or FCM) for when the app is in the background. Sockets don't survive that.</li>
+</ul>
+<p>Choose by direction and frequency of messages, client types, and infrastructure.</p>`,
+keys:["Bidirectional vs server-to-client","SSE auto-reconnect and Last-Event-ID","Long polling as fallback","Push notifications for backgrounded mobile apps","Operational cost of persistent connections"],
+fu:[{q:"For streaming LLM responses to a web client, which would you use and why?",a:"Usually SSE, or a streamed HTTP response read with fetch. The flow is one-way, it works through standard HTTP infrastructure, and it's simple. WebSockets add complexity without benefit unless the app already maintains a socket."}],
+rf:["WebSockets for everything","Unaware of SSE","Expects sockets to work while mobile app is backgrounded"]},
+
+{id:"J010",skill:"WebSockets & Real-time",level:"Basic",type:"Concept",
+q:"How does a WebSocket connection get established, and how do you authenticate it? What's the difference between raw WebSockets and Socket.IO?",
+a:`<p>The client sends an HTTP request with <code>Upgrade: websocket</code> and a <code>Sec-WebSocket-Key</code>. The server responds <code>101 Switching Protocols</code>, and the TCP connection then carries WebSocket frames in both directions.</p>
+<p><b>Authentication options:</b></p>
+<ul>
+<li>The browser <code>WebSocket</code> API <b>can't set custom headers</b> such as <code>Authorization</code>. Common approaches:
+  <ul>
+  <li>A cookie sent automatically with the upgrade request. Then check the <code>Origin</code> header to prevent cross-site WebSocket hijacking.</li>
+  <li>A short-lived, single-use ticket in the query string, obtained from an authenticated HTTP endpoint just before connecting. Avoid long-lived tokens in URLs, because they end up in logs.</li>
+  <li>An auth message as the first frame, with the server closing the connection if it doesn't arrive in time.</li>
+  </ul></li>
+<li>Native mobile clients can usually set headers.</li>
+<li>Socket.IO lets clients send an <code>auth</code> payload during the handshake, which the server validates in middleware.</li>
+</ul>
+<p><b>Socket.IO vs raw <code>ws</code>:</b> Socket.IO is a protocol <i>on top of</i> WebSockets (with an HTTP long-polling fallback). It adds rooms, namespaces, acknowledgements, automatic reconnection, multiplexing, and adapters for scaling across servers. A Socket.IO client can't talk to a plain WebSocket server, or vice versa. Raw <code>ws</code> is lighter and standard, but you build those features yourself.</p>`,
+keys:["Upgrade handshake and 101","No custom headers in browser API","Cookie+Origin, short-lived ticket, or first-message auth","Socket.IO is its own protocol with features","Trade-off of raw ws vs Socket.IO"],
+fu:[{q:"Why is checking the Origin header important with cookie-based WebSocket auth?",a:"Browsers send cookies on the upgrade request from any site, and the same-origin policy doesn't block WebSocket connections. A malicious page could open a socket using the victim's cookies. Validating Origin against an allowlist prevents that."}],
+rf:["Puts long-lived JWTs in the WebSocket URL","Doesn't know the browser can't set headers","Thinks Socket.IO is plain WebSockets"]},
+
+/* ================= INTERMEDIATE (part 1) ================= */
+{id:"J011",skill:"Node.js Runtime",level:"Intermediate",type:"Scenario",
+q:"A NestJS API shows p99 spikes of several seconds, and health checks occasionally time out, but CPU averages only 40%. You suspect the event loop is being blocked. How do you confirm it and find the cause?",
+a:`<p><b>Confirm:</b> measure <b>event loop delay</b> (<code>perf_hooks.monitorEventLoopDelay()</code>) and <b>event loop utilisation</b> (<code>performance.eventLoopUtilization()</code>), exported as metrics. Spikes of hundreds of milliseconds that line up with the latency spikes confirm blocking. Average CPU hides it: one second of blocking every 30 seconds looks idle on average.</p>
+<p><b>Find it:</b></p>
+<ul>
+<li>Take a CPU profile during the problem (<code>node --cpu-prof</code>, the inspector attached, or Clinic.js Doctor/Flame) and look for long synchronous frames.</li>
+<li>Log slow handlers with timing, around suspected code.</li>
+</ul>
+<p><b>Usual culprits:</b></p>
+<ul>
+<li>Sync crypto (<code>bcrypt.hashSync</code>, <code>pbkdf2Sync</code>).</li>
+<li><code>JSON.parse</code>/<code>stringify</code> of multi-megabyte payloads.</li>
+<li>Regular expressions with catastrophic backtracking on user input (ReDoS).</li>
+<li>Sync file system calls (<code>readFileSync</code>) in request paths.</li>
+<li>Large array sorts or transformations.</li>
+<li>Image or PDF processing in process.</li>
+</ul>
+<p><b>Fix:</b> use the async API variants, cap payload sizes, stream large JSON, rewrite risky regexes (or use RE2), and move CPU-heavy work to <code>worker_threads</code> or a separate worker service via a queue.</p>`,
+keys:["Event loop delay/utilisation metrics","Average CPU hides short blocking","CPU profiling tools","Common blocking culprits incl. ReDoS","worker_threads / offload as fix"],
+trade:["worker_threads keep work in-process with lower overhead than a separate service, but share the container's CPU and memory","A separate worker service isolates load but adds a queue and deployment"],
+fu:[{q:"Why do health checks fail when the event loop is blocked, even though the app is 'alive'?",a:"The health endpoint's handler also needs the event loop. If it's blocked for longer than the health-check timeout, the check fails, and the orchestrator may restart a process that would have recovered. That's another reason liveness checks need sensible timeouts and blocking needs fixing."}],
+rf:["Adds more instances without measuring","Doesn't know event loop lag metrics","Moves CPU work into Promise.resolve() thinking it's async"]},
+
+{id:"J012",skill:"Node.js Runtime",level:"Intermediate",type:"Concept",
+q:"Explain streams and backpressure in Node.js. How do you stream a large file or query result to an HTTP response safely?",
+a:`<p>Streams process data in chunks instead of loading it all into memory. There are four kinds: Readable, Writable, Duplex and Transform.</p>
+<p><b>Backpressure:</b> when a writable's buffer exceeds its <code>highWaterMark</code>, <code>write()</code> returns <code>false</code>. The producer must stop until the <code>'drain'</code> event fires. If you ignore it, a fast source (a database cursor, a file) feeding a slow consumer (a mobile client) buffers everything in memory, defeating the purpose.</p>
+<p><b>Use <code>stream.pipeline</code></b> (or <code>pipeline</code> from <code>stream/promises</code>). It wires streams together, handles backpressure, and on error or client disconnect <b>destroys all streams</b> and reports one error. Plain <code>.pipe()</code> doesn't forward errors or clean up properly.</p>
+<pre><code>import { pipeline } from 'node:stream/promises';
+await pipeline(
+  s3Object.Body as Readable,   // source
+  createGzip(),                // transform
+  res,                         // HTTP response
+);</code></pre>
+<p>For query results, use a cursor or streaming query and transform rows to CSV or NDJSON as they come. In NestJS, return a <code>StreamableFile</code> or write to the underlying response.</p>`,
+keys:["Chunked processing, four stream types","write() false / drain = backpressure","pipeline over pipe for errors and cleanup","Streaming from S3/DB to response","Nest StreamableFile"],
+fu:[{q:"Async iterators can also consume streams (for await…of). Do they handle backpressure?",a:"Yes, on the reading side: the loop pulls the next chunk only after your body finishes. When writing inside the loop, you still need to respect write() returning false, or use pipeline with an async generator as a transform."}],
+rf:["Reads whole files into memory to send","Uses pipe() without error handling","Doesn't know what backpressure is"]},
+
+{id:"J013",skill:"Node.js Runtime",level:"Intermediate",type:"Scenario",
+q:"The service restarts several times a day. Logs show 'unhandledRejection' right before each crash, pointing at different places. What's happening and how do you fix it?",
+a:`<p>Since Node 15, an <b>unhandled promise rejection terminates the process</b> by default. The usual cause is a <b>floating promise</b>: an async call without <code>await</code> or <code>.catch</code>. Examples: <code>this.audit.log(...)</code> fire-and-forget, an async callback passed to <code>forEach</code>, an <code>async</code> event emitter listener, or <code>setTimeout(async () =&gt; …)</code>. When it rejects, nobody handles it.</p>
+<p><b>Fix:</b></p>
+<ul>
+<li>Turn on <code>@typescript-eslint/no-floating-promises</code> and <code>no-misused-promises</code> as errors. That finds them statically.</li>
+<li>For intentional fire-and-forget work, attach an explicit <code>.catch()</code> that logs, or better, send the work to a queue.</li>
+<li>Replace <code>forEach(async …)</code> with <code>for…of</code> plus <code>await</code>, or <code>Promise.all</code>/<code>Promise.allSettled</code>.</li>
+<li>Register <code>process.on('unhandledRejection')</code> and <code>uncaughtException</code> handlers that <b>log with context and then exit</b>. Don't keep running in an unknown state; let the orchestrator restart it.</li>
+</ul>`,
+keys:["Node 15+ default crash on unhandled rejection","Floating promise patterns","Lint rules to catch them","Explicit catch or queue for fire-and-forget","Global handler logs then exits"],
+fu:[{q:"Why not just add a global handler that logs and keeps the process running?",a:"After an unexpected rejection you don't know what state the app is in: half-finished operations, held locks, broken connections. Crashing and restarting is safer. Handle expected failures where they occur instead."}],
+rf:["Sets --unhandled-rejections=warn to stop crashes","Wraps everything in try/catch without awaiting","forEach with async callbacks"]},
+
+{id:"J014",skill:"Node.js Runtime",level:"Intermediate",type:"Architecture",
+q:"How should you run Node.js services on ECS or Kubernetes: one process per container, or the cluster module / PM2? How do you size CPU and memory?",
+a:`<p>In containers, the norm is <b>one Node process per container</b>, scaling horizontally with more tasks. The orchestrator already provides what the cluster module and PM2 were built for: restarts, multiple instances and load balancing, plus health checks and per-instance metrics. Running PM2 or <code>cluster</code> inside a container adds a second supervisor, hides crashes from the orchestrator, and makes memory limits harder to reason about.</p>
+<p><b>Sizing:</b></p>
+<ul>
+<li><b>CPU:</b> one process uses about one core for JavaScript (plus the libuv pool and GC threads). Tasks with 4 vCPU running one process waste most of it. Use about 1 vCPU per task (0.5–1 for I/O-heavy APIs) and scale out.</li>
+<li><b>Memory:</b> set V8's old-space limit explicitly (<code>--max-old-space-size</code>) to roughly 70–80% of the container limit, leaving room for buffers, native memory and stacks. Otherwise the heap may grow until the container is killed, or GC may thrash.</li>
+<li><b>CPU-bound work:</b> <code>worker_threads</code> inside the process, or separate worker services.</li>
+</ul>
+<p>Exceptions where cluster mode can make sense: VMs or bare hosts without an orchestrator, or very large hosts where you deliberately want several processes per machine.</p>`,
+keys:["One process per container; orchestrator handles supervision","PM2/cluster duplicates orchestration","CPU sizing for single-threaded runtime","Explicit heap limit vs container memory","worker_threads for CPU-heavy work"],
+trade:["Many small tasks: better isolation and scaling granularity, more per-task overhead","Few big tasks with cluster: fewer containers but hidden failures and harder memory management","It depends on: orchestrator, workload CPU profile"],
+fu:[{q:"A task keeps getting OOM-killed although the heap graph looks fine. What else uses memory?",a:"Buffers (outside the V8 heap), native addons, large numbers of open sockets and their buffers, and the libuv pool. Monitor RSS rather than only heap, check process.memoryUsage().external and arrayBuffers, and set the heap limit with headroom for these."}],
+rf:["PM2 with 4 workers in a 1 vCPU container","No heap limit configured","Gives Node tasks 4 vCPU each for one process"]},
+
+{id:"J015",skill:"NestJS",level:"Intermediate",type:"Concept",
+q:"How do you implement authentication and role-based authorization in NestJS so that every route is protected by default?",
+a:`<ul>
+<li><b>Authentication guard:</b> a JWT guard (with <code>@nestjs/passport</code> and passport-jwt, or a custom guard using <code>jose</code>) that validates signature, issuer, audience and expiry, and attaches the user to the request.</li>
+<li><b>Protect by default:</b> register it as a <b>global guard</b> (<code>APP_GUARD</code> provider). Mark exceptions with a custom <code>@Public()</code> decorator, which the guard checks via <code>Reflector</code>. A forgotten decorator then means "protected", not "open".</li>
+<li><b>Authorization:</b> a <code>RolesGuard</code> reading <code>@Roles('admin')</code> metadata with <code>Reflector.getAllAndOverride</code> (handler first, then class), comparing with the user's roles or scopes.</li>
+<li><b>Resource ownership</b> ("can this user edit this group?") belongs in the service or a policy layer (for example CASL), after loading the resource. Guards don't have the resource.</li>
+</ul>
+<pre><code>@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {
+  constructor(private reflector: Reflector) { super(); }
+  canActivate(ctx: ExecutionContext) {
+    const isPublic = this.reflector.getAllAndOverride&lt;boolean&gt;(IS_PUBLIC, [ctx.getHandler(), ctx.getClass()]);
+    return isPublic ? true : super.canActivate(ctx);
+  }
+}</code></pre>`,
+keys:["Global guard with @Public opt-out","Reflector metadata for roles","Token validation details","Ownership checks after loading resource","CASL/policy option"],
+fu:[{q:"How do you apply the same auth to WebSocket gateways?",a:"Guards also work on gateways, but they get a WebSocket execution context: read the token from the handshake (client.handshake.auth) and throw WsException. Better still, authenticate once at connection time and disconnect unauthorised sockets."}],
+rf:["Per-route guards with no default","Role checks hard-coded in each handler","No ownership checks"]},
+
+{id:"J016",skill:"NestJS",level:"Intermediate",type:"Scenario",
+q:"Error responses are inconsistent: some return stack traces, some return 500 for validation problems, and the mobile team can't parse errors reliably. How do you standardise error handling in NestJS?",
+a:`<ul>
+<li><b>One global exception filter</b> (<code>APP_FILTER</code>) that catches everything:
+  <ul>
+  <li><code>HttpException</code> subclasses keep their status.</li>
+  <li><b>Domain errors</b> (your own classes such as <code>NotFoundError</code>, <code>ConflictError</code>, <code>BusinessRuleError</code>) map to 404, 409 and 422.</li>
+  <li>Database errors map where meaningful: a PostgreSQL unique violation (<code>23505</code>) becomes 409.</li>
+  <li>Everything else becomes a generic 500 <b>without internal details</b>, with the full error logged server-side.</li>
+  </ul></li>
+<li><b>One response shape</b> for all errors, ideally Problem Details style: <code>type</code>, <code>title</code>, <code>status</code>, a stable machine-readable <code>code</code>, field errors for validation, and <code>traceId</code>.</li>
+<li>Have <code>ValidationPipe</code>'s <code>exceptionFactory</code> produce the same shape with field-level errors.</li>
+<li>Services throw domain errors, not <code>HttpException</code>, which keeps HTTP concerns out of business logic and reusable from queue consumers.</li>
+<li>Document the error codes in the OpenAPI spec. The mobile app switches on <code>code</code>, never on message text.</li>
+</ul>`,
+keys:["Global filter catching all","Domain errors mapped centrally","DB error mapping (23505 → 409)","Single documented shape with codes and traceId","No stack traces to clients"],
+fu:[{q:"Why shouldn't services throw HttpException?",a:"It ties business logic to HTTP. The same service called from a Kafka consumer or cron job then throws HTTP-specific errors that make no sense there. Domain errors mapped at the edge keep each transport responsible for its own representation."}],
+rf:["Returns err.stack in responses","Each controller formats its own errors","Clients parse message strings"]},
+
+{id:"J017",skill:"NestJS",level:"Intermediate",type:"Concept",
+q:"What are NestJS interceptors good for? Give examples, and explain how their RxJS-based design works.",
+a:`<p>An interceptor implements <code>intercept(context, next)</code>. Code before <code>next.handle()</code> runs before the handler. <code>next.handle()</code> returns an <b>Observable</b> of the handler's result, which the interceptor can transform with RxJS operators, so it wraps both sides.</p>
+<p>Typical uses:</p>
+<ul>
+<li><b>Timing and logging:</b> record start, then <code>tap()</code> to log duration on completion.</li>
+<li><b>Response shaping:</b> <code>map()</code> to wrap responses in an envelope or strip fields. Use sparingly; consistent DTOs are often cleaner.</li>
+<li><b>Timeouts:</b> <code>timeout(5000)</code> plus <code>catchError</code>, converting to a 503 or 504 when the handler runs too long. This doesn't cancel the underlying work unless you pass an abort signal down.</li>
+<li><b>Caching:</b> return a cached Observable (<code>of(cached)</code>) without calling <code>next.handle()</code>. Nest's <code>CacheInterceptor</code> does this.</li>
+<li><b>Error mapping</b> with <code>catchError</code> for specific routes.</li>
+</ul>
+<pre><code>intercept(ctx: ExecutionContext, next: CallHandler) {
+  const start = performance.now();
+  return next.handle().pipe(
+    tap(() =&gt; this.metrics.observe(routeOf(ctx), performance.now() - start)),
+  );
+}</code></pre>`,
+keys:["Wraps before and after via Observable","tap/map/timeout/catchError uses","Short-circuit for caching","Timeout doesn't cancel underlying work","Prefer DTOs over heavy response mutation"],
+fu:[{q:"Interceptor vs middleware for request logging: which would you use?",a:"Middleware sees every request (including ones rejected by guards or unmatched routes) and is framework-agnostic. An interceptor knows the handler and can log the result. Often both are used: middleware for access logs, interceptors for handler-level metrics."}],
+rf:["Thinks timeout() aborts the DB query","Uses interceptors for auth","Can't explain next.handle()"]},
+
+{id:"J018",skill:"NestJS",level:"Intermediate",type:"Scenario",
+q:"A deploy went out with a missing environment variable. The app started fine, then failed on the first request needing it, 20 minutes later. How should configuration work in a NestJS service?",
+a:`<ul>
+<li><b>Validate at startup and fail fast:</b> <code>ConfigModule.forRoot({ validate })</code> with a zod or Joi schema covering every variable (types, formats, required). The app refuses to start with clear errors, so the deploy's health check fails and the rollout stops before traffic arrives.</li>
+<li><b>Typed config access:</b> namespaced config (<code>registerAs('db', …)</code>) injected as a typed object, instead of <code>process.env.X</code> scattered across the code.</li>
+<li><b>Secrets:</b> load from AWS Secrets Manager or SSM Parameter Store at bootstrap (an async config factory), or inject via ECS task definition <code>secrets</code>, which map Secrets Manager or SSM values into environment variables at container start. Never bake secrets into images or commit <code>.env</code> files.</li>
+<li><b>Per-environment differences</b> live in deployment config (task definitions, Terraform), not in code branches.</li>
+<li>Prefer dependency injection of config into providers, so tests can supply values.</li>
+</ul>`,
+keys:["Schema validation at startup","Fail before traffic (health check blocks rollout)","Typed namespaced config","Secrets via Secrets Manager/SSM/ECS secrets","No secrets in images or repos"],
+fu:[{q:"How do you rotate a secret without redeploying when ECS injects it as an environment variable?",a:"Environment variables are fixed at container start, so rotation needs new tasks (a forced redeployment), or the app must read the secret at runtime through the SDK with caching and refresh. For frequently rotated database credentials, runtime retrieval or IAM authentication avoids redeploys."}],
+rf:["process.env reads throughout the code","Defaults that hide missing config","Secrets in the Docker image"]},
+
+{id:"J019",skill:"TypeScript",level:"Intermediate",type:"Concept",
+q:"How do you use discriminated unions and exhaustiveness checking to model domain states in TypeScript?",
+a:`<p>A <b>discriminated union</b> is a union of object types sharing a literal "tag" property. TypeScript <b>narrows</b> to the right member when you check the tag:</p>
+<pre><code>type Payment =
+  | { status: 'pending';   createdAt: Date }
+  | { status: 'captured';  capturedAt: Date; providerRef: string }
+  | { status: 'failed';    reason: string };
+
+function label(p: Payment): string {
+  switch (p.status) {
+    case 'pending':  return 'Waiting';
+    case 'captured': return 'Paid ' + p.providerRef;   // narrowed
+    case 'failed':   return 'Failed: ' + p.reason;
+    default: {
+      const unreachable: never = p;   // compile error if a status is added and not handled
+      return unreachable;
+    }
+  }
+}</code></pre>
+<p>Benefits: impossible states can't be represented (a failed payment can't have a <code>providerRef</code>), fields are only accessible in the right state, and adding a new state forces every switch to handle it at compile time.</p>
+<p>Use them for API responses, events, state machines and result types (<code>{ ok: true; value } | { ok: false; error }</code>).</p>`,
+keys:["Literal tag + narrowing","never-based exhaustiveness check","Make impossible states unrepresentable","Use cases: events, states, results"],
+fu:[{q:"How do you validate an incoming event payload into such a union at runtime?",a:"With a zod discriminatedUnion('type', [...]) schema (or equivalent), which validates and returns the correctly narrowed type. That keeps runtime validation and compile-time types in one definition."}],
+rf:["Uses optional fields for every state","Doesn't know the never trick","Casts to the expected member"]},
+
+{id:"J020",skill:"TypeScript",level:"Intermediate",type:"Concept",
+q:"Show how generics and utility types help you build a type-safe API client or service layer. Which utility types do you use most?",
+a:`<p><b>Generics</b> let one implementation work over many types while keeping the relationship between input and output types:</p>
+<pre><code>type Endpoints = {
+  'GET /groups/:id': { params: { id: string }; response: GroupDto };
+  'POST /posts':     { body: CreatePostDto;     response: PostDto };
+};
+
+async function call&lt;K extends keyof Endpoints&gt;(
+  route: K,
+  input: Omit&lt;Endpoints[K], 'response'&gt;,
+): Promise&lt;Endpoints[K]['response']&gt; { /* … */ }
+
+const group = await call('GET /groups/:id', { params: { id } }); // typed as GroupDto</code></pre>
+<p><b>Common utility types:</b></p>
+<ul>
+<li><code>Partial&lt;T&gt;</code> and <code>Required&lt;T&gt;</code> for update shapes.</li>
+<li><code>Pick</code> and <code>Omit</code> for derived DTOs.</li>
+<li><code>Record&lt;K, V&gt;</code> for maps.</li>
+<li><code>Readonly&lt;T&gt;</code>.</li>
+<li><code>ReturnType</code>, <code>Parameters</code> and <code>Awaited</code> to derive types from functions.</li>
+<li><code>NonNullable</code>.</li>
+<li>Conditional types with <code>infer</code> for extracting inner types.</li>
+</ul>
+<p>The aim is to derive types from one source of truth (a schema, a route map, an OpenAPI spec) instead of writing parallel definitions that drift. Generating clients from the backend's OpenAPI spec (openapi-typescript) is often better than hand-maintained maps.</p>`,
+keys:["Generics preserve input/output relationships","Keyed route map pattern","Practical utility types","Single source of truth / codegen","Avoid parallel hand-written types"],
+fu:[{q:"When do complex generic types become a liability?",a:"When teammates can't read or modify them, error messages become pages long, or compile times grow. Keep advanced types inside a small library with tests (expect-type or tsd), and expose simple types to the rest of the code."}],
+rf:["Duplicates DTO types by hand everywhere","Uses any in generics","Over-engineered types nobody understands"]},
+
+{id:"J021",skill:"TypeScript",level:"Intermediate",type:"Scenario",
+q:"A two-year-old TypeScript codebase has strict off, hundreds of anys, and frequent undefined errors in production. How do you raise type safety without stopping feature work?",
+a:`<ol>
+<li><b>Measure the baseline:</b> count <code>any</code>s (typescript-coverage-report or similar) and the errors you'd get under <code>strict</code>.</li>
+<li><b>Enable strict flags one at a time,</b> in order of value. <code>strictNullChecks</code> catches the undefined errors you're seeing, and gives the most value. Then <code>noImplicitAny</code>, <code>strictFunctionTypes</code>, and later <code>noUncheckedIndexedAccess</code> (array and record indexing returns <code>T | undefined</code>).</li>
+<li><b>Ratchet, don't block:</b>
+  <ul>
+  <li>Apply the stricter config to new or touched files (a separate tsconfig for strict paths, or a tool like betterer that records current errors and fails only on new ones).</li>
+  <li>Add ESLint rules (<code>no-explicit-any</code>, <code>no-unsafe-*</code>) as warnings now, errors for new code.</li>
+  <li>Track the count going down per sprint.</li>
+  </ul></li>
+<li><b>Fix boundaries first:</b> validate HTTP and queue inputs with schemas and derive types from them. Replace hand-written DB types with inferred ones. This is where most <code>undefined</code> surprises enter.</li>
+</ol>`,
+keys:["Baseline measurement","strictNullChecks first for undefined bugs","Ratcheting (betterer / per-path configs)","Lint rules for any","Fix boundaries with runtime validation"],
+trade:["A big-bang strict switch gives safety fast but stalls delivery and invites ! and as hacks","Ratcheting is slower but sustainable"],
+fu:[{q:"Developers 'fix' strict errors with ! and as casts. How do you stop that?",a:"Lint rules that flag non-null assertions and unsafe casts (allowed with an explanatory comment), review guidance, and making the right fix easy: helpers for narrowing, validated input types, and inferred DB types."}],
+rf:["Turns on strict globally in one PR","Accepts ! everywhere","No measurement"]},
+
+{id:"J022",skill:"Drizzle ORM",level:"Intermediate",type:"Scenario",
+q:"A developer ran drizzle-kit push against staging, and later the same was done in production to 'quickly fix' a column. Now migrations fail with conflicts. How do you recover, and what process do you set?",
+a:`<p><code>push</code> applies the schema diff directly <b>without writing migration files or recording history</b>. The database now differs from what the migration history says, so the next <code>migrate</code> tries to apply changes that already exist (or conflict), and fails.</p>
+<p><b>Recover:</b></p>
+<ol>
+<li>Introspect the real production schema (<code>drizzle-kit pull</code>, or <code>pg_dump --schema-only</code>) and compare it with the schema the migrations would produce.</li>
+<li>Write a reconciling migration that brings history and reality back in line. Sometimes that means marking a migration as applied in the migrations table, after verifying the change really is present. Test the full sequence on a copy of production.</li>
+<li>Check that data wasn't lost: <code>push</code> may drop and recreate columns on some diffs.</li>
+</ol>
+<p><b>Process:</b></p>
+<ul>
+<li><code>push</code> only against local or ephemeral databases.</li>
+<li>Shared environments change only through <code>generate</code>d migration files, reviewed in PRs (read the SQL) and applied by the pipeline (<code>migrate</code>) before the app deploy.</li>
+<li>Production DB credentials with DDL rights are available only to the pipeline.</li>
+<li>CI checks that the schema and migrations are in sync (<code>drizzle-kit check</code>, or generate and expect no diff).</li>
+</ul>`,
+keys:["push bypasses migration history","Introspect and reconcile carefully","Possible data loss check","generate + review + pipeline migrate","Least privilege; CI sync check"],
+fu:[{q:"A generated migration renames a column. What do you check in the SQL before merging?",a:"Whether it generated a rename or a drop-and-add (which loses data); drizzle-kit asks interactively, but review the SQL anyway. Also check that old application versions still running during deploy can work with the new schema. If not, use expand and contract."}],
+rf:["Keeps using push in production","Deletes the migrations folder and starts over","No review of generated SQL"]},
+
+{id:"J023",skill:"WebSockets & Real-time",level:"Intermediate",type:"Scenario",
+q:"Mobile users of your group chat say messages sometimes go missing or appear only after reopening the app. The socket server shows frequent disconnects. How do you make delivery reliable?",
+a:`<p>Mobile connections drop constantly (network switches, background, tunnels), and a socket "send" isn't a delivery guarantee. Design for disconnects:</p>
+<ul>
+<li><b>Server-assigned order:</b> every message is persisted first, then gets a per-conversation <b>sequence number</b> (or a monotonic ID). Persistence is the source of truth; the socket is only a notification channel.</li>
+<li><b>Resume on reconnect:</b> the client remembers the last sequence it has per conversation. After reconnecting, it asks for "messages after N" via the socket or an HTTP endpoint, and the server returns the gap. Socket.IO's connection-state recovery (v4.6+) helps for short disconnects, but a durable catch-up API is still needed for longer ones.</li>
+<li><b>Client sends are idempotent:</b> the client generates a <code>clientMessageId</code>. The server acknowledges with the assigned sequence, and the client retries until acknowledged. The server deduplicates on the client ID.</li>
+<li><b>Liveness:</b> heartbeats (ping/pong) at an interval shorter than load balancer and NAT idle timeouts (the ALB default is 60 seconds). Reconnect with exponential backoff and jitter.</li>
+<li><b>Background:</b> when the app is backgrounded, deliver via push notification, and sync on resume.</li>
+</ul>`,
+keys:["Persist first; socket as notification","Per-conversation sequence numbers","Catch-up by last-seen sequence","Idempotent client sends with ack","Heartbeats under idle timeouts; backoff; push for background"],
+trade:["Catch-up over HTTP is simple and cacheable; over the socket avoids an extra connection","Shorter heartbeats detect drops faster but cost battery and bandwidth on mobile"],
+fu:[{q:"Two messages from different users arrive at nearly the same time. How do you keep a consistent order for all members?",a:"Let the server assign the order: a per-conversation sequence incremented atomically in the database (or the order of a single partition keyed by conversation ID). Clients sort by that sequence, never by their own clock."}],
+rf:["Relies on the socket emit as delivery","Orders by client timestamps","No dedup on retries"]},
+
+{id:"J024",skill:"WebSockets & Real-time",level:"Intermediate",type:"Architecture",
+q:"Your NestJS Socket.IO gateway runs on one instance. You need to scale to six instances behind an ALB. What has to change?",
+a:`<ul>
+<li><b>Cross-instance delivery:</b> users in the same room may be connected to different instances. An emit on instance A only reaches sockets on A. Add an <b>adapter</b>: the Socket.IO Redis adapter (Redis pub/sub, or the Redis Streams adapter) broadcasts room emits to all instances. In NestJS, configure a custom <code>IoAdapter</code> that uses it.</li>
+<li><b>Sticky sessions:</b> Socket.IO starts with HTTP long-polling by default before upgrading, so the polling requests of one session must reach the same instance. Enable ALB target-group stickiness, or configure clients to use the WebSocket transport only.</li>
+<li><b>Load balancer:</b> the ALB supports WebSockets natively. Its idle timeout (60 seconds by default) closes silent connections, so heartbeats must be shorter.</li>
+<li><b>State:</b> presence ("who's online"), typing indicators and per-user socket lookups can't live in process memory. Move them to Redis with TTLs.</li>
+<li><b>Deploys:</b> rolling restarts disconnect everyone on the old tasks. Clients need jittered reconnect so they don't stampede, and tasks should drain gradually.</li>
+</ul>`,
+keys:["Adapter/backplane for cross-instance broadcasts","Sticky sessions or websocket-only transport","ALB idle timeout + heartbeats","Shared state (presence) in Redis","Reconnect storms on deploys"],
+trade:["Redis pub/sub adapter is simple but fire-and-forget (no delivery if an instance is briefly disconnected); the streams adapter adds durability at some cost","WebSocket-only transport removes the stickiness need but drops the polling fallback for restrictive networks"],
+fu:[{q:"How many concurrent connections can one Node instance hold?",a:"Tens of thousands of idle connections is feasible; the real limits are memory per connection, message throughput, CPU for serialisation and broadcast fan-out, and file-descriptor limits. Load test with realistic message rates rather than idle connections."}],
+rf:["Scales out without an adapter","Keeps presence in memory","Doesn't consider deploy disconnects"]},
+
+{id:"J025",skill:"WebSockets & Real-time",level:"Intermediate",type:"Concept",
+q:"How do you handle authorization for WebSocket messages, not just the connection? What about tokens expiring on a connection that stays open for hours?",
+a:`<ul>
+<li><b>At connection:</b> authenticate in the handshake (Socket.IO middleware or a Nest gateway's <code>handleConnection</code>). Attach the user to the socket, or disconnect immediately.</li>
+<li><b>Per action:</b> every <b>room join</b> checks membership ("is this user a member of group X?") on the server. Clients must never choose rooms freely. Every <b>emit from the client</b> (send message, react, delete) is authorised against current permissions, just like an HTTP endpoint. Validate payloads with the same DTO validation.</li>
+<li><b>Membership changes:</b> when a user is removed from a group or blocked, the server must remove their sockets from that room immediately (<code>socketsLeave</code> across instances via the adapter). Otherwise they keep receiving messages.</li>
+<li><b>Token expiry:</b> the connection outlives the access token. Either record the token expiry and have the server disconnect, or ask for re-auth when it passes, letting the client reconnect with a fresh token. Or support an in-band re-authentication message. Revoked sessions (logout, password reset) should trigger server-side disconnects.</li>
+<li><b>Rate-limit</b> client emits per socket and per user to prevent spam.</li>
+</ul>`,
+keys:["Handshake auth plus per-action checks","Server-controlled room membership","Immediate removal on membership change","Token expiry / revocation handling","Validation and rate limits on emits"],
+fu:[{q:"A user is removed from a private group while connected. Walk through what happens.",a:"The membership service updates the database, then publishes a MemberRemoved event. The socket layer calls socketsLeave for that user's sockets in that room via the adapter (all instances) and emits a 'removed' event to the user. Message fan-out also checks membership at send time as a safety net."}],
+rf:["Trusts client-supplied room names","Checks auth only at connection","Ignores token expiry on long-lived sockets"]},
+/* ================= INTERMEDIATE (part 2) ================= */
+{id:"J026",skill:"NestJS",level:"Intermediate",type:"Concept",
+q:"How do you test a NestJS application: unit tests for providers, and end-to-end tests of the HTTP layer with a real database?",
+a:`<p><b>Unit tests:</b> build a small module with <code>Test.createTestingModule({ providers: [GroupsService, { provide: GroupsRepository, useValue: fakeRepo }] })</code>, then <code>compile()</code> and <code>get(GroupsService)</code>. Override only true boundaries (repositories, external clients, clock). Keep business logic in plain classes that need no Nest at all, so most unit tests are just <code>new Service(fakes)</code>.</p>
+<p><b>End-to-end / integration tests:</b> create the <b>real <code>AppModule</code></b> with selective overrides (<code>.overrideProvider(PushClient).useValue(fake)</code>), call <code>app.init()</code>, and drive it with <code>supertest(app.getHttpServer())</code>. That exercises the real guards, pipes, filters and serialisation. Use a real PostgreSQL through Testcontainers, apply migrations once, and reset data between tests (truncate, or a transaction per test). Remember to apply the same global pipes, filters and prefixes as <code>main.ts</code>; a shared <code>configureApp(app)</code> function avoids drift.</p>`,
+keys:["createTestingModule with targeted overrides","Plain classes for most logic","E2E through AppModule + supertest","Real Postgres via Testcontainers","Share bootstrap config with main.ts"],
+fu:[{q:"E2E tests pass, but production rejects requests that tests accepted. What's a likely cause?",a:"The test app wasn't configured like main.ts: missing global ValidationPipe options, a global prefix, CORS or filters. Extract the setup into one function used by both main.ts and tests."}],
+rf:["Mocks every provider including the database layer in 'e2e' tests","Duplicates bootstrap config in tests","No DB in tests"]},
+
+{id:"J027",skill:"Drizzle ORM",level:"Intermediate",type:"Scenario",
+q:"Creating a group writes the group row and the owner's membership row inside db.transaction(). Sometimes a group exists with no owner. The transaction looks correct. What's the bug?",
+a:`<p>The classic mistake: inside <code>db.transaction(async (tx) =&gt; { … })</code>, some writes use <b><code>db</code></b> (the global client) instead of <b><code>tx</code></b>. Writes made through <code>db</code> run on a different pooled connection, <b>outside the transaction</b>. They commit independently, and a later failure rolls back only the <code>tx</code> writes. This happens easily when a service method called inside the transaction uses its injected <code>db</code>.</p>
+<pre><code>await db.transaction(async (tx) =&gt; {
+  const [group] = await tx.insert(groups).values(input).returning();
+  await this.members.addOwner(group.id, userId, tx);   // pass tx through
+});
+
+// repository method accepts an optional executor
+addOwner(groupId: string, userId: string, exec: DbOrTx = this.db) {
+  return exec.insert(groupMembers).values({ groupId, userId, role: 'owner' });
+}</code></pre>
+<p><b>Fixes:</b></p>
+<ul>
+<li>Pass <code>tx</code> explicitly to every call inside the transaction, typed so repositories accept <code>db | tx</code>.</li>
+<li>Or use a request or transaction context through AsyncLocalStorage (for example nestjs-cls with a transactional plugin), so repositories automatically pick up the active transaction.</li>
+<li>Add a test that forces a failure after the first write and asserts nothing persisted.</li>
+<li>Back invariants with constraints where possible, for example a deferred check or a job that flags groups without an owner.</li>
+</ul>`,
+keys:["Global db vs tx inside transaction","Different pooled connection = outside transaction","Pass executor explicitly or via ALS context","Failure-injection test","Constraints as backstop"],
+fu:[{q:"What does a nested db.transaction inside an outer tx do in Drizzle?",a:"Calling tx.transaction() creates a savepoint, so the inner block can roll back on its own without aborting the outer transaction, while the outer rollback still undoes everything."}],
+rf:["Blames the database","Adds retries","Doesn't consider connection pooling"]},
+
+{id:"J028",skill:"WebSockets & Real-time",level:"Intermediate",type:"Concept",
+q:"Some clients are on slow mobile networks and can't keep up with the message rate in busy groups. What happens on the server, and how do you handle slow consumers?",
+a:`<p>Each socket has an outgoing buffer. If the server writes faster than the client reads, data piles up in memory per socket (<code>bufferedAmount</code> on the raw <code>ws</code> socket). With thousands of slow clients this becomes a memory problem for the whole process, and latency for those clients grows without bound.</p>
+<p><b>Handling:</b></p>
+<ul>
+<li><b>Monitor</b> per-socket buffered bytes, and cap them. Above a threshold, stop sending non-essential events to that socket, or disconnect it so the client reconnects and catches up through the history API.</li>
+<li><b>Classify messages:</b> durable messages (chat) are persisted, so they can be fetched later. Ephemeral events (typing, presence, live reaction counts) can be dropped. Socket.IO's <code>volatile</code> emits drop if the transport isn't ready.</li>
+<li><b>Coalesce and batch:</b> send "12 new reactions" or a state snapshot periodically instead of every individual event.</li>
+<li><b>Compress</b> where it helps (permessage-deflate costs CPU and memory per connection, so measure).</li>
+</ul>`,
+keys:["Per-socket buffers grow with slow readers","Process-wide memory risk","Cap and disconnect / degrade","Durable vs ephemeral messages; volatile emits","Coalescing/batching"],
+fu:[{q:"Why can permessage-deflate hurt at scale?",a:"Each connection keeps compression context (zlib windows) in memory, and compression costs CPU per message. With tens of thousands of connections that adds up. Enable it selectively, tune window sizes, or compress only large payloads."}],
+rf:["Assumes sends are free","Treats typing indicators like durable messages","No buffer monitoring"]},
+
+/* ================= ADVANCED ================= */
+{id:"J029",skill:"Node.js Runtime",level:"Advanced",type:"Scenario",
+q:"A NestJS service's memory grows steadily for two days until the container is OOM-killed. How do you find the leak in Node.js?",
+a:`<ol>
+<li><b>Confirm what's growing:</b> <code>process.memoryUsage()</code> as metrics. <code>heapUsed</code> growing means a JavaScript object leak. RSS or <code>external</code>/<code>arrayBuffers</code> growing means buffers or native memory.</li>
+<li><b>Take heap snapshots</b> at intervals under load. Start Node with <code>--heapsnapshot-signal=SIGUSR2</code> to capture one on demand, or use <code>v8.writeHeapSnapshot()</code> from an admin endpoint, or attach the inspector. Compare two snapshots in Chrome DevTools (the Comparison view) and look at which constructors grow, then follow the <b>retainers</b> path to see what holds them.</li>
+<li><b>Common Node leaks:</b>
+  <ul>
+  <li>Module-level <code>Map</code>s or arrays used as caches, with no eviction.</li>
+  <li><b>Event listeners</b> added per request and never removed (watch for <code>MaxListenersExceededWarning</code>).</li>
+  <li>Closures captured by timers or intervals that are never cleared.</li>
+  <li>Per-socket state not cleaned up on disconnect.</li>
+  <li>Large objects kept in AsyncLocalStorage context beyond the request.</li>
+  <li>Unresolved promises piling up.</li>
+  </ul></li>
+<li><b>Fix and guard:</b> use an LRU with a max size and TTL instead of raw maps, clean up in <code>disconnect</code> and <code>onModuleDestroy</code> handlers, and use <code>WeakMap</code> for metadata keyed by objects. Add a memory-growth alert and a soak test in CI.</li>
+</ol>`,
+keys:["heapUsed vs RSS/external distinction","Heap snapshots with comparison and retainers","Typical leak sources incl. listeners and socket state","LRU/WeakMap/cleanup fixes","Soak tests and alerts"],
+trade:["Heap snapshots pause the process and use a lot of memory; take them on one instance pulled from the load balancer, or at low traffic","Raising memory limits only delays the crash"],
+fu:[{q:"RSS grows but heapUsed is flat. What do you look at?",a:"Buffers and native memory: large Buffer allocations retained (file uploads, image processing), native addons, or memory fragmentation in the allocator. Check external and arrayBuffers, and track allocations in the Buffer-heavy code paths."}],
+rf:["Restarts the service nightly as the fix","Increases --max-old-space-size and moves on","Never takes a heap snapshot"]},
+
+{id:"J030",skill:"Node.js Runtime",level:"Advanced",type:"Concept",
+q:"What is AsyncLocalStorage, how does it carry context across awaits, and what are its pitfalls when used for request context in NestJS?",
+a:`<p><code>AsyncLocalStorage</code> (from <code>node:async_hooks</code>) stores a value that follows the <b>asynchronous execution flow</b>: anything started inside <code>als.run(store, fn)</code>, including promise continuations, timers and callbacks, sees the same store through <code>als.getStore()</code>. It works like a thread-local for async code. Recent Node versions reimplemented it on a more efficient mechanism (AsyncContextFrame) and made that the default.</p>
+<p><b>Uses:</b> request ID and user for logging (pino with a mixin), tenant context, OpenTelemetry context propagation, and transactional context, so repositories pick up the active transaction. Libraries such as <b>nestjs-cls</b> wrap it, setting the store in middleware or an interceptor so singleton services can read request context without request-scoped providers.</p>
+<p><b>Pitfalls:</b></p>
+<ul>
+<li>Context can be <b>lost</b> with libraries that queue callbacks themselves (some connection pools, custom thenables, older callback APIs). Test the paths you rely on.</li>
+<li><code>enterWith()</code> changes context for the rest of the synchronous execution and can leak into unrelated work. Prefer <code>run()</code>.</li>
+<li>It's an <b>implicit dependency</b>, which makes code harder to reason about and test. Keep its use to a few cross-cutting concerns.</li>
+<li>Large objects in the store live as long as any async work started in that context.</li>
+<li>Background work started in a request inherits the request's context unless you deliberately run it in a fresh one.</li>
+</ul>`,
+keys:["Context follows async flow via run()","Use cases: logging, tenant, tracing, transactions","nestjs-cls avoids request-scope cost","Context loss with some libraries; enterWith risk","Implicit dependency and lifetime concerns"],
+fu:[{q:"Why is ALS better than request-scoped providers for a request ID?",a:"Request scope makes every dependent provider be re-created per request (the scope bubbles up), which costs CPU and memory. ALS keeps providers as singletons and makes the request ID readable anywhere in the async flow at low cost."}],
+rf:["Uses global variables for request context","Unaware of context-loss cases","Puts the whole request object in the store and keeps it alive"],
+verify:"AsyncContextFrame became the default ALS implementation in recent Node versions (24+); confirm for your runtime."},
+
+{id:"J031",skill:"Node.js Runtime",level:"Advanced",type:"Scenario",
+q:"Every deploy of the NestJS API on ECS causes a burst of 502s, dropped WebSocket messages and half-finished Kafka batches. Design graceful shutdown properly.",
+a:`<p>First, make sure the process actually <b>receives SIGTERM</b>. If the container's entry point is <code>npm start</code> or a shell script, the signal may not be forwarded to Node. And Node running as PID 1 with no SIGTERM handler doesn't exit on it, so ECS waits and then sends SIGKILL. Run <code>node dist/main.js</code> directly (exec form <code>CMD</code>), or use an init process (<code>--init</code> or tini), and register handlers.</p>
+<p><b>Shutdown sequence</b> (<code>app.enableShutdownHooks()</code> in Nest, logic in <code>beforeApplicationShutdown</code>/<code>onApplicationShutdown</code>):</p>
+<ol>
+<li><b>Fail readiness</b> so the load balancer stops sending new requests, and wait briefly for deregistration to propagate. The ALB deregistration delay should cover in-flight requests.</li>
+<li><b>Stop accepting connections:</b> <code>server.close()</code>, plus closing idle keep-alive connections (<code>closeIdleConnections()</code> in modern Node) so sockets don't hold the server open.</li>
+<li><b>WebSockets:</b> tell clients to reconnect (to another instance) with jitter, then close sockets.</li>
+<li><b>Consumers:</b> stop fetching new Kafka or SQS messages, finish the in-flight batch, commit offsets or delete messages, then disconnect.</li>
+<li><b>Close resources:</b> DB pools, Redis, flush logs and telemetry.</li>
+<li><b>Exit</b> before ECS's <code>stopTimeout</code> (30 seconds by default, configurable up to 120). Use a hard timeout in code as a safety net.</li>
+</ol>`,
+keys:["Signal delivery: PID 1, exec form, init process","Readiness fail + deregistration delay first","server.close + idle keep-alive handling","Consumers finish, commit, disconnect","Fit within stopTimeout; enableShutdownHooks"],
+trade:["Longer drain windows reduce errors but slow deploys","Aggressive socket closing on deploy causes reconnect storms; stagger with jitter"],
+fu:[{q:"How do you verify graceful shutdown works?",a:"Run a load test while doing a rolling deploy in staging, and assert zero 5xx responses, no duplicate or lost messages (compare produced vs processed counts), and that tasks exit before SIGKILL (ECS stopped reason and exit code 0, not 137)."}],
+rf:["CMD [\"npm\", \"start\"] with no signal handling","Closes the DB pool before in-flight requests finish","Ignores consumer offset commits"]},
+
+{id:"J032",skill:"NestJS",level:"Advanced",type:"Architecture",
+q:"For Kafka in a NestJS service, would you use @nestjs/microservices' Kafka transport or a Kafka client directly? How does the Node Kafka client landscape affect that?",
+a:`<p><b>@nestjs/microservices Kafka transport:</b> decorators (<code>@EventPattern</code>, <code>@MessagePattern</code>), Nest-style handlers with pipes, guards and interceptors, and a quick start. Limitations show in production:</p>
+<ul>
+<li>Less control over offset commits, batching and pausing partitions.</li>
+<li>Retries and dead-letter topics need custom work.</li>
+<li>Its request-response pattern over Kafka adds reply topics and coupling.</li>
+</ul>
+<p><b>Using a client directly</b> inside a Nest provider (started in <code>onModuleInit</code>, stopped in shutdown hooks) gives explicit control of consumer config, manual commits after processing, pause and resume for backpressure, retry and DLT routing, and metrics. It's more code, but production behaviour is easier to see.</p>
+<p><b>Client landscape:</b> KafkaJS, the long-time default (and what Nest's transport builds on), has had little maintenance for several years. Confluent now publishes an official JavaScript client (<code>@confluentinc/kafka-javascript</code>, built on librdkafka) with a KafkaJS-compatible API option, which makes migration easier. For new services I'd choose an actively maintained client and wrap it in our own small consumer abstraction (idempotency, retries, DLT, tracing), so the transport can be swapped.</p>`,
+keys:["Nest transport convenience vs control","Offsets, batching, DLT, backpressure needs","Direct client wrapped in provider + lifecycle hooks","KafkaJS maintenance status; Confluent JS client","Own thin abstraction for swappability"],
+trade:["Nest transport: fast to start, limited control later","Direct client: more code, full control","librdkafka-based clients add a native dependency (build and image considerations)"],
+fu:[{q:"What would your consumer wrapper provide to every team?",a:"Manual commit after successful processing, idempotency hooks keyed on event ID, bounded retry with backoff then DLT, W3C trace context extraction from headers, structured logging with topic/partition/offset, lag and processing-time metrics, and graceful shutdown."}],
+rf:["Unaware of KafkaJS maintenance status","Auto-commit with async processing","Uses Kafka request-reply for synchronous APIs"],
+verify:"KafkaJS maintenance status and the Confluent JavaScript client's maturity change; check current state before recommending."},
+
+{id:"J033",skill:"NestJS",level:"Advanced",type:"Scenario",
+q:"The app fails at startup with 'Nest can't resolve dependencies… circular dependency'. Developers have been adding forwardRef() everywhere. What's the real fix?",
+a:`<p><code>forwardRef()</code> resolves the injection order but leaves the <b>design problem</b>: two modules (or providers) depend on each other, so neither can be understood, tested or extracted independently. As forwardRefs accumulate, startup order becomes fragile, and some cycles produce <code>undefined</code> injections at runtime.</p>
+<p><b>Real fixes</b> depend on why the cycle exists:</p>
+<ul>
+<li><b>Shared logic in both directions:</b> extract it into a third module both depend on (for example <code>GroupsModule</code> and <code>PostsModule</code> both need membership checks, so create <code>MembershipModule</code>).</li>
+<li><b>A reacts to B and B reacts to A:</b> replace one direction with <b>events</b> (<code>@nestjs/event-emitter</code> in process, or Kafka between services). <code>PostsService</code> emits <code>PostCreated</code>, and notifications subscribe, so posts no longer call notifications directly.</li>
+<li><b>Wrong boundaries:</b> if two modules always change together and call each other constantly, merge them.</li>
+<li><b>Dependency inversion:</b> define an interface (token) in the lower module and implement it in the higher one.</li>
+</ul>
+<p>Prevent recurrence with a dependency-graph check in CI (madge or dependency-cruiser) that fails on new cycles.</p>`,
+keys:["forwardRef treats symptom","Extract shared module","Events to break bidirectional calls","Merge or invert dependencies","CI cycle detection"],
+fu:[{q:"Is in-process event emitting a good default for decoupling?",a:"It decouples code, but adds indirection and gives no delivery guarantees: if the process crashes after the DB commit, the handler never runs. Use it for best-effort side effects, and an outbox plus broker for anything that must happen."}],
+rf:["forwardRef everywhere","Moves everything into one giant module","No cycle detection"]},
+
+{id:"J034",skill:"NestJS",level:"Advanced",type:"Concept",
+q:"In a multi-tenant NestJS app, each tenant has its own database connection. Making providers request-scoped is slow. What are durable providers, and how do they help?",
+a:`<p>Request-scoped providers are re-created for <b>every request</b>, along with everything that depends on them. With a per-tenant DB connection behind a request-scoped provider, the app pays object construction (and possibly connection setup) on every request.</p>
+<p><b>Durable providers</b> (NestJS 9+) let you group requests by a key, typically the tenant. A custom <code>ContextIdStrategy</code>, registered with <code>ContextIdFactory.apply()</code>, maps each request to a context ID based on, say, a tenant header or claim. Providers marked <code>durable: true</code> are created <b>once per tenant</b> and reused across all of that tenant's requests, rather than once per request. Non-durable request-scoped providers still get the per-request payload.</p>
+<p><b>Cautions:</b></p>
+<ul>
+<li>Tenant resolution must come from trusted data (validated token claims).</li>
+<li>Durable instances live indefinitely, so with many tenants you need to bound connection pools per tenant (or use a shared pool with schema switching or RLS).</li>
+<li>Per-user data must not be stored in tenant-durable providers.</li>
+</ul>
+<p>Alternatives: a connection manager singleton with a tenant-keyed pool map (LRU), with tenant context from AsyncLocalStorage. That's often simpler.</p>`,
+keys:["Request scope cost explained","ContextIdStrategy and durable: true","Instance per tenant, not per request","Bound pools; trusted tenant source","Singleton connection manager + ALS alternative"],
+fu:[{q:"With 2,000 tenants, each with its own database, what breaks first?",a:"Connections: 2,000 pools × N connections per instance × number of instances exceeds database and proxy limits. You need pooled connections per tenant with small limits, idle eviction, a proxy, or a move to shared databases with tenant isolation by schema or row-level security."}],
+rf:["Request-scoped everything for tenancy","Tenant from an unvalidated header","Unbounded per-tenant pools"]},
+
+{id:"J035",skill:"NestJS",level:"Advanced",type:"Scenario",
+q:"Load tests show the NestJS API hitting a throughput ceiling. A teammate proposes switching from the Express adapter to Fastify. How do you evaluate that?",
+a:`<p>First find where the time goes. In most real APIs, the framework adapter is a small share of latency compared to DB queries, external calls, serialisation and validation. Profile a request (<code>--cpu-prof</code>, Clinic Flame) under load. If the CPU profile shows framework routing and middleware as significant, the switch can help. If it's dominated by the database, class-transformer and class-validator work, or JSON serialisation of large objects, fix those first.</p>
+<p><b>Fastify benefits:</b> faster routing and lower overhead, and schema-based serialisation (fast-json-stringify) when you provide response schemas. Gains are measurable in micro-benchmarks and for small, high-RPS endpoints.</p>
+<p><b>Costs:</b></p>
+<ul>
+<li>Express middleware and libraries may not work unchanged; some need Fastify plugin equivalents.</li>
+<li>Request and response objects differ (code touching <code>req</code>/<code>res</code> directly breaks).</li>
+<li>File uploads, sessions and some auth libraries need Fastify-specific packages.</li>
+<li>Recent Nest versions moved to Express 5, which also changed some behaviour.</li>
+</ul>
+<p><b>Decision:</b> prototype the switch on one service, rerun the same load test, and compare p99 and throughput per CPU. Adopt it if the gain is real and the migration is contained. Otherwise optimise the actual hot spots.</p>`,
+keys:["Profile before switching","Framework overhead usually not dominant","Fastify benefits incl. schema serialisation","Compatibility costs of the switch","Prototype + same load test as decision basis"],
+trade:["Fastify: higher ceiling and lower overhead, migration and ecosystem friction","Staying on Express: familiar and compatible, possibly leaving performance on the table for very high RPS"],
+fu:[{q:"What else commonly limits NestJS throughput?",a:"class-validator and class-transformer on large payloads (relatively CPU-heavy), returning whole entities and serialising unneeded fields, interceptors doing heavy work per request, synchronous logging, and too-small DB pools causing queueing."}],
+rf:["Switches frameworks without profiling","Assumes Fastify fixes database latency","No load-test comparison"]},
+
+{id:"J036",skill:"TypeScript",level:"Advanced",type:"Concept",
+q:"Because TypeScript is structural, a UserId and a GroupId (both strings) are interchangeable, and mixed-up IDs have caused bugs. How do you get nominal-style safety? Where do satisfies and template literal types help?",
+a:`<p><b>Branded types</b> add a phantom property so structurally identical primitives become incompatible:</p>
+<pre><code>declare const brand: unique symbol;
+type Brand&lt;T, B&gt; = T &amp; { readonly [brand]: B };
+type UserId  = Brand&lt;string, 'UserId'&gt;;
+type GroupId = Brand&lt;string, 'GroupId'&gt;;
+
+function addMember(groupId: GroupId, userId: UserId) {}
+addMember(userId, groupId);   // compile error: arguments swapped</code></pre>
+<p>Create branded values only at boundaries, in validation (a zod <code>.brand()</code> schema) or when reading from the DB, so the brand means "validated". At runtime it's still a plain string, with zero cost.</p>
+<p><b><code>satisfies</code></b> (TS 4.9) checks that a value conforms to a type <i>without widening</i> its inferred type. That's useful for config objects and lookup tables, where you want validation and still keep literal keys and values.</p>
+<p><b>Template literal types</b> describe string patterns (<code>\`group:\${string}\`</code>, event names like <code>\`\${Entity}.\${Action}\`</code>), giving checked cache keys, event names and route strings.</p>`,
+keys:["Structural typing problem for IDs","Branded types via unique symbol intersection","Brand at validation boundaries","satisfies validates without widening","Template literal types for string formats"],
+fu:[{q:"Do branded IDs cause friction with ORMs and JSON?",a:"Some. Values from the DB or JSON arrive as plain strings, so you need a mapping step (Drizzle's $type<UserId>() on a column helps) and validation on input. The friction is usually worth it for IDs that are frequently confused."}],
+rf:["Uses classes wrapping strings everywhere (runtime cost) without considering brands","Casts to brands anywhere, defeating the purpose","Unaware of satisfies"]},
+
+{id:"J037",skill:"TypeScript",level:"Advanced",type:"Architecture",
+q:"How do you share API types between the NestJS backend, a React web app and a React Native app, given that old mobile app versions stay in use for months?",
+a:`<p><b>Options:</b></p>
+<ul>
+<li><b>Shared package in a monorepo</b> (DTO types or zod schemas imported by all apps). There's one source of truth and refactors are instant. The catch: it encourages changes that compile everywhere at once, but <b>old mobile builds don't get recompiled</b>, so a "safe" refactor can break production clients.</li>
+<li><b>OpenAPI-generated clients:</b> the backend publishes a spec (Nest's Swagger module, generated from DTOs), and clients generate types (openapi-typescript) at build time. Contract changes are explicit and diffable.</li>
+<li><b>Contract-first libraries</b> (ts-rest, or zod-based contracts; tRPC for TypeScript-only stacks): an end-to-end typed contract with runtime validation on both sides.</li>
+</ul>
+<p><b>What I'd do:</b> define contracts once (zod schemas or OpenAPI), generate or import types for web and mobile, and add a <b>CI contract diff</b> that fails on breaking changes to the published API. Apply backward-compatibility rules for mobile: additive changes only, never remove or retype fields that supported app versions use, and use explicit versioning plus a minimum-supported-version check for breaking changes.</p>`,
+keys:["Shared package vs codegen vs contract libraries","Old mobile builds aren't recompiled","Single source of truth with runtime validation","CI breaking-change detection","Mobile backward-compat rules and min version"],
+trade:["Monorepo shared types: fastest DX, false sense of safety for released clients","OpenAPI codegen: explicit contracts, generation step and some type fidelity loss","tRPC: excellent DX for TS-only, couples clients to server implementation and weaker for public APIs"],
+fu:[{q:"How do you know which fields old app versions still use?",a:"Log the app version per request (a header) and measure traffic by version. Combine that with the contract history to know which fields each supported version relies on. Remove a field only when traffic from versions using it is effectively zero."}],
+rf:["Imports backend entity types into the mobile app","Assumes all clients update together","No breaking-change detection"]},
+
+{id:"J038",skill:"Drizzle ORM",level:"Advanced",type:"Scenario",
+q:"A feed endpoint uses Drizzle's relational query API to load posts with author, reactions and the latest comments. It's fast with test data but takes 2 seconds in production. How do you investigate and fix it?",
+a:`<ol>
+<li><b>Get the SQL:</b> enable Drizzle's logger, or call <code>.toSQL()</code> on the query. For PostgreSQL, the relational API builds a <b>single query</b> using lateral subqueries and JSON aggregation for nested <code>with</code> relations. That avoids N+1, but a nested relation like "all reactions" can aggregate thousands of rows per post into JSON before limiting.</li>
+<li><b>Run <code>EXPLAIN (ANALYZE, BUFFERS)</code></b> on that SQL with production-like data: look for sequential scans on <code>reactions</code> or <code>comments</code>, and for large aggregations.</li>
+<li><b>Fixes:</b>
+  <ul>
+  <li><b>Load what the screen needs:</b> reaction <i>counts</i> (from a denormalised counter column or a grouped count), not every reaction row. Limit nested relations (<code>limit</code> and <code>orderBy</code> inside <code>with</code>).</li>
+  <li><b>Indexes</b> matching the access patterns: <code>(post_id, created_at DESC)</code> on comments, <code>(group_id, created_at DESC, id)</code> on posts for keyset pagination.</li>
+  <li>For the hottest path, write it with the <b>SQL-like builder</b> or raw <code>sql</code>, controlling joins precisely, or split it into a few targeted queries batched with <code>inArray</code>.</li>
+  <li>Cache author profiles and counts.</li>
+  </ul></li>
+</ol>`,
+keys:["Inspect generated SQL","Relational API single-query with JSON aggregation behaviour","EXPLAIN ANALYZE on prod-like data","Fetch counts not rows; limit nested relations","Targeted indexes; drop to builder/raw SQL for hot paths"],
+trade:["One big query avoids round trips but can do huge aggregation work","Several targeted queries add round trips but each is cheap and index-friendly"],
+fu:[{q:"How do you prevent this type of regression?",a:"Seed test or staging data at realistic volumes for hot tables, run EXPLAIN checks or query-time budgets on key endpoints in CI, and monitor slow queries (pg_stat_statements) per endpoint in production."}],
+rf:["Adds more instances","Assumes ORM queries are always optimal","No EXPLAIN"],
+verify:"How Drizzle's relational queries are translated (lateral joins + JSON aggregation) varies by version and dialect; check your version's output."},
+
+{id:"J039",skill:"Drizzle ORM",level:"Advanced",type:"Scenario",
+q:"After autoscaling to 20 tasks (plus some Lambda functions), PostgreSQL starts rejecting connections with 'too many clients'. How do you design connection management for Node services?",
+a:`<p>Each Node process has its own <code>pg</code> pool (say max 20). Twenty tasks gives 400 connections, and every Lambda execution environment opens its own connections. That easily exceeds <code>max_connections</code>. Each PostgreSQL connection is a backend process with real memory cost, so simply raising the limit doesn't scale.</p>
+<p><b>Design:</b></p>
+<ul>
+<li><b>Size pools from the database's budget:</b> total = tasks × pool max, kept well under the limit, with headroom for migrations and admin. Node is single-threaded, so a small pool (5–10) per process is usually enough. Many concurrent queries per process just queue anyway.</li>
+<li><b>Add a pooler:</b> <b>RDS Proxy</b> (managed, IAM auth, works well with Lambda) or <b>PgBouncer</b> in transaction mode, multiplexing many client connections onto few server connections.</li>
+<li><b>Know the transaction-mode caveats:</b> session state (<code>SET</code>, advisory locks, <code>LISTEN</code>) doesn't persist across transactions. Prepared statements needed special support (PgBouncer added it in 1.21 via <code>max_prepared_statements</code>). With <code>SET LOCAL</code> for RLS tenant context it works, because it's transaction-scoped.</li>
+<li><b>Lambda:</b> create the client outside the handler for reuse, keep the pool max at 1–2, and always go through RDS Proxy.</li>
+<li>Monitor connection counts, pool wait time and proxy metrics, and alert before the limit.</li>
+</ul>`,
+keys:["Pools multiply with instances and Lambda","Small pools for single-threaded Node","RDS Proxy / PgBouncer transaction mode","Session-state and prepared-statement caveats","Lambda client reuse; monitoring"],
+trade:["A proxy adds a hop and cost but makes autoscaling safe","Transaction pooling maximises sharing but breaks session-level features"],
+fu:[{q:"Why not just raise max_connections to 2,000?",a:"Each connection consumes memory (work_mem per operation, backend process overhead), and PostgreSQL's performance degrades with very many active connections because of contention. A pooler with fewer server connections gives better throughput."}],
+rf:["Raises max_connections","Pool max 100 per Node process","Lambda creating a new pool per invocation"]},
+
+{id:"J040",skill:"WebSockets & Real-time",level:"Advanced",type:"Architecture",
+q:"Design presence (online / last seen) for a social app with group chat: users have several devices, and presence must update in near real time without flooding everyone.",
+a:`<p><b>Storage:</b> Redis, keyed per user with a set of active connections or devices, each with a heartbeat-refreshed TTL (for example <code>presence:{userId}</code> as a hash or sorted set of <code>connectionId → lastHeartbeat</code>). A user is online if any device has a fresh heartbeat. TTLs handle crashed instances, whose sockets never send a clean disconnect.</p>
+<p><b>Updates:</b></p>
+<ul>
+<li>On connect, disconnect or heartbeat expiry, compute the user's <b>aggregate</b> state and emit an event only when it <b>changes</b> (online ↔ offline). Debounce brief disconnects (for example, 30 seconds before announcing offline) so network blips don't flap.</li>
+<li><b>Fan-out only to interested users:</b> members of groups currently open on their screen, or contacts, not everyone. Clients subscribe to presence for the users they can currently see; the server tracks those subscriptions.</li>
+<li>"Last seen" is written to the database on offline transitions, not on every heartbeat.</li>
+</ul>
+<p><b>Privacy:</b> respect settings (hide online status), and never reveal presence to blocked users or non-members.</p>
+<p><b>Scale:</b> presence events go through the adapter or pub/sub. For very large groups, show approximate counts ("120 online") rather than individual updates.</p>`,
+keys:["Per-device heartbeats with TTL in Redis","Aggregate state, emit on change, debounce","Subscription-based fan-out","Last seen persisted on transitions","Privacy rules; large group approximation"],
+trade:["Shorter heartbeats give fresher presence but cost battery and server load","Precise per-user presence in big groups is expensive; counts are cheaper"],
+fu:[{q:"A server instance crashes. What happens to presence for its 10,000 users?",a:"Their heartbeats stop, so TTLs expire within the heartbeat window and they show offline, unless they reconnect to another instance first, in which case they stay online. Without TTLs, they'd appear online forever."}],
+rf:["Broadcasts presence to all users","No TTL, relies on disconnect events","Updates DB on every heartbeat"]},
+
+{id:"J041",skill:"WebSockets & Real-time",level:"Advanced",type:"Scenario",
+q:"After a deploy, 60,000 connected clients reconnect within seconds. The auth service and database spike, the new instances become unhealthy, and the deploy rolls back. How do you fix this?",
+a:`<p>This is a <b>reconnect storm</b>. Every client's reconnection does an auth check, a membership load, presence updates and a catch-up query at the same moment.</p>
+<p><b>Client side:</b></p>
+<ul>
+<li>Reconnect with <b>exponential backoff and full jitter</b>, starting from a random initial delay.</li>
+<li>If the server sends a "please reconnect" message during drain, include a suggested delay window so clients spread out.</li>
+</ul>
+<p><b>Server side:</b></p>
+<ul>
+<li><b>Drain gradually:</b> during shutdown, close existing sockets in batches over the drain window, not all at once.</li>
+<li><b>Roll out slowly:</b> a smaller batch of tasks at a time (ECS minimum healthy percent and maximum percent tuned), so only a fraction of connections move at once.</li>
+<li><b>Admission control:</b> limit new connections per second per instance, and reject excess with a retry hint rather than accepting and falling over.</li>
+<li><b>Make reconnection cheap:</b> cache token validation (verify JWTs locally instead of calling an auth service), cache membership lists in Redis, and make catch-up incremental (since the last sequence).</li>
+<li><b>Health checks</b> shouldn't fail just because the instance is busy accepting connections. Use separate liveness from readiness.</li>
+</ul>`,
+keys:["Names reconnect storm","Jittered backoff on clients","Batched drain and slower rollout","Admission control on new connections","Cheap reconnect path (local JWT verify, caches, incremental catch-up)"],
+trade:["Slower rollouts reduce risk but lengthen deploys","Admission control protects instances but delays some users' reconnection"],
+fu:[{q:"How do you test this before production?",a:"Simulate tens of thousands of connections in staging with a load tool (k6 with WebSocket support, or Artillery), trigger a rolling deploy mid-test, and measure reconnection time, error rate and backend load."}],
+rf:["Adds more instances only","Clients reconnect immediately on disconnect","Calls an auth service per reconnect with no caching"]},
+
+{id:"J042",skill:"WebSockets & Real-time",level:"Advanced",type:"Architecture",
+q:"Should the real-time socket layer run inside the same NestJS API service, or as a separate gateway tier? Design the real-time architecture for a growing social app.",
+a:`<p>Early on, a gateway inside the API service is simplest. As usage grows, the two have <b>different scaling and deployment profiles</b>:</p>
+<ul>
+<li>The API is request/response, stateless and deployed often.</li>
+<li>Sockets are long-lived, memory-heavy per connection, and every deploy disconnects users.</li>
+</ul>
+<p><b>Separate real-time gateway tier:</b></p>
+<ul>
+<li><b>Gateway service:</b> holds connections, handles auth at handshake, manages rooms and subscriptions, and forwards client actions to the API (or publishes commands). It has no business logic, so it changes and deploys rarely, which minimises disconnects.</li>
+<li><b>Business services</b> persist data, then publish events (message created, reaction added) to a bus (Redis Streams, Kafka, SNS/SQS).</li>
+<li><b>Gateway instances subscribe</b> to the bus and push to the relevant connected sockets, using a routing map of user or room to gateway instances (via an adapter, or a Redis registry).</li>
+</ul>
+<p><b>Benefits:</b> independent scaling (connections vs requests), fewer reconnect storms because the gateway is rarely deployed, and a clear separation of concerns. <b>Costs:</b> another service, an event pipeline, and end-to-end latency to monitor.</p>
+<p>The split is worth it when connection counts or deploy frequency start to hurt. Managed options (API Gateway WebSocket APIs, AppSync Events) can also replace the gateway tier.</p>`,
+keys:["Different scaling/deploy profiles","Thin gateway with no business logic","Persist then publish events; gateway subscribes and routes","Routing map of user/room to instance","When to split; managed alternatives"],
+trade:["Split tier: stable connections and independent scaling, more moving parts","In-process gateway: simplest, but every API deploy disconnects users and scaling is coupled"],
+fu:[{q:"How does a gateway know which instance holds a given user's sockets?",a:"Either broadcast via the adapter to all instances and let each deliver locally (simple, more traffic), or keep a registry in Redis mapping userId to gateway instance and publish to that instance's channel (targeted, but must handle stale entries with TTLs)."}],
+rf:["Business logic in socket handlers","Socket servers deployed with every API change","No event pipeline"]},
+
+{id:"J043",skill:"WebSockets & Real-time",level:"Advanced",type:"Scenario",
+q:"Users report 'my message never arrived' but logs show nothing wrong. Real-time flows are hard to debug. What observability do you build for the WebSocket layer?",
+a:`<p><b>Trace a message end to end:</b> every message gets an ID at creation (client message ID plus server ID). Log it with structured fields at each hop: received from sender, persisted, event published, gateway received, emitted to socket X, client ack received. Searching by message ID then shows exactly where it stopped. Propagate trace context through the event bus as well (OpenTelemetry), so the persist and publish spans connect.</p>
+<p><b>Metrics:</b></p>
+<ul>
+<li>Active connections per instance, connects and disconnects per second, disconnect reasons.</li>
+<li>Messages in and out per second, and per-socket buffered bytes.</li>
+<li><b>Delivery latency</b> (persisted → client ack) as a histogram, and the ack-timeout rate.</li>
+<li>Catch-up requests after reconnect and their size, which shows how often live delivery fails.</li>
+<li>Adapter or pub/sub lag, and event bus consumer lag.</li>
+</ul>
+<p><b>Client telemetry:</b> the app reports connection state changes, reconnect attempts and acks, sampled. Many "lost" messages are really clients that were silently disconnected.</p>
+<p><b>SLO:</b> for example, "99% of messages delivered to online recipients within 1 second", with an alert on burn rate.</p>`,
+keys:["Message ID logged at each hop","Trace context across the bus","Delivery latency and ack-timeout metrics","Disconnect reasons and buffer metrics","Client-side telemetry; delivery SLO"],
+fu:[{q:"How do you avoid logging volume exploding with per-message logs?",a:"Log hop events at debug level with sampling, and always log failures and slow deliveries. Keep metrics for aggregates. For a specific investigation, temporarily raise logging for one conversation or user via a feature flag."}],
+rf:["Only server error logs","No delivery latency metric","No client-side signal"]},
+
+/* ================= LEAD ================= */
+{id:"J044",skill:"Node.js Runtime",level:"Lead",type:"Architecture",
+q:"Your organisation runs both .NET and NestJS services. A new service is being planned. How do you decide which stack to use, and should the organisation standardise on one?",
+a:`<p><b>Per-service decision factors:</b></p>
+<ul>
+<li><b>Team:</b> who builds and operates it, and their depth in each stack. On-call skills matter as much as development speed.</li>
+<li><b>Workload:</b> I/O-bound APIs and real-time gateways work well on Node. CPU-heavy processing, complex domain logic with strong typing needs, or high-throughput computation lean toward .NET (better multi-core use in one process, mature performance tooling).</li>
+<li><b>Ecosystem fit:</b> the libraries needed, for example SDKs, AI tooling, or sharing TypeScript types with React/React Native clients.</li>
+<li><b>Existing platform:</b> templates, CI, observability and security baselines already built for each stack.</li>
+</ul>
+<p><b>Organisation level:</b> two stacks double the platform work: templates, CI pipelines, dependency governance, observability libraries, security patching, hiring, and on-call knowledge. I'd keep both only if each has a clear domain ("Node for real-time and BFF services, .NET for core domain services"), written down so each new service doesn't relitigate it. With a small engineering organisation, I'd lean toward one primary stack with explicit exceptions.</p>`,
+keys:["Team and operability first","Workload characteristics per stack","Ecosystem/type sharing considerations","Cost of two stacks at org level","Written decision rule"],
+trade:["One stack: simpler platform, hiring and mobility; may be a poorer fit for some workloads","Two stacks: best fit per workload, double platform and knowledge cost","It depends on: org size, existing expertise, workload mix"],
+fu:[{q:"A team wants to write a new CPU-heavy image service in Node because they know it best. What do you say?",a:"Look at the actual workload: if it's mostly calling a native library (sharp/libvips) or a managed service, Node is fine. If it's heavy custom computation, test the throughput per vCPU and the cost. Team familiarity counts for a lot, but should be weighed against measured cost."}],
+rf:["Picks by personal preference","Allows any stack per team without platform cost consideration","Claims one runtime is always faster"]},
+
+{id:"J045",skill:"NestJS",level:"Lead",type:"Scenario",
+q:"You inherit a NestJS codebase: fat controllers with DB queries inline, no tests, inconsistent errors, and features shipping with frequent regressions. The business wants features to continue. What's your plan?",
+a:`<ol>
+<li><b>Assess quickly (1–2 weeks):</b> which modules change most and break most (git history plus incident list), and the critical user journeys. That's where improvements pay off first.</li>
+<li><b>Safety net first:</b> e2e tests through the real app (supertest plus Testcontainers PostgreSQL) for the critical journeys. They protect behaviour while you refactor, without needing a good internal structure first.</li>
+<li><b>Cheap global fixes</b> with wide effect:
+  <ul>
+  <li>A global <code>ValidationPipe</code> and exception filter (consistent errors).</li>
+  <li>Strict lint rules (no-floating-promises) and CI that runs tests on every PR.</li>
+  <li>Structured logging with request IDs.</li>
+  </ul></li>
+<li><b>Refactor as you go (boy-scout rule):</b> every feature touching a module moves its DB access into a repository and business logic into a service, with tests. Don't run a separate rewrite project.</li>
+<li><b>Agree conventions</b> in a short document with examples (module structure, DTOs, errors, tests) and enforce them in review.</li>
+<li><b>Show progress</b> with regression rate, escaped bugs and lead time, to keep business support.</li>
+</ol>`,
+keys:["Prioritise by change frequency and incidents","E2E tests before refactoring","High-leverage global fixes","Incremental refactor with feature work","Conventions + measurable progress"],
+trade:["Pausing features for a cleanup sprint gives faster structural change but loses business trust","Incremental improvement is slower but sustainable and visible"],
+fu:[{q:"A senior dev wants to rewrite the whole thing in a new architecture over 3 months. How do you respond?",a:"Ask what problem the rewrite solves that incremental change can't, and point to the delivery risk of a long freeze. Offer a middle path: they define the target structure and apply it to the highest-churn module first as a pilot. If it proves faster to work in, it spreads naturally."}],
+rf:["Freezes features for a rewrite","Starts with unit tests of messy internals","No metrics to show improvement"]},
+
+{id:"J046",skill:"NestJS",level:"Lead",type:"Architecture",
+q:"The team has NestJS services, a React web app, a React Native app and shared libraries in separate repos. Someone proposes a monorepo (Nx or Turborepo). How do you evaluate it?",
+a:`<p><b>Benefits:</b></p>
+<ul>
+<li>Atomic changes across backend, shared types and clients in one PR.</li>
+<li>Shared tooling (lint, tsconfig, test setup) in one place, and one dependency version policy.</li>
+<li>Easier code sharing (DTOs, validation schemas, utilities).</li>
+<li><b>Affected-only builds and tests</b> with caching (Nx or Turborepo remote cache) keep CI fast.</li>
+</ul>
+<p><b>Costs and risks:</b></p>
+<ul>
+<li>Tooling complexity: build graph, caching configuration, and React Native's Metro bundler quirks in monorepos.</li>
+<li>CI must be set up well, or every change rebuilds everything.</li>
+<li>Repository permissions are coarser.</li>
+<li>The temptation to change shared code assuming all consumers update at once, which isn't true for released mobile apps or independently deployed services.</li>
+</ul>
+<p><b>How I'd decide:</b> how often do changes span repos today? How much code is duplicated or version-skewed? Do the teams have capacity to own the build tooling? If cross-repo changes are frequent and painful, pilot the monorepo with the backend and web app first, measure PR cycle time and CI duration, then bring mobile in.</p>`,
+keys:["Atomic cross-cutting changes and shared tooling","Affected builds with caching","Tooling complexity incl. React Native","Shared code ≠ simultaneous deployment","Evidence-based decision and phased pilot"],
+trade:["Monorepo: easier refactors and consistency, more build-tool investment","Polyrepo: simpler per-repo tooling, versioning friction and duplication","It depends on: frequency of cross-cutting changes, team size, tooling capacity"],
+fu:[{q:"How do you keep independently deployed services safe in a monorepo when shared code changes?",a:"Treat shared contracts as versioned, enforce backward compatibility with contract tests, and deploy services independently even though the code lives together. The monorepo shares source, not release trains."}],
+rf:["Monorepo as a cure-all","Ignores mobile release realities","No CI caching strategy"]},
+
+{id:"J047",skill:"TypeScript",level:"Lead",type:"Scenario",
+q:"A strong senior engineer writes very advanced generic types: conditional and recursive types, deep inference. Others can't modify that code, compile times have grown, and type errors are pages long. How do you handle it?",
+a:`<ul>
+<li><b>Acknowledge the value:</b> the types probably prevent real bugs. The aim is to keep the safety while making it maintainable, not to ban sophistication.</li>
+<li><b>Make the cost visible with data:</b> measure compile time (<code>tsc --extendedDiagnostics</code>, <code>--generateTrace</code> to find expensive types), and gather concrete examples of teammates blocked or adding <code>as any</code> to get past errors.</li>
+<li><b>Agree a team guideline together:</b>
+  <ul>
+  <li>Advanced types live in a small, documented library with type-level tests (<code>expect-type</code>).</li>
+  <li>Application code consumes simple, named types.</li>
+  <li>Prefer runtime-schema-derived types (zod) over hand-rolled type-level programming.</li>
+  <li>A complexity limit, judged in review by "could another engineer change this confidently?"</li>
+  </ul></li>
+<li><b>Pair them</b> with others to simplify the worst offenders. That spreads knowledge and turns the engineer into a teacher rather than a bottleneck.</li>
+<li>Recognise the behaviour change publicly when it happens.</li>
+</ul>
+<p>If it continues after agreement, it's a direct performance conversation about team impact, not about TypeScript.</p>`,
+keys:["Respects the value, targets maintainability","Measures compile cost and team impact","Co-created guideline: isolated library + type tests","Pairing to spread knowledge","Escalation path if behaviour persists"],
+trade:["Very precise types catch more bugs but raise the bar to contribute","Simpler types are easier to maintain but may let some errors through; tests cover the gap"],
+fu:[{q:"How do you find which types slow compilation?",a:"Run tsc with --generateTrace and inspect it (with @typescript/analyze-trace or the Perfetto viewer), which shows the most expensive type checks and their locations. --extendedDiagnostics gives overall check time and instantiation counts."}],
+rf:["Bans generics","Does nothing because the engineer is senior","Makes it personal"]},
+
+{id:"J048",skill:"Drizzle ORM",level:"Lead",type:"Architecture",
+q:"Your Node services use Drizzle, Prisma and raw pg in different places. Should you standardise? What would you choose, and how do you handle migration ownership?",
+a:`<p><b>Why standardise:</b> one approach to schema definition, migrations, transactions, connection management and query logging makes services easier to move between, review and operate. Three ORMs also mean three migration workflows, which is where production incidents come from.</p>
+<p><b>Choice criteria:</b> SQL transparency, type-safety from the schema, migration reliability, performance on the hot paths, serverless and cold-start behaviour, team familiarity, and the project's maintenance health.</p>
+<ul>
+<li><b>Drizzle:</b> SQL-transparent, lightweight, inferred types, good PostgreSQL feature access. Younger, and its APIs have changed between versions.</li>
+<li><b>Prisma:</b> high-level and mature tooling, a strong migration workflow. More abstraction, and historically heavier runtime.</li>
+<li><b>Kysely or raw SQL:</b> maximum control and type-safe builders; you assemble migrations and tooling yourself.</li>
+</ul>
+<p>For a PostgreSQL-heavy, performance-sensitive Nest codebase, I'd lean toward Drizzle as the default, with raw <code>sql</code> allowed for hot queries.</p>
+<p><b>Migration:</b> don't rewrite working services. New services use the standard, and existing ones convert when they're substantially changed.</p>
+<p><b>Migration ownership:</b> each service owns its schema and migrations, generated, reviewed in PRs and applied by the pipeline. No shared database between services. The platform provides a common migration step and CI checks.</p>`,
+keys:["Why standardise (operability, migration risk)","Explicit criteria","Honest comparison of options","Opportunistic migration, not rewrite","Service-owned schemas; pipeline-applied migrations"],
+trade:["A single standard reduces variety but may be a poorer fit for some services; allow documented exceptions","Rewriting to the standard costs effort with no user value; convert opportunistically"],
+fu:[{q:"How do you protect against breaking API changes in a young library like Drizzle?",a:"Pin versions, upgrade deliberately with release notes and a test suite covering data access, and keep data access in repositories so changes are contained. Track the project's release cadence and changelog as part of dependency governance."}],
+rf:["Mandates immediate rewrites","Picks by popularity","Shared database across services"]},
+
+{id:"J049",skill:"WebSockets & Real-time",level:"Lead",type:"Architecture",
+q:"Build or buy for real-time: keep running your own Socket.IO cluster, or move to a managed service such as API Gateway WebSocket APIs, AppSync Events, or a vendor like Ably or Pusher? How do you decide?",
+a:`<p><b>Self-hosted Socket.IO</b> gives full control and features (rooms, acks, recovery), with no per-message vendor cost. You own scaling, adapters, deploy disconnects, reconnect storms, load balancer tuning and on-call.</p>
+<p><b>AWS API Gateway WebSocket APIs:</b> managed connections, with your backend invoked per message (often Lambda) and pushes sent via the management API using connection IDs. You build rooms, presence and fan-out yourself (connection registry in DynamoDB). Watch its limits: maximum connection duration, idle timeouts, message size, and per-message cost at high volume.</p>
+<p><b>AppSync Events:</b> managed pub/sub over WebSockets with channels. Less to build for broadcast-style fan-out.</p>
+<p><b>Vendors (Ably, Pusher, and others):</b> global edge, presence, history and delivery guarantees out of the box, but the highest per-message or per-connection cost and a data-processing relationship for user content.</p>
+<p><b>Decide on:</b></p>
+<ul>
+<li>Message volume and cost modelled per option at current and 10× scale.</li>
+<li>Required features (presence, ordering, history, acks).</li>
+<li>Team operational capacity and incident history with the current system.</li>
+<li>Latency and global reach.</li>
+<li>Data residency and privacy.</li>
+<li>Lock-in and migration effort, including client SDK changes in released mobile apps.</li>
+</ul>
+<p>Pilot the leading option on one feature (for example, typing indicators) before migrating chat.</p>`,
+keys:["Honest strengths/limits of each option","Cost modelling at current and future scale","Feature and operational capacity fit","Data residency and lock-in incl. mobile SDKs","Pilot before migrating"],
+trade:["Self-hosted: control and low unit cost, high operational load","Managed AWS: less ops, more custom building and some hard limits","Vendors: fastest and richest features, highest cost and dependency","It depends on: scale, team capacity, budget, compliance"],
+fu:[{q:"What limits of API Gateway WebSocket APIs matter most for a chat app?",a:"The maximum connection duration (connections are cut after a fixed time and must reconnect), the idle timeout requiring heartbeats, per-message pricing at high fan-out, and the lack of built-in rooms (you fan out by looking up connection IDs and posting to each)."}],
+rf:["Chooses on hype","Ignores per-message cost at fan-out scale","Forgets mobile client migration"],
+verify:"API Gateway WebSocket limits and pricing, and AppSync Events features, change; check current quotas."},
+
+{id:"J050",skill:"WebSockets & Real-time",level:"Lead",type:"Scenario",
+q:"During a Redis failover, the chat system lost about 3 minutes of real-time deliveries. Messages were saved, but online users never saw them until they reopened the app. You lead the postmortem. What do you find and change?",
+a:`<p><b>Likely chain of causes:</b></p>
+<ul>
+<li>The Socket.IO Redis adapter (pub/sub) is <b>fire-and-forget</b>. Events published while the subscriber connections were reconnecting were simply dropped.</li>
+<li>Gateway instances didn't detect that their pub/sub subscription had broken, so they kept serving connections without receiving events.</li>
+<li>Clients had no way to notice gaps: they only fetch history when reopening the app.</li>
+</ul>
+<p><b>Changes, from the most structural:</b></p>
+<ul>
+<li><b>Client gap detection:</b> messages carry per-conversation sequence numbers. A client that sees sequence 45 after 41, or hasn't heard anything for a while, requests the missing range. This makes the system <b>self-healing</b> regardless of which component dropped events.</li>
+<li><b>A more durable fan-out path:</b> the Redis Streams adapter, or a bus with consumer offsets, so instances catch up after a brief disconnect instead of losing messages.</li>
+<li><b>Resubscribe detection:</b> monitor the subscriber connection and adapter health, and on reconnect, tell clients on that instance to run catch-up.</li>
+<li><b>Redis HA:</b> a Multi-AZ replica with automatic failover, failover tested in game days, and alerts on failover events.</li>
+<li><b>Metrics:</b> delivery latency and gap-fill request rate, so silent loss shows up as a metric.</li>
+</ul>
+<p>Run it blameless, with owners and dates for each action, and verify with a staged Redis failover test.</p>`,
+keys:["Identifies fire-and-forget pub/sub as the weak link","Client-side gap detection as self-healing design","Durable fan-out (streams/offsets)","Subscription health detection and HA testing","Metrics that expose silent loss; blameless actions"],
+trade:["Gap detection adds client complexity but protects against every upstream failure","Durable fan-out costs more and adds latency compared to plain pub/sub"],
+fu:[{q:"Why is client gap detection more valuable than just making Redis more reliable?",a:"Because there are many ways to drop a live event (Redis, instance crashes, network blips, bugs). Fixing each one individually never ends. Sequence-based gap detection catches all of them with one mechanism."}],
+rf:["Blames Redis and adds a replica only","No client-side recovery","No test of the fix"]}
+
+
+];
+
+/* ---------- state ---------- */
+const KEY="node-bank-reviewed-v1";
+let reviewed={};
+try{reviewed=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){reviewed={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(reviewed))}catch(e){}}
+
+const state={text:"",skill:"all",status:"all",levels:new Set(),types:new Set()};
+const $=s=>document.querySelector(s);
+
+/* ---------- controls ---------- */
+const skills=[...new Set(QS.map(x=>x.skill))];
+$("#skill").innerHTML=`<option value="all">All skills</option>`+skills.map(s=>`<option value="${s}">${s}</option>`).join("");
+function chipRow(el,items,set){
+  el.innerHTML=items.map(i=>`<button type="button" class="chip" aria-pressed="false" data-v="${i}">${i}</button>`).join("");
+  el.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+    if(set.has(v)){set.delete(v);b.setAttribute("aria-pressed","false")}else{set.add(v);b.setAttribute("aria-pressed","true")}render()});
+}
+chipRow($("#levels"),LEVELS,state.levels);
+chipRow($("#types"),TYPES,state.types);
+$("#q").addEventListener("input",e=>{state.text=e.target.value.trim().toLowerCase();render()});
+$("#skill").addEventListener("change",e=>{state.skill=e.target.value;render()});
+$("#status").addEventListener("change",e=>{state.status=e.target.value;render()});
+let allOpen=false;
+$("#toggleAll").addEventListener("click",()=>{allOpen=!allOpen;
+  document.querySelectorAll("details.ans").forEach(d=>d.open=allOpen);
+  $("#toggleAll").textContent=allOpen?"Close all answers":"Open all answers"});
+
+/* ---------- stats ---------- */
+function count(key,vals){return vals.map(v=>`${v} <b>${QS.filter(x=>x[key]===v).length}</b>`).join(" · ")}
+$("#stats").innerHTML=`<span><b>${QS.length}</b> questions loaded</span><span>${count("level",LEVELS)}</span><span>${count("type",TYPES.filter(t=>t!=="Behavioral"))}</span><span>${PARTS}</span>`;
+
+/* ---------- render ---------- */
+const strip=h=>h.replace(/<[^>]+>/g," ");
+function matches(x){
+  if(state.skill!=="all"&&x.skill!==state.skill)return false;
+  if(state.levels.size&&!state.levels.has(x.level))return false;
+  if(state.types.size&&!state.types.has(x.type))return false;
+  if(state.status==="done"&&!reviewed[x.id])return false;
+  if(state.status==="todo"&&reviewed[x.id])return false;
+  if(state.text){const hay=(x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
+    if(!hay.includes(state.text))return false}
+  return true;
+}
+const ul=arr=>`<ul>${arr.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+function item(x,i){
+  const done=!!reviewed[x.id];
+  return `<li class="q${done?" done":""}" id="${x.id}">
+    <div class="qhead"><span class="num">${x.id}</span><div>
+      <p class="qtext">${x.q}</p>
+      <div class="tags"><span class="tag">${x.skill}</span><span class="tag lv lv-${x.level}">${x.level}</span><span class="tag">${x.type}</span>${x.verify?`<span class="tag verify">VERIFY</span>`:""}
+        <label class="check"><input type="checkbox" data-id="${x.id}" ${done?"checked":""}> Reviewed</label></div>
+    </div></div>
+    <div class="body">
+      <details class="ans"><summary>Model answer, key points and red flags</summary><div class="dbody">
+        ${x.a}
+        ${x.tools?`<h4>Tools and metrics to check</h4>${ul(x.tools)}`:""}
+        <h4>What the interviewer listens for</h4>${ul(x.keys)}
+        ${x.trade?`<h4>Trade-offs and "it depends on"</h4>${ul(x.trade)}`:""}
+        <h4 class="rf">Red flags</h4>${ul(x.rf)}
+        ${x.verify?`<p class="note">[VERIFY] ${x.verify}</p>`:""}
+      </div></details>
+      ${(x.fu||[]).map(f=>`<details class="fu ans"><summary><span class="fl">FOLLOW-UP</span><span>${f.q}</span></summary><div class="dbody"><p>${f.a}</p></div></details>`).join("")}
+    </div></li>`;
+}
+function render(){
+  const list=QS.filter(matches);
+  $("#list").innerHTML=list.length?list.map(item).join(""):`<li class="empty">No questions match these filters.</li>`;
+  if(allOpen)document.querySelectorAll("details.ans").forEach(d=>d.open=true);
+  const n=QS.filter(x=>reviewed[x.id]).length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${list.length} shown`;
+  $("#pfill").style.width=(QS.length?n/QS.length*100:0)+"%";
+}
+$("#list").addEventListener("change",e=>{const c=e.target.closest("input[data-id]");if(!c)return;
+  const id=c.dataset.id;if(c.checked)reviewed[id]=1;else delete reviewed[id];save();
+  c.closest("li.q").classList.toggle("done",c.checked);
+  const n=QS.filter(x=>reviewed[x.id]).length;const shown=document.querySelectorAll("li.q").length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${shown} shown`;$("#pfill").style.width=(n/QS.length*100)+"%";});
+render();
+</script>
+
+</html>

@@ -1,0 +1,2245 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>LLD &amp; Machine Coding Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, sticky filter bar, questions as divided rows (not cards), answers in disclosure blocks */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --accent-ink:#FFFFFF; --code:#EEF1F7;
+  --basic:#2B7A57; --inter:#2A4BD7; --adv:#7438BF; --lead:#B05E08;
+  --good:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:28px 18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,5vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=search]{flex:1 1 220px}
+select{flex:0 1 220px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.track{flex:1;height:6px;background:var(--soft);border-radius:999px;overflow:hidden;min-width:80px}
+.fill{height:100%;background:var(--good);width:0;transition:width .3s}
+.sep{width:1px;height:18px;background:var(--line)}
+
+ol.qs{list-style:none;margin:0;padding:0}
+li.q{padding-block:22px;border-bottom:1px solid var(--line);display:grid;gap:12px}
+li.q.done .qtext{color:var(--muted)}
+.qhead{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.num{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:4px;min-width:34px}
+.qtext{font-weight:600;font-size:16.5px;line-height:1.45;margin:0;text-wrap:pretty}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.tag{font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.tag.lv{color:var(--surface);font-weight:500}
+.lv-Basic{background:var(--basic)} .lv-Intermediate{background:var(--inter)} .lv-Advanced{background:var(--adv)} .lv-Lead{background:var(--lead)}
+.tag.verify{background:transparent;border:1px solid var(--verify);color:var(--verify)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);cursor:pointer;margin-left:auto}
+.check input{width:16px;height:16px;accent-color:var(--good)}
+.body{padding-left:46px;display:grid;gap:8px;min-width:0}
+details{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details>summary{cursor:pointer;padding:9px 12px;font-size:14px;font-weight:500;list-style:none;display:flex;gap:8px;align-items:baseline}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px;flex:none}
+details[open]>summary::before{content:"−"}
+.dbody{padding:2px 14px 14px;display:grid;gap:10px;min-width:0}
+.dbody p,.dbody ul,.dbody ol{margin:0}
+.dbody ul,.dbody ol{padding-left:20px}
+.dbody li+li{margin-top:3px}
+h4{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:500}
+h4.rf{color:var(--warn)}
+.fu summary{font-weight:400}
+.fu summary .fl{font-family:var(--f-mono);font-size:11px;color:var(--muted);flex:none}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:3px}
+pre{margin:0;background:var(--code);padding:12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5}
+.body table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0;display:block;overflow-x:auto}
+.body th,.body td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+pre code{background:none;padding:0;font-size:inherit}
+.star dt{font-weight:600}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--verify);padding-left:10px}
+@media (max-width:560px){ .body{padding-left:0} .num{min-width:28px} }
+@media (prefers-reduced-motion:reduce){ .fill{transition:none} }
+</style>
+
+<p style="margin:0 auto;max-width:860px;padding:16px 0 0;font-size:14px"><a href="index.html">&larr; All banks</a></p>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Senior TL / EM interview prep</div>
+  <h1>Low-Level Design &amp; Machine Coding (C#)</h1>
+  <p class="lede">Object-oriented design under time pressure: principles, patterns and classic machine-coding problems in modern C#. Each problem lists what to clarify, a working core implementation, the patterns used, the extensions interviewers add mid-round, and common mistakes. Try each problem yourself in 60–90 minutes before opening the answer.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="bar">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search questions and answers" aria-label="Search">
+    <select id="skill" aria-label="Filter by skill"></select>
+    <select id="status" aria-label="Filter by review status">
+      <option value="all">All questions</option>
+      <option value="todo">Not reviewed</option>
+      <option value="done">Reviewed</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="chips" id="levels" aria-label="Level"></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="chips" id="types" aria-label="Type"></div>
+  </div>
+  <div class="row">
+    <div class="progress" style="flex:1"><span id="ptext">0 / 0 reviewed</span><div class="track"><div class="fill" id="pfill"></div></div></div>
+    <button class="btn" id="toggleAll" type="button">Open all answers</button>
+  </div>
+</div>
+
+<ol class="qs" id="list"></ol>
+</div>
+
+<script>
+const LEVELS=["Basic","Intermediate","Advanced","Lead"];
+const TYPES=["Concept","Machine Coding","Design Review"];
+const PARTS="Complete: all 3 parts loaded.";
+
+const QS=[
+{id:"L001",skill:"Design Principles",level:"Basic",type:"Concept",
+q:"Explain the SOLID principles with C# examples. When does applying them too strictly make a design worse?",
+a:`<ul>
+<li><b>S: Single Responsibility.</b> A class has one reason to change. An <code>InvoiceService</code> that calculates totals, renders PDFs and sends emails has three; split into <code>InvoiceCalculator</code>, <code>InvoiceRenderer</code>, <code>InvoiceMailer</code>.</li>
+<li><b>O: Open/Closed.</b> Add behaviour by adding code, not editing stable code. New discount types become new <code>IDiscountRule</code> implementations instead of another branch in a growing <code>switch</code>.</li>
+<li><b>L: Liskov Substitution.</b> Subtypes must work wherever the base type is expected. A <code>ReadOnlyRepository</code> that inherits <code>Repository</code> and throws on <code>Save()</code> breaks callers; model read and write capabilities as separate interfaces instead.</li>
+<li><b>I: Interface Segregation.</b> Small, client-focused interfaces: <code>IReadOrders</code> and <code>IWriteOrders</code> rather than one 20-method <code>IOrderService</code>.</li>
+<li><b>D: Dependency Inversion.</b> High-level policy depends on abstractions; details are injected.</li>
+</ul>
+<pre><code>public interface IPaymentGateway { Task&lt;PaymentResult&gt; ChargeAsync(Money amount, string token); }
+
+public sealed class CheckoutService(IPaymentGateway gateway, IOrderRepository orders)
+{
+    public async Task&lt;Order&gt; CheckoutAsync(Cart cart, string paymentToken)
+    {
+        var result = await gateway.ChargeAsync(cart.Total, paymentToken);
+        if (!result.Succeeded) throw new PaymentFailedException(result.Error);
+        var order = Order.From(cart, result.TransactionId);
+        await orders.AddAsync(order);
+        return order;
+    }
+}</code></pre>
+<p><b>When it hurts:</b> an interface for every class with one implementation and no test need; layers of abstraction "for future flexibility" that never arrives; splitting cohesive logic across many tiny classes so a reader must open ten files to follow one flow. In LLD rounds, interviewers reward abstractions <b>at real variation points</b> (pricing, allocation, notification channel), not everywhere.</p>`,
+keys:["Each principle with a concrete example","LSP violations via throwing overrides","DIP via constructor injection","Abstractions at real variation points only","Over-engineering is a real failure mode"],
+trade:["More abstraction: flexibility and testability vs indirection and reading cost","Fewer classes: simpler now vs harder to extend at the variation points"],
+fu:[{q:"Is a static helper class a SOLID violation?",a:"Not necessarily. Pure, stateless functions (formatting, maths) are fine as static. It becomes a problem when it hides dependencies (I/O, time, configuration) that you need to replace in tests or vary by context."},{q:"How does SRP relate to microservices?",a:"Same idea at a larger scale: a service should change for one business reason. But splitting too fine creates chatty, coupled services, just like over-split classes."}],
+rf:["Recites definitions without examples","Interface for every class","Can't name a downside"]},
+
+{id:"L002",skill:"Design Principles",level:"Basic",type:"Concept",
+q:"Composition vs inheritance, and interfaces vs abstract classes in modern C#: how do you choose?",
+a:`<p><b>Prefer composition</b> for sharing behaviour: an object <i>has</i> collaborators it delegates to. Inheritance couples a subclass to its parent's implementation details (the "fragile base class" problem) and allows only one parent.</p>
+<pre><code>// Inheritance: every new combination needs a new subclass
+class EmailNotifier : Notifier { }
+class EmailWithRetryNotifier : EmailNotifier { }
+
+// Composition: combine behaviours at runtime
+public interface INotifier { Task SendAsync(Notification n); }
+public sealed class RetryingNotifier(INotifier inner, int maxAttempts) : INotifier
+{
+    public async Task SendAsync(Notification n)
+    {
+        for (var attempt = 1; ; attempt++)
+        {
+            try { await inner.SendAsync(n); return; }
+            catch (TransientException) when (attempt &lt; maxAttempts)
+            {
+                await Task.Delay(TimeSpan.FromMilliseconds(200 * attempt));
+            }
+        }
+    }
+}</code></pre>
+<p><b>Use inheritance</b> for a genuine "is-a" relationship with shared invariants, especially with a small, closed hierarchy (e.g. <code>abstract class Shape</code> or chess pieces), or a Template Method where the base controls the algorithm and subclasses fill steps.</p>
+<p><b>Interface vs abstract class:</b></p>
+<ul>
+<li><b>Interface:</b> a capability contract; a class can implement many. C# 8+ allows default interface methods (useful for evolving public APIs without breaking implementers), but they can't hold instance state.</li>
+<li><b>Abstract class:</b> shared state and implementation plus abstract steps; single inheritance; constructors can enforce invariants.</li>
+</ul>
+<p>Also use modern C#: <code>sealed</code> classes by default (inheritance is opt-in), <code>record</code> types for immutable data, pattern matching for closed sets of cases.</p>`,
+keys:["Composition for behaviour reuse","Inheritance for true is-a with shared invariants","Interfaces: capabilities, multiple; default methods without state","Abstract classes: shared state and template steps","Sealed by default; records for data"],
+trade:["Inheritance: less code for real hierarchies vs tight coupling","Composition: flexible vs more objects to wire"],
+fu:[{q:"What's the decorator above an example of?",a:"The Decorator pattern: wrapping an object with the same interface to add behaviour (retry, logging, caching) without modifying it."},{q:"When would you use a default interface method?",a:"To add a member to a published interface without breaking existing implementations, with a sensible default. Not as a way to share logic between your own classes."}],
+rf:["Deep inheritance hierarchies for code reuse","Thinks interfaces can't have implementations in C#","Never seals classes"]},
+
+{id:"L003",skill:"Design Principles",level:"Basic",type:"Concept",
+q:"Which design patterns come up most in LLD rounds, and how do you recognise when each one fits?",
+a:`<table>
+<tr><th>Pattern</th><th>Signal in the problem</th><th>Typical use</th></tr>
+<tr><td><b>Strategy</b></td><td>"Pricing can be hourly or flat", "split equally or by percentage"</td><td>Interchangeable algorithms behind one interface</td></tr>
+<tr><td><b>State</b></td><td>Behaviour depends on status: vending machine, order lifecycle, elevator</td><td>One class per state; transitions explicit</td></tr>
+<tr><td><b>Factory</b></td><td>Create the right type from input (vehicle type, piece type, notification channel)</td><td>Centralise construction; hide concrete types</td></tr>
+<tr><td><b>Observer</b></td><td>"Notify users when…", display boards, subscribers</td><td>C# events, <code>IObservable</code>, or a subscriber list</td></tr>
+<tr><td><b>Decorator</b></td><td>Add retry, logging, caching, discounts layered on top</td><td>Wrap an implementation of the same interface</td></tr>
+<tr><td><b>Command</b></td><td>Undo/redo, queued operations, audit of actions</td><td>Action objects with <code>Execute</code>/<code>Undo</code></td></tr>
+<tr><td><b>Chain of Responsibility</b></td><td>Pipeline of handlers: logging levels, ATM note dispensing, validation rules</td><td>Each handler handles or passes on</td></tr>
+<tr><td><b>Builder</b></td><td>Objects with many optional parts (report, query, HTTP request)</td><td>Readable, validated construction</td></tr>
+<tr><td><b>Template Method</b></td><td>Same algorithm skeleton, varying steps</td><td>Abstract base with protected steps</td></tr>
+<tr><td><b>Singleton</b></td><td>"Only one parking lot"</td><td>In C#, prefer a DI singleton lifetime over a static instance</td></tr>
+</table>
+<p><b>Advice:</b> name a pattern only when it solves a real need in the problem. Interviewers mark down "pattern bingo": Factory + Builder + Singleton bolted onto a 50-line problem.</p>`,
+keys:["Strategy for interchangeable algorithms","State for status-driven behaviour","Factory, Observer, Decorator, Command, Chain, Builder","Singleton via DI lifetime in C#","Patterns justified by the problem, not added for show"],
+fu:[{q:"Strategy vs State: they look similar. What's the difference?",a:"Both delegate to an interface. Strategy is chosen by the client and usually doesn't change itself; State objects represent the object's current condition and trigger transitions to other states."},{q:"Why avoid a classic static Singleton in C#?",a:"Hidden global state, hard to test or replace, tricky lifetime. A DI container registration with singleton lifetime gives one instance with explicit dependencies."}],
+rf:["Lists patterns without when to use them","Forces patterns everywhere","Static singletons for everything"]},
+
+{id:"L004",skill:"Design Principles",level:"Intermediate",type:"Concept",
+q:"How do you approach a 60–90 minute machine coding round so you finish with working, extensible code?",
+a:`<p><b>A time plan (90 minutes):</b></p>
+<ol>
+<li><b>0–10 min: clarify scope.</b> List requirements, ask about scale (single process? concurrency?), and agree what's in and out. Write the agreed list in a comment at the top of the file.</li>
+<li><b>10–20 min: model.</b> Entities, their relationships, and the main operations as method signatures. Identify the 2–3 <b>variation points</b> (pricing, allocation, splitting) that deserve interfaces.</li>
+<li><b>20–70 min: implement the core flows first</b>, end to end, with in-memory storage. Enums and records for data, services for behaviour, exceptions for invalid operations. Get something running early.</li>
+<li><b>70–85 min: demonstrate.</b> A <code>Main</code> driver or a few unit tests showing the main scenarios and an edge case or two.</li>
+<li><b>85–90 min: discuss extensions</b>: what you'd change for concurrency, persistence, new types.</li>
+</ol>
+<p><b>What interviewers score:</b> working code; clear naming; separation between models, services and strategies; handling invalid input; extensibility at the right places; testability (time and IDs injected); and how you talk through trade-offs.</p>
+<p><b>Practical C# tips:</b> one file is fine if the platform requires it; <code>record</code> for value objects; <code>TimeProvider</code> or an <code>IClock</code> for time; <code>Dictionary</code>-backed repositories behind interfaces; <code>lock</code> or <code>ConcurrentDictionary</code> when concurrency is in scope; avoid frameworks and databases unless asked.</p>
+<p><b>If you're running out of time:</b> say what's missing and how you'd implement it; a working subset beats an unfinished "complete" design.</p>`,
+keys:["Clarify and write scope first","Model entities and variation points","Core flows working early, in-memory","Demo with driver/tests","Discuss extensions; communicate continuously"],
+trade:["Designing longer up front: cleaner code vs risk of not finishing","Coding immediately: progress vs rewrites mid-round"],
+fu:[{q:"Should you write unit tests in a machine coding round?",a:"A few focused tests or a driver showing main scenarios is valuable if time allows; it demonstrates correctness and testable design. Don't sacrifice core functionality for coverage."},{q:"How much should you talk while coding?",a:"Narrate key decisions and trade-offs briefly; ask before making big scope assumptions; stay silent-coding only for routine parts."}],
+rf:["Starts coding without clarifying","Over-designs and never runs code","No input validation or error handling","Silent for 60 minutes"]},
+
+{id:"L005",skill:"Machine Coding",level:"Basic",type:"Machine Coding",
+q:"Design and implement a parking lot: multiple levels, spot sizes, different vehicle types, tickets on entry, and fees on exit.",
+a:`<p><b>Clarify:</b> vehicle types (bike, car, truck) and spot sizes; can a car use a large spot? (Usually yes, smallest that fits.) Pricing model (hourly by vehicle type, first hour minimum)? Multiple entry gates (concurrency)? Display of free spots per level?</p>
+<p><b>Entities:</b> <code>Vehicle</code>, <code>ParkingSpot</code>, <code>Level</code>, <code>Ticket</code>, <code>ParkingLot</code>; variation points: <code>ISpotAllocationStrategy</code>, <code>IPricingStrategy</code>.</p>
+<pre><code>public enum VehicleType { Bike, Car, Truck }
+public enum SpotSize { Small, Medium, Large }
+
+public sealed record Vehicle(string Plate, VehicleType Type)
+{
+    public SpotSize RequiredSize =&gt; Type switch
+    {
+        VehicleType.Bike =&gt; SpotSize.Small,
+        VehicleType.Car =&gt; SpotSize.Medium,
+        _ =&gt; SpotSize.Large
+    };
+}
+
+public sealed class ParkingSpot(string id, SpotSize size)
+{
+    public string Id { get; } = id;
+    public SpotSize Size { get; } = size;
+    public Vehicle? Occupant { get; private set; }
+    public bool IsFree =&gt; Occupant is null;
+    public bool Fits(Vehicle v) =&gt; IsFree &amp;&amp; Size &gt;= v.RequiredSize;
+    public void Occupy(Vehicle v) =&gt; Occupant = v;
+    public void Release() =&gt; Occupant = null;
+}
+
+public sealed class Level(int number, IReadOnlyList&lt;ParkingSpot&gt; spots)
+{
+    public int Number { get; } = number;
+    public IReadOnlyList&lt;ParkingSpot&gt; Spots { get; } = spots;
+    public int FreeCount(SpotSize size) =&gt; Spots.Count(s =&gt; s.IsFree &amp;&amp; s.Size == size);
+}
+
+public sealed record Ticket(string Id, Vehicle Vehicle, int Level, string SpotId, DateTimeOffset EntryTime);
+
+public interface ISpotAllocationStrategy
+{
+    (Level Level, ParkingSpot Spot)? Find(IReadOnlyList&lt;Level&gt; levels, Vehicle vehicle);
+}
+
+public sealed class SmallestFitNearestLevel : ISpotAllocationStrategy
+{
+    public (Level, ParkingSpot)? Find(IReadOnlyList&lt;Level&gt; levels, Vehicle vehicle)
+    {
+        foreach (var level in levels)
+        {
+            var spot = level.Spots.Where(s =&gt; s.Fits(vehicle)).OrderBy(s =&gt; s.Size).FirstOrDefault();
+            if (spot is not null) return (level, spot);
+        }
+        return null;
+    }
+}
+
+public interface IPricingStrategy { decimal Fee(Ticket ticket, DateTimeOffset exitTime); }
+
+public sealed class HourlyPricing(IReadOnlyDictionary&lt;VehicleType, decimal&gt; ratePerHour) : IPricingStrategy
+{
+    public decimal Fee(Ticket ticket, DateTimeOffset exitTime)
+    {
+        var hours = Math.Max(1, (int)Math.Ceiling((exitTime - ticket.EntryTime).TotalHours));
+        return hours * ratePerHour[ticket.Vehicle.Type];
+    }
+}
+
+public sealed class ParkingLot(IReadOnlyList&lt;Level&gt; levels, ISpotAllocationStrategy allocation,
+                               IPricingStrategy pricing, TimeProvider clock)
+{
+    private readonly Dictionary&lt;string, (Ticket Ticket, ParkingSpot Spot)&gt; _active = new();
+    private readonly object _gate = new();
+
+    public Ticket Park(Vehicle vehicle)
+    {
+        lock (_gate)
+        {
+            var found = allocation.Find(levels, vehicle)
+                        ?? throw new InvalidOperationException("No spot available for " + vehicle.Type);
+            found.Spot.Occupy(vehicle);
+            var ticket = new Ticket(Guid.NewGuid().ToString("N"), vehicle, found.Level.Number,
+                                    found.Spot.Id, clock.GetUtcNow());
+            _active[ticket.Id] = (ticket, found.Spot);
+            return ticket;
+        }
+    }
+
+    public decimal Exit(string ticketId)
+    {
+        lock (_gate)
+        {
+            if (!_active.Remove(ticketId, out var entry))
+                throw new KeyNotFoundException("Unknown or already used ticket");
+            entry.Spot.Release();
+            return pricing.Fee(entry.Ticket, clock.GetUtcNow());
+        }
+    }
+}</code></pre>
+<p><b>Patterns:</b> Strategy for allocation and pricing; <code>TimeProvider</code> injected so fees are testable; a single lock keeps park/exit consistent across gates.</p>`,
+keys:["Clarified sizes, fit rules, pricing","Vehicle→required size; spot fit check","Strategies for allocation and pricing","Injected clock for testable fees","Lock for concurrent gates; ticket validation"],
+trade:["Single global lock: simple and correct vs contention at very high gate counts (per-level locks or lock-free free-spot queues)","Linear spot scan: simple vs slow for huge lots (keep free-spot sets per size per level)"],
+fu:[{q:"The lot has 10,000 spots and 20 gates. Allocation is slow. What changes?",a:"Maintain free spots per (level, size) in queues or sorted sets so allocation is O(1)/O(log n); lock per level or use ConcurrentQueue per size, re-checking occupancy when dequeuing."},{q:"Add electric-vehicle charging spots with a different rate.",a:"Add a spot feature (EvCharger) and vehicle preference; allocation strategy prefers EV spots for EVs; pricing becomes a composite (parking fee + charging fee by kWh), another strategy or decorator."},{q:"Show a display board with free spots per level that updates live.",a:"Observer: ParkingLot raises SpotOccupied/SpotReleased events; a DisplayBoard subscribes and updates counts."}],
+rf:["Pricing logic inside ParkingSpot","DateTime.Now hard-coded","No handling for lot full or invalid ticket","Giant ParkingLot class with if/else per vehicle type"]},
+
+{id:"L006",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Implement an LRU cache with O(1) get and put. Then make it thread-safe.",
+a:`<p><b>Clarify:</b> capacity in items (not bytes)? Generic keys and values? Single-threaded first? What should <code>get</code> return on a miss?</p>
+<p><b>Idea:</b> a hash map from key to node, plus a doubly linked list ordered by recency (most recent at the front). Get: move node to front. Put: update and move to front, or insert at front and evict from the back when full. Both O(1).</p>
+<pre><code>public sealed class LruCache&lt;TKey, TValue&gt; where TKey : notnull
+{
+    private readonly int _capacity;
+    private readonly Dictionary&lt;TKey, LinkedListNode&lt;(TKey Key, TValue Value)&gt;&gt; _map;
+    private readonly LinkedList&lt;(TKey Key, TValue Value)&gt; _recency = new();
+
+    public LruCache(int capacity)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(capacity);
+        _capacity = capacity;
+        _map = new Dictionary&lt;TKey, LinkedListNode&lt;(TKey, TValue)&gt;&gt;(capacity);
+    }
+
+    public bool TryGet(TKey key, out TValue value)
+    {
+        if (_map.TryGetValue(key, out var node))
+        {
+            _recency.Remove(node);
+            _recency.AddFirst(node);
+            value = node.Value.Value;
+            return true;
+        }
+        value = default!;
+        return false;
+    }
+
+    public void Put(TKey key, TValue value)
+    {
+        if (_map.TryGetValue(key, out var existing))
+        {
+            _recency.Remove(existing);
+        }
+        else if (_map.Count == _capacity)
+        {
+            var lru = _recency.Last!;
+            _recency.RemoveLast();
+            _map.Remove(lru.Value.Key);
+        }
+        _map[key] = _recency.AddFirst((key, value));
+    }
+
+    public int Count =&gt; _map.Count;
+}</code></pre>
+<p><b>Thread safety:</b> even <code>TryGet</code> mutates the list, so a reader-writer lock doesn't help much; wrap both operations in a single <code>lock</code>. That's correct and usually fast enough. For high contention: <b>sharding</b> (N independent caches selected by key hash), or approximate LRU (e.g. sampled eviction or a "clock" algorithm) as production caches do.</p>
+<pre><code>public sealed class ConcurrentLruCache&lt;TKey, TValue&gt;(int capacity) where TKey : notnull
+{
+    private readonly LruCache&lt;TKey, TValue&gt; _inner = new(capacity);
+    private readonly object _gate = new();
+    public bool TryGet(TKey key, out TValue value) { lock (_gate) return _inner.TryGet(key, out value); }
+    public void Put(TKey key, TValue value) { lock (_gate) _inner.Put(key, value); }
+}</code></pre>`,
+keys:["Hash map + doubly linked list","Move to front on access; evict from back","O(1) get and put","Single lock because reads mutate","Sharding or approximate LRU for contention"],
+trade:["Global lock: simple and correct vs contention","Sharded caches: scalability vs LRU only per shard","Approximate LRU: less locking vs not exact recency"],
+fu:[{q:"Add a time-to-live per entry.",a:"Store expiry with the value; on get, treat expired as a miss and remove it; optionally a background sweep. Inject the clock for testing."},{q:"Why not use ConcurrentDictionary alone?",a:"It gives thread-safe lookups but not recency order or atomic evict-and-insert; you'd still need coordinated updates to the ordering structure."},{q:"How does this relate to IMemoryCache in .NET?",a:"MemoryCache uses size limits and compaction based on priority and expiry rather than strict LRU; in production you'd normally use it (or a library) rather than writing your own."}],
+rf:["O(n) list search on get","Forgets to remove the evicted key from the map","ReaderWriterLock with mutating reads","Arrays with shifting"]},
+
+{id:"L007",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Implement a rate limiter library that limits requests per client key, supporting token bucket and sliding window algorithms.",
+a:`<p><b>Clarify:</b> limits per key (user, API key, IP)? Configurable rates per key or tier? In-process only, or distributed across instances (Redis)? Behaviour when limited (reject, and with a retry-after)?</p>
+<pre><code>public interface IRateLimiter
+{
+    RateLimitDecision TryAcquire(string key);
+}
+public readonly record struct RateLimitDecision(bool Allowed, TimeSpan RetryAfter);
+
+public sealed class TokenBucketLimiter(double capacity, double refillPerSecond, TimeProvider clock) : IRateLimiter
+{
+    private sealed class Bucket
+    {
+        public double Tokens;
+        public long LastTimestamp;
+        public readonly object Gate = new();
+    }
+    private readonly ConcurrentDictionary&lt;string, Bucket&gt; _buckets = new();
+
+    public RateLimitDecision TryAcquire(string key)
+    {
+        var now = clock.GetTimestamp();
+        var bucket = _buckets.GetOrAdd(key, _ =&gt; new Bucket { Tokens = capacity, LastTimestamp = now });
+        lock (bucket.Gate)
+        {
+            var elapsed = clock.GetElapsedTime(bucket.LastTimestamp, now).TotalSeconds;
+            bucket.Tokens = Math.Min(capacity, bucket.Tokens + elapsed * refillPerSecond);
+            bucket.LastTimestamp = now;
+            if (bucket.Tokens &gt;= 1)
+            {
+                bucket.Tokens -= 1;
+                return new(true, TimeSpan.Zero);
+            }
+            var wait = TimeSpan.FromSeconds((1 - bucket.Tokens) / refillPerSecond);
+            return new(false, wait);
+        }
+    }
+}
+
+public sealed class SlidingWindowLogLimiter(int limit, TimeSpan window, TimeProvider clock) : IRateLimiter
+{
+    private readonly ConcurrentDictionary&lt;string, Queue&lt;DateTimeOffset&gt;&gt; _logs = new();
+
+    public RateLimitDecision TryAcquire(string key)
+    {
+        var now = clock.GetUtcNow();
+        var log = _logs.GetOrAdd(key, _ =&gt; new Queue&lt;DateTimeOffset&gt;());
+        lock (log)
+        {
+            while (log.Count &gt; 0 &amp;&amp; now - log.Peek() &gt;= window) log.Dequeue();
+            if (log.Count &lt; limit) { log.Enqueue(now); return new(true, TimeSpan.Zero); }
+            return new(false, window - (now - log.Peek()));
+        }
+    }
+}</code></pre>
+<p><b>Design notes:</b> Strategy pattern via <code>IRateLimiter</code>; a factory or configuration chooses the algorithm per tier. Token bucket allows bursts up to capacity with a steady average; sliding window log is exact but stores one timestamp per request (memory heavy at high limits). A <b>sliding window counter</b> (current + weighted previous fixed window) approximates it with O(1) memory. See A049 for the algorithm comparison and .NET's built-in <code>System.Threading.RateLimiting</code>.</p>`,
+keys:["Interface with decision + retry-after","Token bucket: refill on access, per-key lock","Sliding window log: exact, memory per request","Injected TimeProvider for tests","Per-key state in ConcurrentDictionary"],
+trade:["Token bucket: bursts allowed, O(1) memory vs less exact window semantics","Sliding log: exact vs memory per request","In-process: fast vs not shared across instances"],
+fu:[{q:"Idle keys accumulate forever. Fix it.",a:"Track last access and periodically remove idle buckets (a sweep), or use a bounded cache with expiry (MemoryCache) for bucket state."},{q:"Make it work across 10 API instances.",a:"Store state in Redis and update atomically with a Lua script (token bucket) or sorted sets (sliding log); accept the network round trip; fall back to local limits if Redis is down."},{q:"Different limits per customer tier?",a:"A limit-policy provider maps key → (capacity, rate); the limiter factory creates or looks up per-tier limiters; config changes take effect for new buckets."}],
+rf:["Fixed window without noting boundary bursts","DateTime.Now hard-coded","Global lock for all keys","No memory bound for keys"]},
+
+{id:"L008",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Design Splitwise: users add expenses split equally, by exact amounts, or by percentage; show balances; and suggest a minimal set of settlements.",
+a:`<p><b>Clarify:</b> groups or global? Currency (single, decimals to 2 places)? Validation (exact amounts must sum to total; percentages to 100)? Rounding rule for equal splits (extra paise to the first participants)? Show "who owes whom" and simplified settlements?</p>
+<pre><code>public enum SplitType { Equal, Exact, Percent }
+public sealed record Share(string UserId, decimal? Value = null); // amount or percent depending on type
+
+public interface ISplitStrategy
+{
+    IReadOnlyDictionary&lt;string, decimal&gt; Split(decimal total, IReadOnlyList&lt;Share&gt; shares);
+}
+
+public sealed class EqualSplit : ISplitStrategy
+{
+    public IReadOnlyDictionary&lt;string, decimal&gt; Split(decimal total, IReadOnlyList&lt;Share&gt; shares)
+    {
+        var n = shares.Count;
+        var baseShare = Math.Floor(total * 100 / n) / 100;
+        var extraCents = (int)((total - baseShare * n) * 100);
+        return shares.Select((s, i) =&gt; (s.UserId, Amount: baseShare + (i &lt; extraCents ? 0.01m : 0m)))
+                     .ToDictionary(x =&gt; x.UserId, x =&gt; x.Amount);
+    }
+}
+
+public sealed class ExactSplit : ISplitStrategy
+{
+    public IReadOnlyDictionary&lt;string, decimal&gt; Split(decimal total, IReadOnlyList&lt;Share&gt; shares)
+    {
+        var sum = shares.Sum(s =&gt; s.Value ?? throw new ArgumentException("Amount required"));
+        if (sum != total) throw new ArgumentException("Exact amounts must add up to the total");
+        return shares.ToDictionary(s =&gt; s.UserId, s =&gt; s.Value!.Value);
+    }
+}
+
+public sealed class PercentSplit : ISplitStrategy
+{
+    public IReadOnlyDictionary&lt;string, decimal&gt; Split(decimal total, IReadOnlyList&lt;Share&gt; shares)
+    {
+        if (shares.Sum(s =&gt; s.Value ?? 0) != 100m) throw new ArgumentException("Percentages must add up to 100");
+        var amounts = shares.ToDictionary(s =&gt; s.UserId, s =&gt; Math.Round(total * s.Value!.Value / 100, 2));
+        var diff = total - amounts.Values.Sum();               // rounding leftover
+        amounts[shares[0].UserId] += diff;
+        return amounts;
+    }
+}
+
+public sealed class ExpenseService(IReadOnlyDictionary&lt;SplitType, ISplitStrategy&gt; strategies)
+{
+    private readonly Dictionary&lt;string, decimal&gt; _net = new(); // positive = is owed money
+
+    public void AddExpense(string paidBy, decimal total, SplitType type, IReadOnlyList&lt;Share&gt; shares)
+    {
+        if (total &lt;= 0) throw new ArgumentOutOfRangeException(nameof(total));
+        foreach (var (userId, amount) in strategies[type].Split(total, shares))
+        {
+            if (userId == paidBy) continue;
+            _net[userId] = _net.GetValueOrDefault(userId) - amount;
+            _net[paidBy] = _net.GetValueOrDefault(paidBy) + amount;
+        }
+    }
+
+    public IReadOnlyDictionary&lt;string, decimal&gt; Balances =&gt; _net;
+
+    // Greedy: repeatedly settle the largest debtor with the largest creditor.
+    public IEnumerable&lt;(string From, string To, decimal Amount)&gt; SimplifiedSettlements()
+    {
+        var creditors = new PriorityQueue&lt;string, decimal&gt;();
+        var debtors = new PriorityQueue&lt;string, decimal&gt;();
+        var remaining = new Dictionary&lt;string, decimal&gt;(_net);
+        foreach (var (user, bal) in _net)
+        {
+            if (bal &gt; 0) creditors.Enqueue(user, -bal);    // max-heap via negative priority
+            else if (bal &lt; 0) debtors.Enqueue(user, bal);  // most negative first
+        }
+        while (creditors.Count &gt; 0 &amp;&amp; debtors.Count &gt; 0)
+        {
+            var c = creditors.Dequeue(); var d = debtors.Dequeue();
+            var amount = Math.Min(remaining[c], -remaining[d]);
+            yield return (d, c, amount);
+            remaining[c] -= amount; remaining[d] += amount;
+            if (remaining[c] &gt; 0) creditors.Enqueue(c, -remaining[c]);
+            if (remaining[d] &lt; 0) debtors.Enqueue(d, remaining[d]);
+        }
+    }
+}</code></pre>
+<p><b>Patterns:</b> Strategy per split type, selected by a dictionary (a simple factory). Net balances per user make simplification easy. The greedy approach produces at most n−1 transactions; finding the true minimum number of transactions is NP-hard in general, so say that if asked.</p>`,
+keys:["Validation per split type; rounding handled","Strategy per split type","Net balance per user","Greedy settlement with two heaps","Decimal money, never double"],
+trade:["Net balances: simple settlements vs loses pairwise history (keep an expense ledger too)","Greedy simplification: fast, ≤ n−1 transfers vs not always the true minimum"],
+fu:[{q:"Support groups and show each user what they owe within a group.",a:"Key balances by (groupId, userId); expenses belong to a group; settlements computed per group; overall balance is the sum."},{q:"Add multi-currency.",a:"Store currency per expense; keep balances per currency, or convert at expense time with a stored exchange rate for auditability."},{q:"How do you record a settlement payment?",a:"As an expense-like transaction: payer pays receiver X, updating net balances, preserving history."}],
+rf:["double for money","No validation of sums","Loses paise in equal split","Pairwise balances updated in an O(n²) mess without net simplification"]},
+
+{id:"L009",skill:"Machine Coding",level:"Basic",type:"Machine Coding",
+q:"Implement an N×N tic-tac-toe game for two players with O(1) win detection per move.",
+a:`<p><b>Clarify:</b> board size N and win condition (full row/column/diagonal); players and symbols; invalid moves (occupied cell, out of bounds, wrong turn); draw detection; will we extend to more players or K-in-a-row?</p>
+<p><b>Trick:</b> instead of scanning the board after each move, keep running sums: +1 for player X and −1 for player O per row, column, and the two diagonals. A line is won when its absolute sum reaches N.</p>
+<pre><code>public enum GameStatus { InProgress, XWon, OWon, Draw }
+
+public sealed class TicTacToe
+{
+    private readonly int _n;
+    private readonly char[,] _board;
+    private readonly int[] _rows, _cols;
+    private int _diag, _antiDiag, _moves;
+    public char CurrentPlayer { get; private set; } = 'X';
+    public GameStatus Status { get; private set; } = GameStatus.InProgress;
+
+    public TicTacToe(int n)
+    {
+        ArgumentOutOfRangeException.ThrowIfLessThan(n, 3);
+        _n = n; _board = new char[n, n]; _rows = new int[n]; _cols = new int[n];
+    }
+
+    public GameStatus Play(int row, int col)
+    {
+        if (Status != GameStatus.InProgress) throw new InvalidOperationException("Game is over");
+        if (row &lt; 0 || row &gt;= _n || col &lt; 0 || col &gt;= _n) throw new ArgumentException("Cell outside board");
+        if (_board[row, col] != default) throw new InvalidOperationException("Cell already taken");
+
+        _board[row, col] = CurrentPlayer;
+        _moves++;
+        var delta = CurrentPlayer == 'X' ? 1 : -1;
+        _rows[row] += delta; _cols[col] += delta;
+        if (row == col) _diag += delta;
+        if (row + col == _n - 1) _antiDiag += delta;
+
+        if (Math.Abs(_rows[row]) == _n || Math.Abs(_cols[col]) == _n ||
+            Math.Abs(_diag) == _n || Math.Abs(_antiDiag) == _n)
+            Status = CurrentPlayer == 'X' ? GameStatus.XWon : GameStatus.OWon;
+        else if (_moves == _n * _n)
+            Status = GameStatus.Draw;
+        else
+            CurrentPlayer = CurrentPlayer == 'X' ? 'O' : 'X';
+
+        return Status;
+    }
+}</code></pre>
+<p>Separate concerns if time allows: <code>Board</code>, <code>Player</code> (human or bot via an <code>IMoveProvider</code> strategy), <code>Game</code> orchestrating turns, and an <code>IWinRule</code> for variants.</p>`,
+keys:["Clarify N, rules, invalid moves","Running sums per row/column/diagonals","O(1) win check per move","Draw detection by move count","Validation and clear status model"],
+trade:["Running sums: O(1) but specific to full-line wins vs board scan: simple and supports any rule"],
+fu:[{q:"Support three or more players.",a:"Sums no longer work with ±1; keep per-player counters per line (Dictionary of player → counts) or check only lines through the last move (O(N))."},{q:"Win with K in a row on a larger board (like Gomoku).",a:"After each move, count consecutive same symbols in 4 directions from the placed cell: O(K) per move."},{q:"Add a computer player.",a:"IMoveProvider strategy: random, rule-based, or minimax for small boards."}],
+rf:["Scans the whole board each move without noting it","No validation","Mixes console I/O with game logic"]},
+
+{id:"L010",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Design a vending machine: insert coins/notes, select a product, dispense it with change, cancel and refund. Use appropriate patterns.",
+a:`<p><b>Clarify:</b> accepted denominations; can the machine run out of change (then refuse the sale or exact change only)? Product slots with price and quantity; admin restock; single user at a time.</p>
+<p><b>State pattern:</b> behaviour depends on the machine's state: Idle, HasMoney, (Dispensing), OutOfService.</p>
+<pre><code>public interface IVendingState
+{
+    void Insert(VendingMachine m, int amount);
+    void Select(VendingMachine m, string slot);
+    void Cancel(VendingMachine m);
+}
+
+public sealed class IdleState : IVendingState
+{
+    public void Insert(VendingMachine m, int amount) { m.AddBalance(amount); m.SetState(new HasMoneyState()); }
+    public void Select(VendingMachine m, string slot) =&gt; throw new InvalidOperationException("Insert money first");
+    public void Cancel(VendingMachine m) { }
+}
+
+public sealed class HasMoneyState : IVendingState
+{
+    public void Insert(VendingMachine m, int amount) =&gt; m.AddBalance(amount);
+
+    public void Select(VendingMachine m, string slot)
+    {
+        var product = m.Inventory.Get(slot);
+        if (product.Quantity == 0) throw new InvalidOperationException("Sold out");
+        if (m.Balance &lt; product.Price) throw new InvalidOperationException("Insufficient balance: need " + (product.Price - m.Balance));
+        var changeAmount = m.Balance - product.Price;
+        var change = m.Cash.TryMakeChange(changeAmount)
+                     ?? throw new InvalidOperationException("Cannot make change; please use exact amount");
+        m.Inventory.Dispense(slot);
+        m.Cash.Commit(change);
+        m.ResetBalance();
+        m.SetState(new IdleState());
+        m.Output.Dispensed(product.Name, change);
+    }
+
+    public void Cancel(VendingMachine m)
+    {
+        var refund = m.Cash.TryMakeChange(m.Balance)!;   // inserted coins are available for refund
+        m.Cash.Commit(refund);
+        m.ResetBalance();
+        m.SetState(new IdleState());
+        m.Output.Refunded(refund);
+    }
+}
+
+public sealed class VendingMachine(Inventory inventory, CashBox cash, IVendingOutput output)
+{
+    private IVendingState _state = new IdleState();
+    public Inventory Inventory { get; } = inventory;
+    public CashBox Cash { get; } = cash;
+    public IVendingOutput Output { get; } = output;
+    public int Balance { get; private set; }
+
+    public void Insert(int amount)
+    {
+        if (!Cash.Accepts(amount)) throw new ArgumentException("Denomination not accepted");
+        Cash.AddInserted(amount);
+        _state.Insert(this, amount);
+    }
+    public void Select(string slot) =&gt; _state.Select(this, slot);
+    public void Cancel() =&gt; _state.Cancel(this);
+
+    internal void AddBalance(int amount) =&gt; Balance += amount;
+    internal void ResetBalance() =&gt; Balance = 0;
+    internal void SetState(IVendingState state) =&gt; _state = state;
+}</code></pre>
+<p><b>Change-making:</b> <code>CashBox.TryMakeChange</code> uses greedy by largest denomination with available counts (works for canonical coin systems like INR denominations); returns null if impossible, so the sale is refused <b>before</b> dispensing. Money in integer paise/rupees, not floating point.</p>`,
+keys:["State pattern for status-dependent behaviour","Validate stock, balance and change before dispensing","Change-making with limited coin counts","Integer money","Output/hardware behind an interface"],
+trade:["State classes: clean transitions vs more classes than a switch","Greedy change: simple vs fails for non-canonical denominations (use DP)"],
+fu:[{q:"Greedy change-making fails for denominations {1, 3, 4} and amount 6. Fix it.",a:"Greedy gives 4+1+1 (3 coins) instead of 3+3; with limited counts greedy can even fail to find a solution. Use dynamic programming over amounts with coin counts."},{q:"Add an admin mode for restocking and collecting cash.",a:"A MaintenanceState entered with an admin key; normal operations rejected; restock and cash collection allowed; exit back to Idle."},{q:"Support card payments.",a:"A payment strategy: cash path as above; card path authorises the exact price via a gateway interface, then dispenses; refund on dispense failure."}],
+rf:["Giant switch on a status string","Dispenses before confirming change","Floating-point money","No refund path"]},
+{id:"L011",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Design an elevator system for a building with several elevators: hall calls (up/down buttons on floors), car calls (buttons inside), and a dispatcher that assigns elevators.",
+a:`<p><b>Clarify:</b> number of floors and elevators; simulate time in discrete steps (one floor per tick)? Capacity limits? Door timing? Emergency/maintenance modes? Goal for the dispatcher (minimise wait time)?</p>
+<p><b>Per-elevator scheduling: LOOK algorithm.</b> Keep stops above in one sorted set and below in another; keep moving in the current direction while stops remain that way, then reverse. This avoids starvation and unnecessary direction changes.</p>
+<pre><code>public enum Direction { Idle, Up, Down }
+
+public sealed class Elevator(int id, int minFloor, int maxFloor)
+{
+    private readonly SortedSet&lt;int&gt; _upStops = new();
+    private readonly SortedSet&lt;int&gt; _downStops = new();
+    public int Id { get; } = id;
+    public int Floor { get; private set; } = minFloor;
+    public Direction Direction { get; private set; } = Direction.Idle;
+    public event Action&lt;Elevator, int&gt;? Arrived;
+    public int PendingStops =&gt; _upStops.Count + _downStops.Count;
+
+    public void AddStop(int floor)
+    {
+        if (floor &lt; minFloor || floor &gt; maxFloor) throw new ArgumentOutOfRangeException(nameof(floor));
+        if (floor &gt; Floor) _upStops.Add(floor);
+        else if (floor &lt; Floor) _downStops.Add(floor);
+        else Arrived?.Invoke(this, floor);              // already here: open doors
+    }
+
+    // Advance one floor per tick.
+    public void Step()
+    {
+        if (Direction == Direction.Idle)
+            Direction = _upStops.Count &gt; 0 ? Direction.Up : _downStops.Count &gt; 0 ? Direction.Down : Direction.Idle;
+
+        if (Direction == Direction.Up)
+        {
+            Floor++;
+            if (_upStops.Remove(Floor)) Arrived?.Invoke(this, Floor);
+            if (_upStops.Count == 0) Direction = _downStops.Count &gt; 0 ? Direction.Down : Direction.Idle;
+        }
+        else if (Direction == Direction.Down)
+        {
+            Floor--;
+            if (_downStops.Remove(Floor)) Arrived?.Invoke(this, Floor);
+            if (_downStops.Count == 0) Direction = _upStops.Count &gt; 0 ? Direction.Up : Direction.Idle;
+        }
+    }
+}
+
+public interface IDispatchStrategy { Elevator Choose(IReadOnlyList&lt;Elevator&gt; elevators, int floor, Direction wanted); }
+
+// Cost = distance, plus a penalty if the elevator is moving away or in the opposite direction.
+public sealed class NearestSuitableDispatch : IDispatchStrategy
+{
+    public Elevator Choose(IReadOnlyList&lt;Elevator&gt; elevators, int floor, Direction wanted) =&gt;
+        elevators.MinBy(e =&gt; Cost(e, floor, wanted))!;
+
+    private static int Cost(Elevator e, int floor, Direction wanted)
+    {
+        var distance = Math.Abs(e.Floor - floor);
+        if (e.Direction == Direction.Idle) return distance;
+        var movingTowards = e.Direction == Direction.Up ? floor &gt;= e.Floor : floor &lt;= e.Floor;
+        if (movingTowards &amp;&amp; e.Direction == wanted) return distance;
+        return distance + 2 * e.PendingStops + 10;   // tunable penalty
+    }
+}
+
+public sealed class ElevatorController(IReadOnlyList&lt;Elevator&gt; elevators, IDispatchStrategy dispatch)
+{
+    public Elevator HallCall(int floor, Direction direction)
+    {
+        var chosen = dispatch.Choose(elevators, floor, direction);
+        chosen.AddStop(floor);
+        return chosen;
+    }
+    public void CarCall(int elevatorId, int floor) =&gt; elevators.Single(e =&gt; e.Id == elevatorId).AddStop(floor);
+    public void Tick() { foreach (var e in elevators) e.Step(); }
+}</code></pre>
+<p><b>Patterns:</b> Strategy for dispatch; Observer (<code>Arrived</code> event) for doors and displays; State could model door/maintenance states. In a real system each elevator runs on its own loop; here <code>Tick</code> drives a simulation, which interviewers usually accept.</p>`,
+keys:["Clarify floors, ticks, goals, modes","LOOK scheduling with up/down sorted sets","Dispatcher strategy with a cost function","Observer for arrivals","Simulation via Tick for testability"],
+trade:["LOOK: efficient, no starvation vs not globally optimal","Simple cost function: explainable vs suboptimal under heavy load (destination dispatch is better)","Tick simulation: deterministic tests vs not real-time"],
+fu:[{q:"Add capacity limits and a maintenance mode.",a:"Track load; the dispatcher skips full or out-of-service elevators; a State object (Normal, Maintenance, Emergency) changes how calls are accepted; on emergency, cancel stops and go to the ground floor."},{q:"How would you test the scheduler?",a:"Deterministic tick-based tests: given stops and starting floor, assert the sequence of arrivals; test direction reversal and no starvation."},{q:"What's destination dispatch?",a:"Passengers enter their destination at the hall panel; the system groups passengers going to similar floors into the same car, reducing stops; the dispatcher has more information to optimise."}],
+rf:["FIFO serving requests in arrival order","No separation of dispatch from elevator movement","Doesn't handle direction of hall calls"]},
+
+{id:"L012",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Implement a meeting room booking system: rooms with capacities, booking for a time range without overlaps, finding an available room, and cancellation.",
+a:`<p><b>Clarify:</b> time ranges half-open [start, end)? Minimum slot size? Pick the smallest room that fits? Recurring meetings? Concurrency (multiple users booking at once)?</p>
+<p><b>Overlap rule:</b> two intervals overlap when <code>a.Start &lt; b.End && b.Start &lt; a.End</code> (half-open, so back-to-back meetings are allowed).</p>
+<pre><code>public sealed record Room(string Id, int Capacity);
+public sealed record Booking(string Id, string RoomId, string Organizer, DateTimeOffset Start, DateTimeOffset End);
+
+public sealed class RoomSchedule
+{
+    private readonly List&lt;Booking&gt; _bookings = new();   // kept sorted by Start
+    public bool IsFree(DateTimeOffset start, DateTimeOffset end) =&gt;
+        !_bookings.Any(b =&gt; b.Start &lt; end &amp;&amp; start &lt; b.End);
+    public void Add(Booking booking)
+    {
+        var index = _bookings.FindIndex(b =&gt; b.Start &gt; booking.Start);
+        _bookings.Insert(index &lt; 0 ? _bookings.Count : index, booking);
+    }
+    public bool Remove(string bookingId) =&gt; _bookings.RemoveAll(b =&gt; b.Id == bookingId) &gt; 0;
+    public IReadOnlyList&lt;Booking&gt; Bookings =&gt; _bookings;
+}
+
+public sealed class BookingService(IEnumerable&lt;Room&gt; rooms)
+{
+    private readonly Dictionary&lt;string, Room&gt; _rooms = rooms.ToDictionary(r =&gt; r.Id);
+    private readonly Dictionary&lt;string, RoomSchedule&gt; _schedules = rooms.ToDictionary(r =&gt; r.Id, _ =&gt; new RoomSchedule());
+    private readonly object _gate = new();
+
+    public Booking Book(string organizer, int attendees, DateTimeOffset start, DateTimeOffset end)
+    {
+        if (end &lt;= start) throw new ArgumentException("End must be after start");
+        lock (_gate)
+        {
+            var room = _rooms.Values
+                .Where(r =&gt; r.Capacity &gt;= attendees &amp;&amp; _schedules[r.Id].IsFree(start, end))
+                .OrderBy(r =&gt; r.Capacity)                // smallest room that fits
+                .FirstOrDefault()
+                ?? throw new InvalidOperationException("No room available for that time and size");
+            var booking = new Booking(Guid.NewGuid().ToString("N"), room.Id, organizer, start, end);
+            _schedules[room.Id].Add(booking);
+            return booking;
+        }
+    }
+
+    public bool Cancel(string roomId, string bookingId)
+    {
+        lock (_gate) return _schedules.TryGetValue(roomId, out var s) &amp;&amp; s.Remove(bookingId);
+    }
+}</code></pre>
+<p><b>Complexity:</b> the overlap check is O(n) per room. Because bookings are sorted by start, you can binary-search the insertion point and check only the neighbours (O(log n)); for very large schedules an interval tree helps. Mention it; implement the simple version first.</p>`,
+keys:["Half-open intervals and overlap formula","Per-room schedule sorted by start","Smallest-fitting room selection","Lock makes check-and-book atomic","Neighbour check / interval tree as optimisation"],
+trade:["Global lock: simple, correct vs contention (per-room locks with careful ordering)","Linear overlap check: simple vs O(log n) neighbour check"],
+fu:[{q:"Two users book the same room at the same instant on different servers.",a:"In-memory locks don't help across servers; use the database: an exclusion constraint on time ranges (PostgreSQL tstzrange with EXCLUDE USING gist) or a slot table with unique constraints, and handle the conflict error."},{q:"Add recurring meetings (every Monday 10–11 for 10 weeks).",a:"Expand occurrences and book all atomically (all or none), or store a recurrence rule and check conflicts per occurrence; report which occurrences conflict."},{q:"Find the earliest time today when any room with capacity 8 is free for 1 hour.",a:"For each qualifying room, walk its sorted bookings looking for a gap of ≥1 hour within working hours; take the earliest."}],
+rf:["Overlap check misses containment cases","Closed intervals blocking back-to-back meetings","Check then book without atomicity"]},
+
+{id:"L013",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Design a notification service that sends messages via email, SMS and push, respecting user preferences, using templates, with retries and without blocking callers.",
+a:`<p><b>Clarify:</b> which channels; per-user, per-type preferences (e.g. marketing off, security always on); templates with placeholders; retry policy; priority (OTP vs newsletter); deduplication; rate limits per user.</p>
+<pre><code>public enum Channel { Email, Sms, Push }
+public sealed record NotificationRequest(string IdempotencyKey, string UserId, string Type,
+                                         IReadOnlyDictionary&lt;string, string&gt; Data);
+public sealed record Message(string UserId, Channel Channel, string Address, string Body);
+
+public interface IChannelSender { Channel Channel { get; } Task SendAsync(Message m, CancellationToken ct); }
+public interface IPreferenceStore { IReadOnlyList&lt;Channel&gt; ChannelsFor(string userId, string type); }
+public interface IAddressBook { string? AddressFor(string userId, Channel channel); }
+public interface ITemplateRenderer { string Render(string type, Channel channel, IReadOnlyDictionary&lt;string, string&gt; data); }
+
+public sealed class NotificationService : IAsyncDisposable
+{
+    private readonly System.Threading.Channels.Channel&lt;NotificationRequest&gt; _queue =
+        System.Threading.Channels.Channel.CreateBounded&lt;NotificationRequest&gt;(10_000);
+    private readonly Dictionary&lt;Channel, IChannelSender&gt; _senders;
+    private readonly IPreferenceStore _prefs; private readonly IAddressBook _addresses; private readonly ITemplateRenderer _templates;
+    private readonly ConcurrentDictionary&lt;string, byte&gt; _seen = new();
+    private readonly Task _worker; private readonly CancellationTokenSource _cts = new();
+
+    public NotificationService(IEnumerable&lt;IChannelSender&gt; senders, IPreferenceStore prefs,
+                               IAddressBook addresses, ITemplateRenderer templates)
+    {
+        _senders = senders.ToDictionary(s =&gt; s.Channel);
+        (_prefs, _addresses, _templates) = (prefs, addresses, templates);
+        _worker = Task.Run(() =&gt; ProcessAsync(_cts.Token));
+    }
+
+    // Callers return immediately; the bounded queue applies backpressure if full.
+    public ValueTask EnqueueAsync(NotificationRequest request, CancellationToken ct = default) =&gt;
+        _seen.TryAdd(request.IdempotencyKey, 0) ? _queue.Writer.WriteAsync(request, ct) : ValueTask.CompletedTask;
+
+    private async Task ProcessAsync(CancellationToken ct)
+    {
+        await foreach (var request in _queue.Reader.ReadAllAsync(ct))
+        {
+            foreach (var channel in _prefs.ChannelsFor(request.UserId, request.Type))
+            {
+                var address = _addresses.AddressFor(request.UserId, channel);
+                if (address is null || !_senders.TryGetValue(channel, out var sender)) continue;
+                var body = _templates.Render(request.Type, channel, request.Data);
+                await SendWithRetryAsync(sender, new Message(request.UserId, channel, address, body), ct);
+            }
+        }
+    }
+
+    private static async Task SendWithRetryAsync(IChannelSender sender, Message m, CancellationToken ct)
+    {
+        for (var attempt = 1; attempt &lt;= 3; attempt++)
+        {
+            try { await sender.SendAsync(m, ct); return; }
+            catch (Exception) when (attempt &lt; 3 &amp;&amp; !ct.IsCancellationRequested)
+            {
+                await Task.Delay(TimeSpan.FromSeconds(Math.Pow(2, attempt)), ct);
+            }
+        }
+        // after final failure: record to a dead-letter store for inspection (omitted)
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _queue.Writer.Complete();
+        await _worker;          // drain remaining work
+        _cts.Dispose();
+    }
+}</code></pre>
+<p><b>Patterns:</b> Strategy per channel (<code>IChannelSender</code>), producer/consumer with <code>System.Threading.Channels</code> for non-blocking callers and backpressure, Template rendering separated from delivery, idempotency by key.</p>`,
+keys:["Preferences decide channels per type","Sender strategy per channel","Bounded channel queue: non-blocking, backpressure","Retry with backoff; dead-letter after","Idempotency key dedupe"],
+trade:["In-process queue: simple vs lost on crash (use SQS/Kafka in production)","Single worker: ordered and simple vs throughput (multiple consumers, per-channel workers)","In-memory dedupe set: grows forever vs TTL cache"],
+fu:[{q:"OTP SMS must not wait behind 100,000 newsletter emails.",a:"Separate queues or priority lanes per type, dedicated workers for high priority, and per-channel workers so slow email doesn't block SMS."},{q:"Users complain about receiving 20 notifications in a minute.",a:"Per-user rate limits and aggregation (digest) for non-critical types; collapse similar notifications."},{q:"How do you make it survive restarts?",a:"Persist requests in a durable queue (SQS, Kafka, a DB outbox) and track delivery status per message; at-least-once processing with idempotent sends."}],
+rf:["Sends synchronously in the caller's request","Channel logic in one big switch","No retries or dead-lettering","No preference handling"]},
+
+{id:"L014",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Design movie ticket booking (like BookMyShow): users pick seats for a show, seats are held for a few minutes during payment, then confirmed or released. No double booking.",
+a:`<p><b>Clarify:</b> seat categories and prices; hold duration (e.g. 7 minutes); maximum seats per booking; what happens when payment succeeds after the hold expired; multiple instances (then holds must live in shared storage).</p>
+<pre><code>public enum SeatStatus { Available, Held, Booked }
+
+public sealed class ShowSeat(string seatId, decimal price)
+{
+    public string SeatId { get; } = seatId;
+    public decimal Price { get; } = price;
+    public SeatStatus Status { get; set; } = SeatStatus.Available;
+    public string? HoldId { get; set; }
+    public DateTimeOffset HoldExpires { get; set; }
+}
+
+public sealed record Hold(string Id, string ShowId, string UserId, IReadOnlyList&lt;string&gt; SeatIds,
+                          decimal Amount, DateTimeOffset ExpiresAt);
+
+public sealed class Show(string id, IEnumerable&lt;ShowSeat&gt; seats)
+{
+    public string Id { get; } = id;
+    public Dictionary&lt;string, ShowSeat&gt; Seats { get; } = seats.ToDictionary(s =&gt; s.SeatId);
+    public object Gate { get; } = new();          // one lock per show
+}
+
+public sealed class BookingService(TimeProvider clock, TimeSpan holdDuration)
+{
+    private readonly ConcurrentDictionary&lt;string, Show&gt; _shows = new();
+    private readonly ConcurrentDictionary&lt;string, Hold&gt; _holds = new();
+
+    public void AddShow(Show show) =&gt; _shows[show.Id] = show;
+
+    public Hold HoldSeats(string showId, string userId, IReadOnlyList&lt;string&gt; seatIds)
+    {
+        if (seatIds.Count is 0 or &gt; 10) throw new ArgumentException("Select 1 to 10 seats");
+        var show = _shows[showId];
+        var now = clock.GetUtcNow();
+        lock (show.Gate)
+        {
+            var seats = seatIds.Select(id =&gt; show.Seats.TryGetValue(id, out var s) ? s
+                                 : throw new ArgumentException("Unknown seat " + id)).ToList();
+            foreach (var s in seats)
+            {
+                if (s.Status == SeatStatus.Held &amp;&amp; s.HoldExpires &lt;= now) Release(s);   // lazy expiry
+                if (s.Status != SeatStatus.Available)
+                    throw new InvalidOperationException("Seat " + s.SeatId + " is not available");
+            }
+            var hold = new Hold(Guid.NewGuid().ToString("N"), showId, userId, seatIds,
+                                seats.Sum(s =&gt; s.Price), now + holdDuration);
+            foreach (var s in seats) { s.Status = SeatStatus.Held; s.HoldId = hold.Id; s.HoldExpires = hold.ExpiresAt; }
+            _holds[hold.Id] = hold;
+            return hold;                                // all-or-nothing: we only mutate after all checks pass
+        }
+    }
+
+    public void Confirm(string holdId, string paymentReference)
+    {
+        if (!_holds.TryGetValue(holdId, out var hold)) throw new InvalidOperationException("Unknown hold");
+        var show = _shows[hold.ShowId];
+        lock (show.Gate)
+        {
+            var seats = hold.SeatIds.Select(id =&gt; show.Seats[id]).ToList();
+            if (seats.Any(s =&gt; s.HoldId != holdId || s.Status != SeatStatus.Held || s.HoldExpires &lt;= clock.GetUtcNow()))
+                throw new HoldExpiredException(holdId, paymentReference);  // caller refunds the payment
+            foreach (var s in seats) { s.Status = SeatStatus.Booked; s.HoldId = null; }
+            _holds.TryRemove(holdId, out _);
+        }
+    }
+
+    public void ReleaseExpired()                        // called periodically by a background timer
+    {
+        var now = clock.GetUtcNow();
+        foreach (var hold in _holds.Values.Where(h =&gt; h.ExpiresAt &lt;= now))
+        {
+            var show = _shows[hold.ShowId];
+            lock (show.Gate)
+                foreach (var id in hold.SeatIds)
+                    if (show.Seats[id].HoldId == hold.Id &amp;&amp; show.Seats[id].Status == SeatStatus.Held) Release(show.Seats[id]);
+            _holds.TryRemove(hold.Id, out _);
+        }
+    }
+
+    private static void Release(ShowSeat s) { s.Status = SeatStatus.Available; s.HoldId = null; }
+}
+
+public sealed class HoldExpiredException(string holdId, string paymentRef)
+    : Exception("Hold " + holdId + " expired; refund payment " + paymentRef);</code></pre>
+<p><b>Key points:</b> check all seats before changing any (all-or-nothing); lock per show, not global; holds expire both lazily (on access) and via a sweeper; confirmation re-validates the hold and triggers a refund path if it expired.</p>`,
+keys:["Hold with expiry, then confirm or release","All-or-nothing seat selection","Lock per show","Lazy + background expiry","Confirm re-validates; refund path for late payments"],
+trade:["Per-show lock: correct, scalable across shows vs contention on a hot premiere (fine-grained per-seat locks with ordered acquisition)","In-memory holds: fast vs need Redis/DB across instances"],
+fu:[{q:"How would this work across multiple servers?",a:"Hold seats in the database with a conditional update (UPDATE … SET status='held', hold_id=@h WHERE seat_id IN (…) AND (status='available' OR hold_expires < now)) and check affected row count equals seats requested, in one transaction; or Redis SET NX with expiry per seat, acquired in sorted order."},{q:"Payment succeeds after the hold expired and someone else bought the seats. What happens?",a:"Confirm fails; automatically refund; offer alternative seats. Keep the hold slightly longer than the payment page timeout to make this rare."},{q:"Prevent leaving a single empty seat between booked seats.",a:"A validation rule (strategy) checked before holding; configurable per venue."}],
+rf:["Marks seats one by one, leaving partial holds on failure","Global lock for all shows","No expiry of holds","Confirm doesn't re-check hold ownership"]},
+
+{id:"L015",skill:"Machine Coding",level:"Basic",type:"Machine Coding",
+q:"Implement snakes and ladders for multiple players with a configurable board.",
+a:`<p><b>Clarify:</b> board size (100); snakes and ladders as jumps; exact roll needed to finish or just reach/exceed? Extra turn on a 6? Multiple dice? Number of players?</p>
+<pre><code>public interface IDice { int Roll(); }
+public sealed class RandomDice(Random random, int count = 1) : IDice
+{
+    public int Roll() =&gt; Enumerable.Range(0, count).Sum(_ =&gt; random.Next(1, 7));
+}
+
+public sealed class Board
+{
+    private readonly Dictionary&lt;int, int&gt; _jumps;   // snake head -&gt; tail, ladder bottom -&gt; top
+    public int Size { get; }
+
+    public Board(int size, IReadOnlyDictionary&lt;int, int&gt; snakes, IReadOnlyDictionary&lt;int, int&gt; ladders)
+    {
+        Size = size;
+        foreach (var (head, tail) in snakes)
+            if (tail &gt;= head) throw new ArgumentException("Snake must go down: " + head);
+        foreach (var (bottom, top) in ladders)
+            if (top &lt;= bottom) throw new ArgumentException("Ladder must go up: " + bottom);
+        _jumps = snakes.Concat(ladders).ToDictionary(kv =&gt; kv.Key, kv =&gt; kv.Value); // throws on duplicate start
+        if (_jumps.Keys.Any(k =&gt; k &lt;= 1 || k &gt;= size)) throw new ArgumentException("Jump on start or end square");
+    }
+
+    public int Resolve(int position) =&gt; _jumps.TryGetValue(position, out var target) ? target : position;
+}
+
+public sealed class Game(Board board, IDice dice, IEnumerable&lt;string&gt; players)
+{
+    private readonly Queue&lt;string&gt; _turns = new(players);
+    private readonly Dictionary&lt;string, int&gt; _positions = players.ToDictionary(p =&gt; p, _ =&gt; 0);
+    public string? Winner { get; private set; }
+
+    public (string Player, int Roll, int From, int To) PlayTurn()
+    {
+        if (Winner is not null) throw new InvalidOperationException("Game over");
+        var player = _turns.Dequeue();
+        var roll = dice.Roll();
+        var from = _positions[player];
+        var to = from + roll;
+        if (to &gt; board.Size) to = from;                  // exact roll needed to finish
+        else to = board.Resolve(to);
+        _positions[player] = to;
+        if (to == board.Size) Winner = player; else _turns.Enqueue(player);
+        return (player, roll, from, to);
+    }
+}</code></pre>
+<p><b>Design points:</b> dice behind an interface so tests use a fixed sequence; board validation (snake heads above tails, no jump on the final square, no duplicate starts); turn order via a queue.</p>`,
+keys:["Clarify finishing and turn rules","Jumps map for snakes and ladders","Board validation","Dice strategy for testability","Queue for turn order; winner detection"],
+trade:["Jumps resolved once: simple vs chained jumps (a ladder top on a snake head) need a loop with cycle detection"],
+fu:[{q:"A ladder ends on a snake's head. What happens?",a:"Decide the rule: resolve jumps repeatedly until stable, with cycle detection during board validation."},{q:"Add 'three sixes in a row loses the turn'.",a:"Track consecutive sixes per player; a rule strategy evaluates special cases after each roll."},{q:"How do you test the game?",a:"Inject a scripted dice returning a known sequence; assert positions and winner."}],
+rf:["Random inside game logic (untestable)","No board validation","Console I/O mixed with rules"]},
+
+{id:"L016",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Implement an in-memory key-value store with Get/Set/Delete, per-key TTL, and nested transactions (Begin, Commit, Rollback).",
+a:`<p><b>Clarify:</b> string keys and values? Nested transactions where Rollback undoes only the innermost? Commit merges into the parent? Reads inside a transaction see uncommitted writes? Single client (no isolation between concurrent clients)?</p>
+<p><b>Approach:</b> the committed store holds entries with optional expiry. Each open transaction keeps a change layer (key → new value or a delete marker). Reads check layers from innermost to outermost, then the store. Commit merges the top layer into the one below (or into the store); Rollback discards it.</p>
+<pre><code>public sealed class KeyValueStore(TimeProvider clock)
+{
+    private sealed record Entry(string Value, DateTimeOffset? ExpiresAt);
+    private static readonly Entry Deleted = new("__deleted__", null);
+
+    private readonly Dictionary&lt;string, Entry&gt; _store = new();
+    private readonly Stack&lt;Dictionary&lt;string, Entry&gt;&gt; _transactions = new();
+
+    public void Set(string key, string value, TimeSpan? ttl = null)
+    {
+        var entry = new Entry(value, ttl is null ? null : clock.GetUtcNow() + ttl);
+        if (_transactions.Count &gt; 0) _transactions.Peek()[key] = entry; else _store[key] = entry;
+    }
+
+    public void Delete(string key)
+    {
+        if (_transactions.Count &gt; 0) _transactions.Peek()[key] = Deleted; else _store.Remove(key);
+    }
+
+    public string? Get(string key)
+    {
+        foreach (var layer in _transactions)                    // Stack enumerates top (innermost) first
+            if (layer.TryGetValue(key, out var e)) return Visible(e);
+        if (!_store.TryGetValue(key, out var stored)) return null;
+        if (IsExpired(stored)) { _store.Remove(key); return null; }   // lazy expiry
+        return stored.Value;
+    }
+
+    public void Begin() =&gt; _transactions.Push(new Dictionary&lt;string, Entry&gt;());
+
+    public void Rollback()
+    {
+        if (!_transactions.TryPop(out _)) throw new InvalidOperationException("No transaction");
+    }
+
+    public void Commit()
+    {
+        if (!_transactions.TryPop(out var top)) throw new InvalidOperationException("No transaction");
+        foreach (var (key, entry) in top)
+        {
+            if (_transactions.Count &gt; 0) _transactions.Peek()[key] = entry;     // merge into parent
+            else if (ReferenceEquals(entry, Deleted)) _store.Remove(key);
+            else _store[key] = entry;
+        }
+    }
+
+    public int SweepExpired()                                   // optional background cleanup
+    {
+        var expired = _store.Where(kv =&gt; IsExpired(kv.Value)).Select(kv =&gt; kv.Key).ToList();
+        foreach (var k in expired) _store.Remove(k);
+        return expired.Count;
+    }
+
+    private string? Visible(Entry e) =&gt; ReferenceEquals(e, Deleted) || IsExpired(e) ? null : e.Value;
+    private bool IsExpired(Entry e) =&gt; e.ExpiresAt is { } t &amp;&amp; t &lt;= clock.GetUtcNow();
+}</code></pre>
+<p><b>Notes:</b> a sentinel distinguishes "deleted in this transaction" from "not touched"; expiry is lazy on read plus an optional sweep (Redis uses a similar combination). Concurrency between clients isn't handled; mention a lock for single-writer safety, and that real isolation (per-client transactions) needs versioning (MVCC) or locking.</p>`,
+keys:["Committed store + stack of change layers","Delete sentinel within transactions","Commit merges into parent; rollback discards","Lazy TTL expiry + sweep","Clear about isolation limits"],
+trade:["Layered changes: O(depth) reads vs simple commit/rollback","Lazy expiry: cheap vs memory held until accessed/swept","No isolation between clients: simple vs not a real multi-user database"],
+fu:[{q:"Add a 'count values equal to X' command in O(1).",a:"Maintain a value→count index updated on every effective change (including commits and expiries), with transaction layers tracking their deltas."},{q:"Make it safe for concurrent clients.",a:"Per-client transaction stacks plus a global lock on commit with conflict detection (optimistic: version per key, abort if a key changed since read), or a single-writer actor loop."},{q:"Persist it to survive restarts.",a:"Append-only log of committed operations, replayed on startup, with periodic snapshots to bound replay time."}],
+rf:["Rollback implemented by copying the whole store","Deletes inside transactions not represented","Expired keys returned"]},
+
+{id:"L017",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Design a logging framework: log levels, multiple destinations (console, file), configurable formatting, and logging that doesn't slow down the application.",
+a:`<p><b>Clarify:</b> levels (Debug → Fatal) with a minimum level per sink; structured properties; formats (text, JSON); async writing; what happens when the buffer is full (drop or block); flushing on shutdown.</p>
+<pre><code>public enum LogLevel { Debug, Info, Warning, Error, Fatal }
+public sealed record LogEvent(DateTimeOffset Timestamp, LogLevel Level, string Message,
+                              IReadOnlyDictionary&lt;string, object?&gt; Properties, Exception? Exception);
+
+public interface ILogFormatter { string Format(LogEvent e); }
+public sealed class JsonFormatter : ILogFormatter
+{
+    public string Format(LogEvent e) =&gt; System.Text.Json.JsonSerializer.Serialize(new
+    {
+        ts = e.Timestamp, level = e.Level.ToString(), msg = e.Message,
+        props = e.Properties, error = e.Exception?.ToString()
+    });
+}
+
+public interface ILogSink { LogLevel MinimumLevel { get; } ValueTask WriteAsync(LogEvent e); ValueTask FlushAsync(); }
+
+public sealed class ConsoleSink(ILogFormatter formatter, LogLevel min) : ILogSink
+{
+    public LogLevel MinimumLevel =&gt; min;
+    public ValueTask WriteAsync(LogEvent e) { Console.WriteLine(formatter.Format(e)); return ValueTask.CompletedTask; }
+    public ValueTask FlushAsync() =&gt; ValueTask.CompletedTask;
+}
+
+public sealed class Logger : IAsyncDisposable
+{
+    private readonly IReadOnlyList&lt;ILogSink&gt; _sinks;
+    private readonly TimeProvider _clock;
+    private readonly System.Threading.Channels.Channel&lt;LogEvent&gt; _buffer;
+    private readonly Task _pump;
+    private long _dropped;
+
+    public Logger(IReadOnlyList&lt;ILogSink&gt; sinks, TimeProvider clock, int capacity = 10_000)
+    {
+        (_sinks, _clock) = (sinks, clock);
+        _buffer = System.Threading.Channels.Channel.CreateBounded&lt;LogEvent&gt;(
+            new System.Threading.Channels.BoundedChannelOptions(capacity)
+            { FullMode = System.Threading.Channels.BoundedChannelFullMode.DropWrite });
+        _pump = Task.Run(PumpAsync);
+    }
+
+    public LogLevel MinimumLevel =&gt; _sinks.Min(s =&gt; s.MinimumLevel);
+
+    public void Log(LogLevel level, string message, IReadOnlyDictionary&lt;string, object?&gt;? props = null, Exception? ex = null)
+    {
+        if (level &lt; MinimumLevel) return;                  // cheap check before allocating work
+        var e = new LogEvent(_clock.GetUtcNow(), level, message, props ?? new Dictionary&lt;string, object?&gt;(), ex);
+        if (!_buffer.Writer.TryWrite(e)) Interlocked.Increment(ref _dropped);   // never block the caller
+    }
+
+    private async Task PumpAsync()
+    {
+        await foreach (var e in _buffer.Reader.ReadAllAsync())
+            foreach (var sink in _sinks)
+                if (e.Level &gt;= sink.MinimumLevel)
+                {
+                    try { await sink.WriteAsync(e); }
+                    catch { /* a failing sink must not crash the app or other sinks */ }
+                }
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _buffer.Writer.Complete();
+        await _pump;
+        foreach (var s in _sinks) await s.FlushAsync();
+    }
+}</code></pre>
+<p><b>Patterns:</b> Strategy for formatters and sinks, producer/consumer for async writes, a level check before work. Policy choice when full: drop (with a dropped counter) for availability, or block for completeness; say which and why.</p>`,
+keys:["Levels with per-sink minimum","Formatter and sink abstractions","Bounded async buffer; drop policy explicit","Sink failures isolated","Flush on shutdown"],
+trade:["Async with drops: app never blocks vs some logs lost under extreme load","Synchronous writes: no loss vs latency and possible app stalls (see K028's awslogs blocking mode)"],
+fu:[{q:"Add a file sink with rotation by size and date.",a:"FileSink keeps a StreamWriter; on each write check size/date; rotate by closing and renaming; flush on interval; handle disk-full errors without crashing."},{q:"How do you avoid formatting cost for disabled levels?",a:"Check IsEnabled(level) before building messages; use message templates with deferred formatting (as Microsoft.Extensions.Logging and source-generated LoggerMessage do)."},{q:"Why not just use Serilog or Microsoft.Extensions.Logging?",a:"In production you would; this exercise tests design. Mention that the framework's abstractions (ILogger, sinks, enrichers) mirror this design."}],
+rf:["Blocking file I/O on the request path","One sink failure breaks all logging","No level filtering before work","No flush on shutdown"]},
+
+{id:"L018",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Implement an in-memory publish/subscribe message broker with topics, consumer groups and offsets, with at-least-once delivery semantics.",
+a:`<p><b>Clarify:</b> Kafka-like (append-only log, consumers pull with offsets) or push-based? Consumer groups share work or each group gets all messages? Message retention? Acknowledgement model?</p>
+<p><b>Design (Kafka-like, single partition per topic):</b> each topic is an append-only list; each consumer group has a committed offset per topic. Consumers poll from the committed offset and commit after processing, which gives at-least-once delivery: if a consumer crashes before committing, the messages are delivered again.</p>
+<pre><code>public sealed record Message(long Offset, string Key, string Payload, DateTimeOffset PublishedAt);
+
+public sealed class Topic(string name)
+{
+    private readonly List&lt;Message&gt; _log = new();
+    private readonly ReaderWriterLockSlim _lock = new();
+    public string Name { get; } = name;
+
+    public long Append(string key, string payload, DateTimeOffset now)
+    {
+        _lock.EnterWriteLock();
+        try { var m = new Message(_log.Count, key, payload, now); _log.Add(m); return m.Offset; }
+        finally { _lock.ExitWriteLock(); }
+    }
+
+    public IReadOnlyList&lt;Message&gt; Read(long fromOffset, int max)
+    {
+        _lock.EnterReadLock();
+        try
+        {
+            if (fromOffset &gt;= _log.Count) return Array.Empty&lt;Message&gt;();
+            var count = (int)Math.Min(max, _log.Count - fromOffset);
+            return _log.GetRange((int)fromOffset, count);
+        }
+        finally { _lock.ExitReadLock(); }
+    }
+}
+
+public sealed class Broker(TimeProvider clock)
+{
+    private readonly ConcurrentDictionary&lt;string, Topic&gt; _topics = new();
+    private readonly ConcurrentDictionary&lt;(string Group, string Topic), long&gt; _committed = new();
+
+    public long Publish(string topic, string key, string payload) =&gt;
+        _topics.GetOrAdd(topic, t =&gt; new Topic(t)).Append(key, payload, clock.GetUtcNow());
+
+    public IReadOnlyList&lt;Message&gt; Poll(string group, string topic, int max = 100)
+    {
+        if (!_topics.TryGetValue(topic, out var t)) return Array.Empty&lt;Message&gt;();
+        var from = _committed.GetOrAdd((group, topic), 0);
+        return t.Read(from, max);
+    }
+
+    // Commit the offset after the last processed message.
+    public void Commit(string group, string topic, long lastProcessedOffset) =&gt;
+        _committed.AddOrUpdate((group, topic), lastProcessedOffset + 1,
+                               (_, current) =&gt; Math.Max(current, lastProcessedOffset + 1));
+}</code></pre>
+<p><b>Semantics to explain:</b> each consumer group receives every message (fan-out between groups); within a group, a single-partition topic gives ordered processing by one consumer at a time. Committing before processing would give at-most-once; committing after gives at-least-once, so consumers must be idempotent.</p>`,
+keys:["Append-only log per topic","Committed offset per (group, topic)","Poll from offset; commit after processing = at-least-once","Groups fan-out; reader-writer lock on log","Idempotent consumers"],
+trade:["Pull with offsets: replay and backpressure vs consumers manage polling","Single partition: total order vs no parallelism within a group","Unbounded log: replay forever vs memory (add retention)"],
+fu:[{q:"Allow multiple consumers in one group to share the load.",a:"Partition topics (hash of key → partition); assign partitions to group members; offsets per (group, topic, partition); rebalance when members join or leave. Ordering is then per key, not global."},{q:"Add retention by time or size.",a:"Periodically drop old messages, keeping a base offset so offsets remain stable; consumers behind retention skip to the earliest available offset."},{q:"Implement push-based delivery with acknowledgements instead.",a:"Per-subscriber delivery queue, in-flight messages with ack deadlines, redelivery on timeout, dead-letter after N attempts (SQS-like)."}],
+rf:["Removes messages when one consumer reads them (breaks other groups)","Commits before processing while claiming at-least-once","No concurrency control on the log"]},
+
+{id:"L019",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Build a job scheduler: schedule one-off jobs at a time or after a delay, recurring jobs at fixed intervals, with a limited number of concurrent workers and cancellation.",
+a:`<p><b>Clarify:</b> recurring by fixed interval (not full cron) for now? Missed runs after downtime (skip or catch up)? Overlap policy for long-running recurring jobs (skip next run if still running)? Max concurrency? Persistence (no, in-memory)?</p>
+<pre><code>public sealed record JobDefinition(string Id, Func&lt;CancellationToken, Task&gt; Work, TimeSpan? Interval);
+
+public sealed class JobScheduler : IAsyncDisposable
+{
+    private readonly PriorityQueue&lt;JobDefinition, DateTimeOffset&gt; _queue = new();  // ordered by next run time
+    private readonly HashSet&lt;string&gt; _cancelled = new();
+    private readonly HashSet&lt;string&gt; _running = new();
+    private readonly object _gate = new();
+    private readonly SemaphoreSlim _workers;
+    private readonly SemaphoreSlim _wake = new(0);
+    private readonly TimeProvider _clock;
+    private readonly CancellationTokenSource _cts = new();
+    private readonly Task _loop;
+
+    public JobScheduler(int maxConcurrency, TimeProvider clock)
+    {
+        _workers = new SemaphoreSlim(maxConcurrency);
+        _clock = clock;
+        _loop = Task.Run(LoopAsync);
+    }
+
+    public void ScheduleAt(JobDefinition job, DateTimeOffset when)
+    {
+        lock (_gate) { _cancelled.Remove(job.Id); _queue.Enqueue(job, when); }
+        _wake.Release();                                   // re-evaluate the next due time
+    }
+
+    public void ScheduleAfter(JobDefinition job, TimeSpan delay) =&gt; ScheduleAt(job, _clock.GetUtcNow() + delay);
+
+    public void Cancel(string jobId) { lock (_gate) _cancelled.Add(jobId); }
+
+    private async Task LoopAsync()
+    {
+        var ct = _cts.Token;
+        while (!ct.IsCancellationRequested)
+        {
+            JobDefinition? due = null; TimeSpan wait = Timeout.InfiniteTimeSpan;
+            lock (_gate)
+            {
+                if (_queue.TryPeek(out var job, out var runAt))
+                {
+                    var now = _clock.GetUtcNow();
+                    if (runAt &lt;= now) { _queue.Dequeue(); due = job; }
+                    else wait = runAt - now;
+                }
+            }
+            if (due is null)
+            {
+                try { await _wake.WaitAsync(wait, ct); } catch (OperationCanceledException) { break; }
+                continue;
+            }
+            bool skip;
+            lock (_gate) skip = _cancelled.Contains(due.Id) || !_running.Add(due.Id);   // no overlapping runs
+            if (skip) continue;   // cancelled, or a run is already in progress (it reschedules itself)
+
+            await _workers.WaitAsync(ct);
+            _ = Task.Run(async () =&gt;
+            {
+                try { await due.Work(ct); }
+                catch (Exception) { /* log and continue; one job must not stop the scheduler */ }
+                finally
+                {
+                    lock (_gate) _running.Remove(due.Id);
+                    _workers.Release();
+                    Reschedule(due);
+                }
+            }, ct);
+        }
+    }
+
+    private void Reschedule(JobDefinition job)
+    {
+        if (job.Interval is not { } interval) return;
+        lock (_gate)
+        {
+            if (_cancelled.Contains(job.Id)) return;
+            _queue.Enqueue(job, _clock.GetUtcNow() + interval);   // fixed delay after completion
+        }
+        _wake.Release();
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        _cts.Cancel();
+        try { await _loop; } catch (OperationCanceledException) { }
+        _cts.Dispose();
+    }
+}</code></pre>
+<p><b>Key ideas:</b> a priority queue ordered by next run time; one loop sleeps until the next job is due or it's woken by a new schedule; a semaphore limits concurrent work; recurring jobs reschedule after completion (fixed delay), and overlapping runs are skipped. Note: <code>TimeProvider</code> supplies "now", but the wait itself uses real time; for fully fake-clock tests, wait with <code>Task.Delay(wait, _clock, ct)</code> and use a separate wake signal.</p>`,
+keys:["Priority queue by next run time","Sleep until due or woken","Semaphore limits concurrency","Recurring reschedule; no overlapping runs","Cancellation and failure isolation"],
+trade:["Fixed delay after completion: no overlap vs drifting schedule (fixed rate keeps cadence but can overlap)","In-memory: simple vs jobs lost on restart (Hangfire/Quartz persist)"],
+fu:[{q:"Support cron expressions.",a:"A schedule abstraction (ISchedule.NextOccurrence(after)) with an interval implementation and a cron implementation (e.g. using a cron parsing library); the scheduler only asks for the next time."},{q:"Run the scheduler on 3 instances without duplicating jobs.",a:"Persist jobs and use leases: an instance claims a due job with a conditional update (owner, lease expiry) in the database; others skip; expired leases are reclaimed."},{q:"What happens with missed runs after the process was down for an hour?",a:"Define a misfire policy per job: run once now, run all missed, or skip to the next scheduled time."}],
+rf:["Thread.Sleep polling loop every second","Unbounded concurrent tasks","One failing job crashes the loop","No cancellation"]},
+
+{id:"L020",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Design a shopping cart with a discount engine: percentage off a category, buy-X-get-Y-free, coupon with minimum order value, and rules about which discounts can combine.",
+a:`<p><b>Clarify:</b> discount types and examples; can discounts stack, or only the best one applies? Order of application (item-level before order-level)? Coupon validity (dates, one per user)? Rounding of money.</p>
+<pre><code>public sealed record Product(string Sku, string Name, string Category, decimal Price);
+public sealed record CartLine(Product Product, int Quantity) { public decimal Subtotal =&gt; Product.Price * Quantity; }
+public sealed record AppliedDiscount(string RuleId, string Description, decimal Amount);
+
+public sealed class Cart
+{
+    private readonly Dictionary&lt;string, CartLine&gt; _lines = new();
+    public IReadOnlyCollection&lt;CartLine&gt; Lines =&gt; _lines.Values;
+    public void Add(Product p, int qty)
+    {
+        ArgumentOutOfRangeException.ThrowIfNegativeOrZero(qty);
+        _lines[p.Sku] = _lines.TryGetValue(p.Sku, out var l) ? l with { Quantity = l.Quantity + qty } : new CartLine(p, qty);
+    }
+    public decimal Subtotal =&gt; _lines.Values.Sum(l =&gt; l.Subtotal);
+}
+
+public interface IDiscountRule
+{
+    string Id { get; }
+    int Priority { get; }          // lower runs first: item-level rules before order-level
+    bool Stackable { get; }
+    AppliedDiscount? Evaluate(Cart cart, decimal runningTotal);
+}
+
+public sealed class CategoryPercentOff(string id, string category, decimal percent) : IDiscountRule
+{
+    public string Id =&gt; id; public int Priority =&gt; 10; public bool Stackable =&gt; true;
+    public AppliedDiscount? Evaluate(Cart cart, decimal runningTotal)
+    {
+        var eligible = cart.Lines.Where(l =&gt; l.Product.Category == category).Sum(l =&gt; l.Subtotal);
+        return eligible == 0 ? null
+            : new(id, percent + "% off " + category, Math.Round(eligible * percent / 100, 2));
+    }
+}
+
+public sealed class BuyXGetYFree(string id, string sku, int buy, int free) : IDiscountRule
+{
+    public string Id =&gt; id; public int Priority =&gt; 10; public bool Stackable =&gt; true;
+    public AppliedDiscount? Evaluate(Cart cart, decimal runningTotal)
+    {
+        var line = cart.Lines.FirstOrDefault(l =&gt; l.Product.Sku == sku);
+        if (line is null) return null;
+        var freeUnits = line.Quantity / (buy + free) * free;
+        return freeUnits == 0 ? null
+            : new(id, "Buy " + buy + " get " + free + " free", freeUnits * line.Product.Price);
+    }
+}
+
+public sealed class MinimumOrderCoupon(string id, decimal minimum, decimal flatOff) : IDiscountRule
+{
+    public string Id =&gt; id; public int Priority =&gt; 100; public bool Stackable =&gt; false;
+    public AppliedDiscount? Evaluate(Cart cart, decimal runningTotal) =&gt;
+        runningTotal &gt;= minimum ? new(id, "Coupon: " + flatOff + " off", Math.Min(flatOff, runningTotal)) : null;
+}
+
+public sealed class PricingEngine(IEnumerable&lt;IDiscountRule&gt; rules)
+{
+    public (decimal Total, IReadOnlyList&lt;AppliedDiscount&gt; Discounts) Price(Cart cart)
+    {
+        var running = cart.Subtotal;
+        var applied = new List&lt;AppliedDiscount&gt;();
+        foreach (var rule in rules.OrderBy(r =&gt; r.Priority))
+        {
+            if (!rule.Stackable &amp;&amp; applied.Count &gt; 0) continue;   // non-stackable only if nothing applied yet
+            var d = rule.Evaluate(cart, running);
+            if (d is null || d.Amount &lt;= 0) continue;
+            applied.Add(d);
+            running -= d.Amount;
+        }
+        return (Math.Max(0, running), applied);
+    }
+}</code></pre>
+<p><b>Patterns:</b> Strategy per rule type; the engine is a simple pipeline ordered by priority (Chain of Responsibility style). Combination rules (stackable flags, priorities, "best of" groups) live in the engine, not inside each rule. Return an itemised breakdown so the UI and audits can show why the price is what it is.</p>`,
+keys:["Rule strategy interface with priority and stackability","Item-level before order-level","Engine owns combination policy","Itemised discount breakdown","Decimal money and rounding"],
+trade:["Sequential stacking: simple vs order-dependent results","'Best single discount' policy: predictable vs customers may expect stacking","Rules in code: type-safe vs needs deployment (rules from config/DB for marketing teams)"],
+fu:[{q:"Marketing wants to create new promotions without a deployment.",a:"Store rule definitions (type + parameters + validity) in a database; a factory builds IDiscountRule instances; new rule types still need code, new instances don't."},{q:"Choose the best combination of non-stackable discounts for the customer.",a:"Evaluate each alternative set and pick the one with the lowest total; with few rules brute force is fine."},{q:"How do refunds work when one item from a discounted bundle is returned?",a:"Store the price breakdown per line at purchase time and allocate discounts proportionally to lines, so refunds reverse the right amounts."}],
+rf:["Discount logic in Cart with if/else per promotion","double for money","No breakdown of applied discounts","Order of rules undefined"]},
+{id:"L021",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Design a chess game: board, pieces with their movement rules, turns, and validation that a move doesn't leave your own king in check.",
+a:`<p><b>Clarify:</b> two human players; standard rules; which special moves are in scope (castling, en passant, promotion are usually deferred); detect check and checkmate; move input as coordinates.</p>
+<p><b>Design:</b> polymorphism for movement: each piece generates candidate destinations; the game filters out moves that would leave the mover's king attacked by simulating on a copy of the board.</p>
+<pre><code>public enum Color { White, Black }
+
+public readonly record struct Pos(int Row, int Col)
+{
+    public bool OnBoard =&gt; Row is &gt;= 0 and &lt; 8 &amp;&amp; Col is &gt;= 0 and &lt; 8;
+    public Pos Offset(int dr, int dc) =&gt; new(Row + dr, Col + dc);
+}
+
+public abstract class Piece(Color color)
+{
+    public Color Color { get; } = color;
+    public abstract IEnumerable&lt;Pos&gt; Candidates(Board board, Pos from);
+
+    protected IEnumerable&lt;Pos&gt; Slide(Board board, Pos from, params (int Dr, int Dc)[] directions)
+    {
+        foreach (var (dr, dc) in directions)
+        {
+            for (var p = from.Offset(dr, dc); p.OnBoard; p = p.Offset(dr, dc))
+            {
+                var occupant = board[p];
+                if (occupant is null) { yield return p; continue; }
+                if (occupant.Color != Color) yield return p;    // capture
+                break;                                          // blocked either way
+            }
+        }
+    }
+
+    protected IEnumerable&lt;Pos&gt; Steps(Board board, Pos from, params (int Dr, int Dc)[] deltas)
+    {
+        foreach (var (dr, dc) in deltas)
+        {
+            var p = from.Offset(dr, dc);
+            if (p.OnBoard &amp;&amp; board[p]?.Color != Color) yield return p;
+        }
+    }
+}
+
+public sealed class Rook(Color c) : Piece(c)
+{
+    public override IEnumerable&lt;Pos&gt; Candidates(Board b, Pos f) =&gt; Slide(b, f, (1, 0), (-1, 0), (0, 1), (0, -1));
+}
+public sealed class Bishop(Color c) : Piece(c)
+{
+    public override IEnumerable&lt;Pos&gt; Candidates(Board b, Pos f) =&gt; Slide(b, f, (1, 1), (1, -1), (-1, 1), (-1, -1));
+}
+public sealed class Queen(Color c) : Piece(c)
+{
+    public override IEnumerable&lt;Pos&gt; Candidates(Board b, Pos f) =&gt;
+        Slide(b, f, (1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1));
+}
+public sealed class Knight(Color c) : Piece(c)
+{
+    public override IEnumerable&lt;Pos&gt; Candidates(Board b, Pos f) =&gt;
+        Steps(b, f, (2, 1), (2, -1), (-2, 1), (-2, -1), (1, 2), (1, -2), (-1, 2), (-1, -2));
+}
+public sealed class King(Color c) : Piece(c)
+{
+    public override IEnumerable&lt;Pos&gt; Candidates(Board b, Pos f) =&gt;
+        Steps(b, f, (1, 0), (-1, 0), (0, 1), (0, -1), (1, 1), (1, -1), (-1, 1), (-1, -1));
+}
+public sealed class Pawn(Color c) : Piece(c)
+{
+    public override IEnumerable&lt;Pos&gt; Candidates(Board b, Pos f)
+    {
+        var dir = Color == Color.White ? 1 : -1;
+        var startRow = Color == Color.White ? 1 : 6;
+        var one = f.Offset(dir, 0);
+        if (one.OnBoard &amp;&amp; b[one] is null)
+        {
+            yield return one;
+            var two = f.Offset(2 * dir, 0);
+            if (f.Row == startRow &amp;&amp; b[two] is null) yield return two;
+        }
+        foreach (var dc in new[] { -1, 1 })
+        {
+            var diag = f.Offset(dir, dc);
+            if (diag.OnBoard &amp;&amp; b[diag] is { } target &amp;&amp; target.Color != Color) yield return diag;
+        }
+    }
+}
+
+public sealed class Board
+{
+    private readonly Piece?[,] _cells = new Piece?[8, 8];
+    public Piece? this[Pos p] { get =&gt; _cells[p.Row, p.Col]; set =&gt; _cells[p.Row, p.Col] = value; }
+
+    public Board Clone() { var b = new Board(); Array.Copy(_cells, b._cells, _cells.Length); return b; }
+
+    public IEnumerable&lt;(Pos Pos, Piece Piece)&gt; PiecesOf(Color color)
+    {
+        for (var r = 0; r &lt; 8; r++)
+            for (var c = 0; c &lt; 8; c++)
+                if (_cells[r, c] is { } p &amp;&amp; p.Color == color) yield return (new Pos(r, c), p);
+    }
+
+    public bool IsAttacked(Pos target, Color by) =&gt; PiecesOf(by).Any(x =&gt; x.Piece.Candidates(this, x.Pos).Contains(target));
+    public Pos KingOf(Color color) =&gt; PiecesOf(color).First(x =&gt; x.Piece is King).Pos;
+}
+
+public sealed class Game(Board board)
+{
+    public Color Turn { get; private set; } = Color.White;
+    private static Color Opponent(Color c) =&gt; c == Color.White ? Color.Black : Color.White;
+
+    public IEnumerable&lt;Pos&gt; LegalMoves(Pos from)
+    {
+        var piece = board[from];
+        if (piece is null) yield break;
+        foreach (var to in piece.Candidates(board, from))
+        {
+            var copy = board.Clone();
+            copy[to] = piece; copy[from] = null;
+            if (!copy.IsAttacked(copy.KingOf(piece.Color), Opponent(piece.Color))) yield return to;
+        }
+    }
+
+    public void Move(Pos from, Pos to)
+    {
+        var piece = board[from] ?? throw new InvalidOperationException("No piece there");
+        if (piece.Color != Turn) throw new InvalidOperationException("Not your turn");
+        if (!LegalMoves(from).Contains(to)) throw new InvalidOperationException("Illegal move");
+        board[to] = piece; board[from] = null;
+        Turn = Opponent(Turn);
+    }
+
+    public bool IsCheckmate() =&gt;
+        board.IsAttacked(board.KingOf(Turn), Opponent(Turn)) &amp;&amp;
+        !board.PiecesOf(Turn).Any(x =&gt; LegalMoves(x.Pos).Any());
+}</code></pre>
+<p><b>Patterns and choices:</b> polymorphic move generation (each piece knows its rules), shared helpers for sliding and stepping, simulation on a cloned board for check validation (simple and correct; engines use incremental make/unmake for speed). A <code>PieceFactory</code> can set up the initial position.</p>`,
+keys:["Polymorphic move generation per piece","Shared Slide/Steps helpers","Legal = candidate that doesn't leave king attacked","Clone-and-simulate validation","Turn handling, check and checkmate"],
+trade:["Clone per candidate move: simple vs slow for engines (make/unmake moves)","Rules in pieces: cohesive vs special moves needing game history (castling rights, en passant)"],
+fu:[{q:"Add castling and en passant.",a:"They depend on history: track whether king/rooks have moved and the last move; implement as special-move generators in the Game (or a rules service) rather than in pieces; castling also requires the squares passed through not to be attacked."},{q:"Add undo.",a:"Command pattern: each move stores from, to, captured piece and special-state changes; Undo reverses them."},{q:"How do you detect stalemate?",a:"Not in check and no legal moves for the side to move."}],
+rf:["Giant switch on piece type","Ignores check when validating moves","No turn validation","Pawn captures straight ahead"]},
+
+{id:"L022",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Design the core of a ride-hailing app: drivers update location and availability, riders request trips, the system matches the nearest available driver, and trips move through states with fare calculation.",
+a:`<p><b>Clarify:</b> matching radius; nearest by straight-line distance or ETA? Driver accept/decline flow? Fare model (base + per km + per minute, surge)? Cancellation rules? Single city, in-memory.</p>
+<pre><code>public sealed record Location(double Lat, double Lon)
+{
+    public double DistanceKm(Location o)
+    {
+        const double R = 6371;
+        double ToRad(double d) =&gt; d * Math.PI / 180;
+        var dLat = ToRad(o.Lat - Lat); var dLon = ToRad(o.Lon - Lon);
+        var a = Math.Pow(Math.Sin(dLat / 2), 2) +
+                Math.Cos(ToRad(Lat)) * Math.Cos(ToRad(o.Lat)) * Math.Pow(Math.Sin(dLon / 2), 2);
+        return 2 * R * Math.Asin(Math.Sqrt(a));      // haversine
+    }
+}
+
+public sealed class Driver(string id)
+{
+    private const int Available = 0, Busy = 1, Offline = 2;
+    private int _status = Offline;
+    public string Id { get; } = id;
+    public Location? Location { get; private set; }
+    public bool IsAvailable =&gt; Volatile.Read(ref _status) == Available;
+    public void UpdateLocation(Location loc) =&gt; Location = loc;
+    public void GoOnline() =&gt; Interlocked.Exchange(ref _status, Available);
+    public void GoOffline() =&gt; Interlocked.Exchange(ref _status, Offline);
+    // Atomic claim: only one trip can win this driver.
+    public bool TryClaim() =&gt; Interlocked.CompareExchange(ref _status, Busy, Available) == Available;
+    public void Release() =&gt; Interlocked.Exchange(ref _status, Available);
+}
+
+public enum TripState { Requested, DriverAssigned, InProgress, Completed, Cancelled }
+
+public sealed class Trip(string id, string riderId, Location pickup, Location drop)
+{
+    public string Id { get; } = id; public string RiderId { get; } = riderId;
+    public Location Pickup { get; } = pickup; public Location Drop { get; } = drop;
+    public TripState State { get; private set; } = TripState.Requested;
+    public Driver? Driver { get; private set; }
+    public DateTimeOffset? StartedAt { get; private set; }
+    public decimal? Fare { get; private set; }
+
+    public void Assign(Driver d) { Ensure(TripState.Requested); Driver = d; State = TripState.DriverAssigned; }
+    public void Start(DateTimeOffset now) { Ensure(TripState.DriverAssigned); StartedAt = now; State = TripState.InProgress; }
+    public void Complete(decimal fare) { Ensure(TripState.InProgress); Fare = fare; State = TripState.Completed; Driver!.Release(); }
+    public void Cancel()
+    {
+        if (State is TripState.Completed or TripState.Cancelled or TripState.InProgress)
+            throw new InvalidOperationException("Cannot cancel in state " + State);
+        Driver?.Release(); State = TripState.Cancelled;
+    }
+    private void Ensure(TripState expected)
+    {
+        if (State != expected) throw new InvalidOperationException("Expected " + expected + " but was " + State);
+    }
+}
+
+public interface IMatchingStrategy { IEnumerable&lt;Driver&gt; Rank(IEnumerable&lt;Driver&gt; drivers, Location pickup); }
+public sealed class NearestWithinRadius(double radiusKm) : IMatchingStrategy
+{
+    public IEnumerable&lt;Driver&gt; Rank(IEnumerable&lt;Driver&gt; drivers, Location pickup) =&gt;
+        drivers.Where(d =&gt; d.IsAvailable &amp;&amp; d.Location is not null)
+               .Select(d =&gt; (Driver: d, Km: d.Location!.DistanceKm(pickup)))
+               .Where(x =&gt; x.Km &lt;= radiusKm)
+               .OrderBy(x =&gt; x.Km)
+               .Select(x =&gt; x.Driver);
+}
+
+public interface IFareStrategy { decimal Calculate(double km, TimeSpan duration, decimal surge); }
+public sealed class StandardFare(decimal baseFare, decimal perKm, decimal perMinute) : IFareStrategy
+{
+    public decimal Calculate(double km, TimeSpan duration, decimal surge) =&gt;
+        Math.Round((baseFare + perKm * (decimal)km + perMinute * (decimal)duration.TotalMinutes) * surge, 2);
+}
+
+public sealed class RideService(IMatchingStrategy matching, IFareStrategy fares, TimeProvider clock)
+{
+    private readonly ConcurrentDictionary&lt;string, Driver&gt; _drivers = new();
+    private readonly ConcurrentDictionary&lt;string, Trip&gt; _trips = new();
+
+    public Driver RegisterDriver(string id) =&gt; _drivers.GetOrAdd(id, i =&gt; new Driver(i));
+
+    public Trip RequestTrip(string riderId, Location pickup, Location drop)
+    {
+        var trip = new Trip(Guid.NewGuid().ToString("N"), riderId, pickup, drop);
+        foreach (var driver in matching.Rank(_drivers.Values, pickup))
+        {
+            if (!driver.TryClaim()) continue;          // someone else got this driver; try the next
+            trip.Assign(driver);
+            _trips[trip.Id] = trip;
+            return trip;
+        }
+        throw new InvalidOperationException("No drivers available nearby");
+    }
+
+    public void StartTrip(string tripId) =&gt; _trips[tripId].Start(clock.GetUtcNow());
+
+    public decimal CompleteTrip(string tripId, double actualKm, decimal surge = 1m)
+    {
+        var trip = _trips[tripId];
+        var fare = fares.Calculate(actualKm, clock.GetUtcNow() - trip.StartedAt!.Value, surge);
+        trip.Complete(fare);
+        return fare;
+    }
+}</code></pre>
+<p><b>Key points:</b> atomic driver claim with <code>Interlocked.CompareExchange</code> prevents double assignment without a global lock; the trip is an explicit state machine; matching and fares are strategies. At real scale, nearby search uses a geospatial index (geohash/H3 cells, Redis GEO), not a scan of all drivers.</p>`,
+keys:["Atomic driver claim (CAS)","Trip state machine with guarded transitions","Matching strategy: nearest within radius","Fare strategy with surge","Geospatial indexing at scale"],
+trade:["Scan all drivers: simple vs O(n) per request (geo cells/index)","Straight-line distance: cheap vs ETA by road is better but needs routing","Auto-assign: fast vs driver accept/decline flow (offer with timeout, next driver)"],
+fu:[{q:"Drivers must accept or decline within 15 seconds.",a:"Offer state on the trip; claim the driver tentatively, send the offer, start a timer; on decline or timeout, release and try the next ranked driver; cap attempts."},{q:"How would you compute surge?",a:"Per geo cell, ratio of open requests to available drivers over a short window, mapped to a multiplier with caps and smoothing; shown to riders before confirming."},{q:"How do you find nearby drivers among 100,000?",a:"Index drivers by geohash/H3 cell updated with location pings; search the pickup cell and neighbours, expanding rings until enough candidates."}],
+rf:["Two trips can claim the same driver","State as free strings","Fare logic inside Trip","Scanning all drivers presented as scalable"]},
+
+{id:"L023",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Implement an in-memory file system with directories and files: mkdir -p, create/write/read files, list, total size of a directory, and find by name.",
+a:`<p><b>Clarify:</b> absolute paths with '/'; file content as text; size = content length; ls sorted? find by exact name or pattern; errors for missing paths or name clashes.</p>
+<p><b>Composite pattern:</b> files and directories share a node base; directories contain nodes; size and search recurse naturally.</p>
+<pre><code>public abstract class FsNode(string name, DirectoryNode? parent)
+{
+    public string Name { get; } = name;
+    public DirectoryNode? Parent { get; } = parent;
+    public abstract long Size { get; }
+    public string Path =&gt; Parent is null ? "/" : (Parent.Parent is null ? "/" : Parent.Path + "/") + Name;
+}
+
+public sealed class FileNode(string name, DirectoryNode parent) : FsNode(name, parent)
+{
+    public string Content { get; private set; } = "";
+    public override long Size =&gt; Content.Length;
+    public void Write(string content, bool append) =&gt; Content = append ? Content + content : content;
+}
+
+public sealed class DirectoryNode(string name, DirectoryNode? parent) : FsNode(name, parent)
+{
+    private readonly SortedDictionary&lt;string, FsNode&gt; _children = new(StringComparer.Ordinal);
+    public IEnumerable&lt;FsNode&gt; Children =&gt; _children.Values;
+    public override long Size =&gt; _children.Values.Sum(c =&gt; c.Size);
+    public FsNode? Get(string name) =&gt; _children.GetValueOrDefault(name);
+    public T Add&lt;T&gt;(T node) where T : FsNode
+    {
+        if (!_children.TryAdd(node.Name, node)) throw new InvalidOperationException(node.Name + " already exists");
+        return node;
+    }
+}
+
+public sealed class FileSystem
+{
+    private readonly DirectoryNode _root = new("", null);
+
+    private static string[] Parts(string path)
+    {
+        if (!path.StartsWith('/')) throw new ArgumentException("Path must be absolute");
+        return path.Split('/', StringSplitOptions.RemoveEmptyEntries);
+    }
+
+    public DirectoryNode MkdirP(string path)
+    {
+        var current = _root;
+        foreach (var part in Parts(path))
+            current = current.Get(part) switch
+            {
+                DirectoryNode d =&gt; d,
+                null =&gt; current.Add(new DirectoryNode(part, current)),
+                _ =&gt; throw new InvalidOperationException(part + " is a file")
+            };
+        return current;
+    }
+
+    public void WriteFile(string path, string content, bool append = false)
+    {
+        var parts = Parts(path);
+        var dir = MkdirP("/" + string.Join('/', parts[..^1]));
+        var node = dir.Get(parts[^1]) ?? dir.Add(new FileNode(parts[^1], dir));
+        if (node is not FileNode file) throw new InvalidOperationException(path + " is a directory");
+        file.Write(content, append);
+    }
+
+    public FsNode Resolve(string path)
+    {
+        FsNode current = _root;
+        foreach (var part in Parts(path))
+            current = (current as DirectoryNode)?.Get(part) ?? throw new FileNotFoundException(path);
+        return current;
+    }
+
+    public string ReadFile(string path) =&gt;
+        Resolve(path) is FileNode f ? f.Content : throw new InvalidOperationException(path + " is a directory");
+
+    public IEnumerable&lt;string&gt; List(string path) =&gt; Resolve(path) switch
+    {
+        DirectoryNode d =&gt; d.Children.Select(c =&gt; c.Name),
+        FileNode f =&gt; new[] { f.Name },
+        _ =&gt; Array.Empty&lt;string&gt;()
+    };
+
+    public IEnumerable&lt;string&gt; Find(string startPath, Func&lt;FsNode, bool&gt; predicate)
+    {
+        var stack = new Stack&lt;FsNode&gt;();
+        stack.Push(Resolve(startPath));
+        while (stack.Count &gt; 0)
+        {
+            var node = stack.Pop();
+            if (predicate(node)) yield return node.Path;
+            if (node is DirectoryNode d) foreach (var c in d.Children) stack.Push(c);
+        }
+    }
+}</code></pre>
+<p><b>Notes:</b> Composite makes <code>Size</code> recursive; <code>find</code> uses an explicit stack to avoid deep recursion; sorted children give deterministic <code>ls</code> output. Find takes a predicate (Strategy/Specification) so name, extension, or size filters are easy to add.</p>`,
+keys:["Composite: shared node base, directories contain nodes","Path parsing and validation","mkdir -p creates intermediates","Recursive size; iterative find with predicate","Clear errors for file/directory clashes"],
+trade:["Computed Size: always correct vs O(subtree) per call (cache with invalidation on writes)","In-memory tree: simple vs no persistence"],
+fu:[{q:"Add move/rename.",a:"Detach from the old parent's children and add to the new parent (update the Parent reference, so make it settable internally); prevent moving a directory into its own subtree."},{q:"Size calls are slow on huge trees.",a:"Maintain cached sizes and propagate deltas up the parent chain on every write or delete."},{q:"Support permissions.",a:"Owner and mode per node; check on each operation by walking the path (execute permission on directories), similar to Unix."}],
+rf:["Separate unrelated classes with duplicated logic","String path manipulation everywhere","Recursion depth issues ignored","No error handling for missing paths"]},
+
+{id:"L024",skill:"Machine Coding",level:"Intermediate",type:"Machine Coding",
+q:"Design an ATM: card insertion, PIN verification with limited attempts, balance enquiry, cash withdrawal dispensing notes from limited denominations, and cancellation.",
+a:`<p><b>Clarify:</b> denominations (e.g. ₹2000/500/200/100) and counts; daily withdrawal limit; PIN attempts before retaining the card (3); the bank is behind an interface; one customer at a time.</p>
+<p><b>Patterns:</b> State for the session (Idle → CardInserted → Authenticated); Chain of Responsibility for note dispensing, planned first and committed only if the full amount can be dispensed.</p>
+<pre><code>public interface IBank
+{
+    bool VerifyPin(string cardNumber, string pin);
+    decimal Balance(string account);
+    bool Debit(string account, decimal amount, string idempotencyKey);
+}
+
+public sealed class NoteHandler(int denomination, int count, NoteHandler? next)
+{
+    public int Denomination { get; } = denomination;
+    public int Count { get; private set; } = count;
+
+    // Plan without mutating; returns null if the amount can't be made.
+    public Dictionary&lt;int, int&gt;? Plan(int amount, Dictionary&lt;int, int&gt;? acc = null)
+    {
+        acc ??= new Dictionary&lt;int, int&gt;();
+        var use = Math.Min(amount / Denomination, Count);
+        if (use &gt; 0) acc[Denomination] = use;
+        var remaining = amount - use * Denomination;
+        if (remaining == 0) return acc;
+        return next?.Plan(remaining, acc);
+    }
+
+    public void Commit(Dictionary&lt;int, int&gt; plan)
+    {
+        if (plan.TryGetValue(Denomination, out var n)) Count -= n;
+        next?.Commit(plan);
+    }
+}
+
+public enum AtmState { Idle, CardInserted, Authenticated }
+
+public sealed class Atm(IBank bank, NoteHandler dispenser)
+{
+    private string? _card; private int _attempts;
+    public AtmState State { get; private set; } = AtmState.Idle;
+
+    public void InsertCard(string card)
+    {
+        Require(AtmState.Idle);
+        (_card, _attempts, State) = (card, 0, AtmState.CardInserted);
+    }
+
+    public bool EnterPin(string pin)
+    {
+        Require(AtmState.CardInserted);
+        if (bank.VerifyPin(_card!, pin)) { State = AtmState.Authenticated; return true; }
+        if (++_attempts &gt;= 3) { RetainCard(); throw new InvalidOperationException("Card retained"); }
+        return false;
+    }
+
+    public decimal Balance() { Require(AtmState.Authenticated); return bank.Balance(_card!); }
+
+    public IReadOnlyDictionary&lt;int, int&gt; Withdraw(int amount)
+    {
+        Require(AtmState.Authenticated);
+        if (amount &lt;= 0 || amount % 100 != 0) throw new ArgumentException("Amount must be a positive multiple of 100");
+        var plan = dispenser.Plan(amount) ?? throw new InvalidOperationException("Cannot dispense this amount");
+        var key = Guid.NewGuid().ToString("N");
+        if (!bank.Debit(_card!, amount, key)) throw new InvalidOperationException("Insufficient funds");
+        dispenser.Commit(plan);       // physical dispense; on hardware failure, reverse the debit with the same key
+        return plan;
+    }
+
+    public void Cancel() =&gt; (_card, State) = (null, AtmState.Idle);
+
+    private void RetainCard() =&gt; (_card, State) = (null, AtmState.Idle);
+    private void Require(AtmState expected)
+    {
+        if (State != expected) throw new InvalidOperationException("Operation not allowed in state " + State);
+    }
+}</code></pre>
+<p><b>Order of operations matters:</b> check the machine can dispense <b>before</b> debiting; debit with an idempotency key; then dispense; if dispensing fails physically, reverse the debit. Greedy planning works for standard note sets; with limited counts it can fail where another combination works (e.g. 600 with only one 500 and three 200s), so mention a backtracking or DP fallback.</p>`,
+keys:["State for session flow with guards","PIN attempts and card retention","Chain of Responsibility for notes: plan then commit","Check dispensability before debit; idempotent debit","Greedy limitation with limited counts"],
+trade:["Enum + guards: compact vs State classes when behaviour per state grows","Greedy chain: simple vs can miss valid combinations"],
+fu:[{q:"Greedy fails: 600 with one 500 and three 200s. Fix it.",a:"Greedy takes 500 then can't make 100; backtracking tries fewer of the larger notes (zero 500s → three 200s = 600). Small search space, so backtracking over denominations is fine."},{q:"Network fails after the debit but before dispensing.",a:"Idempotent debit and a pending transaction record; on recovery, reverse the debit if cash wasn't dispensed; reconcile with the bank."},{q:"Add a daily withdrawal limit.",a:"Enforced by the bank (source of truth across ATMs), optionally pre-checked locally."}],
+rf:["Debits before checking cash availability","Partial dispense on failure","Unlimited PIN attempts","Logic in one giant method"]},
+
+{id:"L025",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Design inventory management with reservations: an order reserves stock for several SKUs (all or nothing) for a limited time, then confirms or releases it, without overselling under concurrency.",
+a:`<p><b>Clarify:</b> available = on hand − reserved; reservation TTL (e.g. 15 minutes); partial reservation not allowed; idempotency for retried requests; restock and adjustments.</p>
+<pre><code>public sealed class StockItem(string sku, int onHand)
+{
+    public string Sku { get; } = sku;
+    public int OnHand { get; set; } = onHand;
+    public int Reserved { get; set; }
+    public int Available =&gt; OnHand - Reserved;
+    public object Gate { get; } = new();
+}
+
+public sealed record Reservation(string Id, IReadOnlyDictionary&lt;string, int&gt; Lines, DateTimeOffset ExpiresAt);
+
+public sealed class InventoryService(TimeProvider clock, TimeSpan ttl)
+{
+    private readonly ConcurrentDictionary&lt;string, StockItem&gt; _items = new();
+    private readonly ConcurrentDictionary&lt;string, Reservation&gt; _reservations = new();
+
+    public void Restock(string sku, int qty)
+    {
+        var item = _items.GetOrAdd(sku, s =&gt; new StockItem(s, 0));
+        lock (item.Gate) item.OnHand += qty;
+    }
+
+    public Reservation Reserve(string reservationId, IReadOnlyDictionary&lt;string, int&gt; lines)
+    {
+        if (_reservations.TryGetValue(reservationId, out var existing)) return existing;   // idempotent retry
+        var items = lines.Keys.OrderBy(k =&gt; k, StringComparer.Ordinal)                     // fixed lock order: no deadlocks
+                         .Select(sku =&gt; _items.TryGetValue(sku, out var i) ? i : throw new KeyNotFoundException(sku))
+                         .ToList();
+        LockAll(items, 0, () =&gt;
+        {
+            foreach (var i in items)
+                if (i.Available &lt; lines[i.Sku]) throw new InsufficientStockException(i.Sku, i.Available);
+            foreach (var i in items) i.Reserved += lines[i.Sku];                             // all checks passed
+        });
+        var reservation = new Reservation(reservationId, lines, clock.GetUtcNow() + ttl);
+        _reservations[reservationId] = reservation;
+        return reservation;
+    }
+
+    public void Confirm(string reservationId)
+    {
+        if (!_reservations.TryRemove(reservationId, out var r)) throw new InvalidOperationException("Unknown or expired reservation");
+        foreach (var (sku, qty) in r.Lines)
+        {
+            var i = _items[sku];
+            lock (i.Gate) { i.Reserved -= qty; i.OnHand -= qty; }
+        }
+    }
+
+    public void Release(string reservationId)
+    {
+        if (!_reservations.TryRemove(reservationId, out var r)) return;                      // already released: no-op
+        foreach (var (sku, qty) in r.Lines)
+        {
+            var i = _items[sku];
+            lock (i.Gate) i.Reserved -= qty;
+        }
+    }
+
+    public void ReleaseExpired()
+    {
+        var now = clock.GetUtcNow();
+        foreach (var r in _reservations.Values.Where(r =&gt; r.ExpiresAt &lt;= now)) Release(r.Id);
+    }
+
+    private static void LockAll(List&lt;StockItem&gt; items, int index, Action body)
+    {
+        if (index == items.Count) { body(); return; }
+        lock (items[index].Gate) LockAll(items, index + 1, body);
+    }
+}
+
+public sealed class InsufficientStockException(string sku, int available)
+    : Exception("Insufficient stock for " + sku + "; available " + available);</code></pre>
+<p><b>Key points:</b> per-SKU locks acquired in a consistent order (avoids deadlock when two orders reserve the same SKUs in different orders); check everything before mutating (all or nothing); <code>TryRemove</code> makes confirm/release race-safe (only one wins); idempotent reserve by reservation ID; expiry sweep returns stock.</p>`,
+keys:["Available = on hand − reserved","All-or-nothing under per-SKU locks","Consistent lock ordering to avoid deadlock","TryRemove makes confirm/release exclusive","Idempotent reserve; expiry sweep"],
+trade:["Per-SKU locks: concurrency across SKUs vs complexity of ordered multi-lock","Global lock: trivially correct vs bottleneck","In-memory: fast vs needs DB (conditional updates) across instances"],
+fu:[{q:"How would you do this in a database across instances?",a:"Single transaction with UPDATE stock SET reserved = reserved + @q WHERE sku = @s AND on_hand - reserved >= @q for each line in SKU order, checking each affected row count; roll back if any fails; reservation rows with expiry; a job releases expired ones."},{q:"A flash sale hammers one SKU.",a:"Contention on one row/lock: shard the stock into buckets (sub-counters) or use a queue to serialise reservations for that SKU; or pre-allocate tokens in Redis with atomic DECR."},{q:"Confirm arrives after the reservation expired and stock was sold.",a:"Confirm fails; payment refunded or order put on backorder per business rules."}],
+rf:["Checks and reserves item by item, leaving partial reservations","Locks acquired in request order (deadlock risk)","Confirm and release can both apply","No expiry"]},
+
+{id:"L026",skill:"Machine Coding",level:"Basic",type:"Machine Coding",
+q:"Implement the core of a URL shortener: create short codes (generated or custom alias), resolve them, optional expiry, and click counting.",
+a:`<p><b>Clarify:</b> code length and alphabet; custom aliases allowed (validation, uniqueness); expiry; same long URL twice → same or new code? Click analytics; single process for now.</p>
+<pre><code>public static class Base62
+{
+    private const string Alphabet = "0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ";
+    public static string Encode(long value)
+    {
+        if (value == 0) return "0";
+        var chars = new Stack&lt;char&gt;();
+        while (value &gt; 0) { chars.Push(Alphabet[(int)(value % 62)]); value /= 62; }
+        return new string(chars.ToArray());
+    }
+}
+
+public sealed record ShortLink(string Code, Uri Target, DateTimeOffset? ExpiresAt)
+{
+    public long Clicks;
+}
+
+public sealed class UrlShortener(TimeProvider clock)
+{
+    private readonly ConcurrentDictionary&lt;string, ShortLink&gt; _links = new();
+    private long _counter = 1_000_000;                       // start above small values for longer codes
+
+    public ShortLink Create(string url, string? customAlias = null, TimeSpan? ttl = null)
+    {
+        if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) || (uri.Scheme != "https" &amp;&amp; uri.Scheme != "http"))
+            throw new ArgumentException("Invalid URL");
+        var expires = ttl is null ? (DateTimeOffset?)null : clock.GetUtcNow() + ttl.Value;
+
+        if (customAlias is not null)
+        {
+            if (customAlias.Length is &lt; 4 or &gt; 30 || !customAlias.All(char.IsLetterOrDigit))
+                throw new ArgumentException("Alias must be 4-30 letters or digits");
+            var link = new ShortLink(customAlias, uri, expires);
+            if (!_links.TryAdd(customAlias, link)) throw new InvalidOperationException("Alias already taken");
+            return link;
+        }
+
+        while (true)
+        {
+            var code = Base62.Encode(Interlocked.Increment(ref _counter));
+            var link = new ShortLink(code, uri, expires);
+            if (_links.TryAdd(code, link)) return link;       // may collide with a custom alias; try the next
+        }
+    }
+
+    public Uri? Resolve(string code)
+    {
+        if (!_links.TryGetValue(code, out var link)) return null;
+        if (link.ExpiresAt is { } e &amp;&amp; e &lt;= clock.GetUtcNow()) return null;
+        Interlocked.Increment(ref link.Clicks);
+        return link.Target;
+    }
+}</code></pre>
+<p><b>Discussion points:</b> sequential IDs are predictable (users can enumerate links); options include a random component or a keyed permutation of the counter. Across servers: pre-allocated ID ranges per instance, or Snowflake-style IDs, or random codes with a uniqueness check. Validate target URLs (phishing/malware checks) and use 301 vs 302 redirects deliberately (302 if you need click counting on every visit). See system design discussions for the distributed version.</p>`,
+keys:["Base62 encoding of a counter","Custom alias validation and uniqueness","Collision-safe insert loop","Expiry check on resolve","Predictability and distributed ID trade-offs"],
+trade:["Counter-based: short, unique vs predictable","Random codes: unpredictable vs collision checks","301: cached by browsers vs 302: every click counted"],
+fu:[{q:"The same long URL is shortened a million times. Return the existing code?",a:"Optional reverse index (url → code) per user or globally; trade-off between storage and duplicate links; per-user dedupe is common."},{q:"How do you generate IDs across 10 servers?",a:"A central allocator hands out ranges (e.g. 1,000 IDs per request), or Snowflake IDs (time + machine + sequence), or random 7-character codes with insert-if-absent."},{q:"Why might click counting be done asynchronously?",a:"Redirect latency matters; record clicks to a queue/stream and aggregate later instead of updating a counter synchronously in a database."}],
+rf:["Hash truncation without collision handling","No URL validation","Ignores expiry","Thread-unsafe counter"]},
+
+{id:"L027",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Design a feature-flag SDK used by services: flags with targeting rules, percentage rollouts that are stable per user, local caching with periodic refresh, and safe defaults.",
+a:`<p><b>Clarify:</b> boolean flags only, or variants? Targeting attributes (user ID, tenant, country, plan)? Rollout must be <b>sticky</b> (same user always gets the same answer as the percentage grows)? Evaluation local (no network call per check)? Behaviour when the flag service is unreachable?</p>
+<pre><code>public sealed record EvaluationContext(string UserId, IReadOnlyDictionary&lt;string, string&gt; Attributes);
+
+public sealed record Rule(string Attribute, IReadOnlySet&lt;string&gt; Values, bool Result);
+
+public sealed record FlagDefinition(string Key, bool Enabled, IReadOnlyList&lt;Rule&gt; Rules, int RolloutPercent, bool Default);
+
+public interface IFlagSource { Task&lt;IReadOnlyDictionary&lt;string, FlagDefinition&gt;&gt; FetchAllAsync(CancellationToken ct); }
+
+public sealed class FeatureFlagClient : IAsyncDisposable
+{
+    private volatile IReadOnlyDictionary&lt;string, FlagDefinition&gt; _snapshot = new Dictionary&lt;string, FlagDefinition&gt;();
+    private readonly IFlagSource _source;
+    private readonly PeriodicTimer _timer;
+    private readonly CancellationTokenSource _cts = new();
+    private readonly Task _refreshLoop;
+
+    public FeatureFlagClient(IFlagSource source, TimeSpan refreshInterval)
+    {
+        _source = source;
+        _timer = new PeriodicTimer(refreshInterval);
+        _refreshLoop = RefreshLoopAsync();
+    }
+
+    public bool IsEnabled(string key, EvaluationContext ctx, bool fallback = false)
+    {
+        if (!_snapshot.TryGetValue(key, out var flag)) return fallback;     // unknown flag: safe default
+        if (!flag.Enabled) return flag.Default;
+        foreach (var rule in flag.Rules)                                     // first matching rule wins
+            if (ctx.Attributes.TryGetValue(rule.Attribute, out var v) &amp;&amp; rule.Values.Contains(v))
+                return rule.Result;
+        return Bucket(flag.Key, ctx.UserId) &lt; flag.RolloutPercent;
+    }
+
+    // Stable 0-99 bucket per (flag, user). string.GetHashCode is randomised per process in .NET, so use a real hash.
+    private static int Bucket(string flagKey, string userId)
+    {
+        var hash = System.Security.Cryptography.SHA256.HashData(System.Text.Encoding.UTF8.GetBytes(flagKey + ":" + userId));
+        return (int)(BitConverter.ToUInt32(hash, 0) % 100);
+    }
+
+    private async Task RefreshLoopAsync()
+    {
+        await RefreshOnceAsync();
+        try
+        {
+            while (await _timer.WaitForNextTickAsync(_cts.Token)) await RefreshOnceAsync();
+        }
+        catch (OperationCanceledException) { }
+    }
+
+    private async Task RefreshOnceAsync()
+    {
+        try { _snapshot = await _source.FetchAllAsync(_cts.Token); }   // atomic swap of an immutable snapshot
+        catch (Exception) when (!_cts.IsCancellationRequested) { /* keep last known good snapshot; log */ }
+    }
+
+    public async ValueTask DisposeAsync() { _cts.Cancel(); await _refreshLoop; _timer.Dispose(); _cts.Dispose(); }
+}</code></pre>
+<p><b>Key design points:</b> evaluation is local and fast (no network on the hot path); snapshots are replaced atomically (readers never see a half-updated set); last-known-good on fetch failure; stable bucketing with a deterministic hash, salted by flag key so different flags don't target the same users; first-match rule ordering. Optionally persist the last snapshot to disk for cold starts during an outage.</p>`,
+keys:["Local evaluation from an in-memory snapshot","Atomic snapshot swap; last-known-good on failure","Targeting rules then sticky percentage rollout","Deterministic hash (not GetHashCode) salted by flag","Safe defaults for unknown flags"],
+trade:["Polling: simple vs seconds of staleness (streaming updates via SSE for faster kill switches)","Local evaluation: fast, resilient vs rules visible to the client (fine server-side, careful in browsers)"],
+fu:[{q:"Why not string.GetHashCode for bucketing?",a:"In .NET Core it's randomised per process, so the same user would land in different buckets on different servers or after restarts; rollouts wouldn't be sticky."},{q:"A flag must turn off within 2 seconds everywhere (kill switch).",a:"Push updates (SSE/WebSocket stream from the flag service) in addition to polling; or a short poll interval for critical flags."},{q:"How do you avoid stale flags accumulating in code?",a:"Owners and expiry dates on flags, reporting of flags fully rolled out for N weeks, lint rules, and clean-up tickets."}],
+rf:["Network call per IsEnabled","GetHashCode for rollout buckets","Throws when the flag service is down","Mutating a shared dictionary while readers iterate"]},
+
+{id:"L028",skill:"Machine Coding",level:"Advanced",type:"Machine Coding",
+q:"Implement a circuit breaker for calls to an unreliable dependency: closed, open and half-open states, failure threshold, open duration, and a single trial request when half-open.",
+a:`<p><b>Clarify:</b> trip on consecutive failures or a failure ratio in a window? Which exceptions count (timeouts and 5xx yes, validation errors no)? Open duration? How many trial calls in half-open? Thread-safe for concurrent callers.</p>
+<pre><code>public sealed class BrokenCircuitException() : Exception("Circuit is open");
+
+public sealed class CircuitBreaker(int failureThreshold, TimeSpan openDuration, TimeProvider clock,
+                                   Func&lt;Exception, bool&gt;? isFailure = null)
+{
+    private enum State { Closed, Open, HalfOpen }
+    private readonly object _gate = new();
+    private readonly Func&lt;Exception, bool&gt; _isFailure = isFailure ?? (_ =&gt; true);
+    private State _state = State.Closed;
+    private int _consecutiveFailures;
+    private DateTimeOffset _openedAt;
+    private bool _trialInFlight;
+
+    public async Task&lt;T&gt; ExecuteAsync&lt;T&gt;(Func&lt;CancellationToken, Task&lt;T&gt;&gt; action, CancellationToken ct = default)
+    {
+        lock (_gate)
+        {
+            if (_state == State.Open)
+            {
+                if (clock.GetUtcNow() - _openedAt &lt; openDuration) throw new BrokenCircuitException();
+                _state = State.HalfOpen;                  // open period elapsed: allow one trial
+                _trialInFlight = false;
+            }
+            if (_state == State.HalfOpen)
+            {
+                if (_trialInFlight) throw new BrokenCircuitException();
+                _trialInFlight = true;
+            }
+        }
+
+        try
+        {
+            var result = await action(ct);
+            lock (_gate) { _state = State.Closed; _consecutiveFailures = 0; _trialInFlight = false; }
+            return result;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException &amp;&amp; _isFailure(ex))
+        {
+            lock (_gate)
+            {
+                _consecutiveFailures++;
+                if (_state == State.HalfOpen || _consecutiveFailures &gt;= failureThreshold)
+                {
+                    _state = State.Open;
+                    _openedAt = clock.GetUtcNow();
+                    _consecutiveFailures = 0;
+                }
+                _trialInFlight = false;
+            }
+            throw;
+        }
+        catch
+        {
+            lock (_gate) _trialInFlight = false;   // non-failure errors (e.g. cancellation) must not block future trials
+            throw;
+        }
+    }
+}</code></pre>
+<p><b>Explain:</b> closed → count failures; open → fail fast without calling the dependency (protects both sides, frees threads/connections); after the open duration, half-open lets one trial through: success closes, failure reopens. Only dependency failures should count (not caller errors or cancellations). In production use Polly (v8 resilience pipelines in <code>Microsoft.Extensions.Resilience</code>), which trips on a failure ratio over a sampling window with a minimum throughput, which is more robust than consecutive counts.</p>`,
+keys:["Three states with clear transitions","Fail fast while open","One trial in half-open","Classify which exceptions count; ignore cancellation","Thread-safe state; failure-ratio windows in production (Polly)"],
+trade:["Consecutive failures: simple vs sensitive at low traffic and blind to intermittent failure rates","Failure-ratio window: robust vs more state and tuning"],
+fu:[{q:"Should a timeout count as a failure? A 400 Bad Request?",a:"Timeouts and 5xx/connection errors indicate dependency trouble and count; 4xx caused by the caller's input shouldn't trip the breaker."},{q:"How do circuit breakers and retries combine?",a:"Retries inside the breaker multiply load on a failing dependency; usually retry with backoff and a small budget, with the breaker outside so an open circuit stops retries quickly."},{q:"What do you return while open?",a:"A fallback where sensible (cached data, default, degraded feature) or a fast, clear error; record metrics for open circuits and alert."}],
+rf:["No half-open state","Counts cancellations and validation errors","Not thread-safe","Calls the dependency while open"]},
+
+{id:"L029",skill:"Design Principles",level:"Advanced",type:"Concept",
+q:"Interviewers often ask 'now make it thread-safe'. What's your C# concurrency toolkit for LLD rounds, and what are the common traps?",
+a:`<ul>
+<li><b><code>lock</code></b> (Monitor) for short critical sections protecting several fields together. Lock on a private <code>readonly object</code>, never on <code>this</code>, a <code>Type</code>, or a string. Never <code>await</code> inside <code>lock</code> (the compiler forbids it); keep I/O out of locks. (.NET 9 adds a dedicated <code>System.Threading.Lock</code> type [VERIFY usage in your version].)</li>
+<li><b><code>Interlocked</code></b> for single-variable atomic operations: counters (<code>Increment</code>), compare-and-swap state transitions (<code>CompareExchange</code>), as in the driver claim (L022).</li>
+<li><b><code>ConcurrentDictionary</code></b> for shared maps. Trap: <code>GetOrAdd(key, factory)</code> may run the factory more than once under contention (only one result is stored); wrap expensive or side-effecting creation in <code>Lazy&lt;T&gt;</code>. Compound operations (check then update) still need care: use <code>AddOrUpdate</code>, <code>TryUpdate</code> or locks.</li>
+<li><b><code>SemaphoreSlim</code></b> for async mutual exclusion (<code>await sem.WaitAsync()</code>) and for limiting concurrency (N workers).</li>
+<li><b><code>System.Threading.Channels</code></b> for producer/consumer pipelines with backpressure (L013, L017).</li>
+<li><b>Immutable snapshots</b> swapped atomically (<code>volatile</code> field or <code>Interlocked.Exchange</code>) for read-heavy configuration (L027).</li>
+<li><b><code>ReaderWriterLockSlim</code></b> when reads vastly outnumber writes and reads don't mutate (L018); not useful when "reads" update state (LRU).</li>
+</ul>
+<p><b>Common traps:</b></p>
+<ul>
+<li><b>Deadlocks</b> from acquiring multiple locks in different orders: always lock in a consistent order (L025).</li>
+<li><b>Check-then-act races</b>: "if available then book" outside a lock (L012, L014).</li>
+<li><b>Partial updates</b>: mutating some items before a later check fails; validate everything, then mutate.</li>
+<li><b>Thread-unsafe collections</b> (<code>Dictionary</code>, <code>List</code>) shared without synchronisation: corrupted state, not just wrong values.</li>
+<li><b>Sync-over-async</b> (<code>.Result</code>, <code>.Wait()</code>) causing thread-pool starvation.</li>
+<li>Assuming in-process locks protect anything across multiple servers: they don't; use database constraints, conditional updates or distributed locks with fencing.</li>
+</ul>`,
+keys:["lock on private object; no await inside","Interlocked for atomic counters and CAS","ConcurrentDictionary traps (GetOrAdd factory, compound ops)","SemaphoreSlim for async; Channels for pipelines; immutable snapshots","Lock ordering; validate-then-mutate; in-process vs distributed"],
+trade:["Coarse lock: simple, correct vs contention","Fine-grained/lock-free: scalable vs harder to reason about and test"],
+fu:[{q:"How do you test concurrent code?",a:"Run many parallel operations (Parallel.For / Task.WhenAll) and assert invariants (no oversell, counts consistent); repeat many times; use deterministic schedulers or stress tests; review lock ordering by reasoning, not only tests."},{q:"When is a single lock good enough?",a:"When critical sections are short and throughput needs are moderate; most LLD problems. Optimise only when contention is measured or the interviewer asks."}],
+rf:["lock(this) or lock on strings","await inside lock attempts","Assumes ConcurrentDictionary makes all logic thread-safe","Ignores multi-server reality"],
+verify:"System.Threading.Lock availability and recommended usage in your target .NET version."},
+
+{id:"L030",skill:"Design Principles",level:"Lead",type:"Design Review",
+q:"A junior engineer submits a design for 'send appointment reminder emails 24 hours before each appointment'. It has 12 interfaces, an abstract factory for notifications, a generic repository, a custom event bus and a plugin system. How do you review it?",
+a:`<p><b>What this tests:</b> design judgement and coaching. As a lead, you're balancing simplicity, real extensibility needs, and the engineer's growth.</p>
+<p><b>Review approach:</b></p>
+<ol>
+<li><b>Start from requirements, with the engineer:</b> what must it do now (one channel: email; one trigger: 24 hours before), what's genuinely likely next (SMS reminders? configurable timing?), scale (reminders per day), reliability needs (no duplicates, no missed reminders).</li>
+<li><b>Identify real variation points:</b> probably the <b>channel</b> (email now, SMS likely) and maybe the <b>schedule</b> (24h, configurable). Those deserve an interface. A plugin system, custom event bus and abstract factory don't correspond to any stated need.</li>
+<li><b>Focus on what actually matters for correctness:</b> how reminders are found (a scheduled job querying appointments in a time window), idempotency (a "reminder sent" record per appointment so retries and overlapping runs don't double-send), time zones, cancellations/reschedules after scheduling, failures and retries, observability. Over-engineered designs often miss these.</li>
+<li><b>Propose a simpler design together:</b> a scheduled job (e.g. every 5 minutes) → query appointments starting in 24h ± window without a sent record → for each, render template and send via <code>INotificationChannel</code> → record sent with a unique constraint. One interface, one job, one table.</li>
+<li><b>Explain the cost of unnecessary abstraction:</b> more code to read, test and maintain; harder onboarding; abstractions guessed before real requirements often turn out to be the wrong shape. Extension seams can be added cheaply when a second use case arrives.</li>
+<li><b>Coach, don't dictate:</b> ask questions ("which part of the design handles a rescheduled appointment?"), acknowledge the good instincts (thinking about extensibility, testability), and let them revise it. Follow up in the next review.</li>
+</ol>
+<p>Also check whether the codebase or platform already has a scheduler and notification service; reuse often beats building.</p>`,
+keys:["Anchor on requirements and likely change","Abstractions only at real variation points","Correctness issues: idempotency, time zones, reschedules, retries","Simpler concrete design proposed collaboratively","Coaching approach; reuse existing platform pieces"],
+trade:["Simple design now: fast, readable vs refactoring if needs grow (cheap with tests)","Generic framework up front: anticipates change vs usually wrong shape and high cost"],
+fu:[{q:"The engineer argues 'we'll need SMS and WhatsApp later, so the plugin system saves time'.",a:"Agree channels will vary and keep a channel interface; a plugin system adds dynamic loading and versioning that one interface and DI registration already cover. Add complexity when a concrete need appears."},{q:"How do you give this feedback without discouraging them?",a:"Privately or in a pairing session, with questions and reasoning, recognising good intentions; turn it into a learning conversation about YAGNI and cost of abstraction; let them own the revised design."}],
+rf:["Approves because it's 'extensible'","Rewrites it for them without explanation","Focuses on patterns instead of correctness","Harsh public review"]}
+
+
+
+];
+
+/* ---------- state ---------- */
+const KEY="lld-bank-reviewed-v1";
+let reviewed={};
+try{reviewed=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){reviewed={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(reviewed))}catch(e){}}
+
+const state={text:"",skill:"all",status:"all",levels:new Set(),types:new Set()};
+const $=s=>document.querySelector(s);
+
+/* ---------- controls ---------- */
+const skills=[...new Set(QS.map(x=>x.skill))];
+$("#skill").innerHTML=`<option value="all">All skills</option>`+skills.map(s=>`<option value="${s}">${s}</option>`).join("");
+function chipRow(el,items,set){
+  el.innerHTML=items.map(i=>`<button type="button" class="chip" aria-pressed="false" data-v="${i}">${i}</button>`).join("");
+  el.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+    if(set.has(v)){set.delete(v);b.setAttribute("aria-pressed","false")}else{set.add(v);b.setAttribute("aria-pressed","true")}render()});
+}
+chipRow($("#levels"),LEVELS,state.levels);
+chipRow($("#types"),TYPES,state.types);
+$("#q").addEventListener("input",e=>{state.text=e.target.value.trim().toLowerCase();render()});
+$("#skill").addEventListener("change",e=>{state.skill=e.target.value;render()});
+$("#status").addEventListener("change",e=>{state.status=e.target.value;render()});
+let allOpen=false;
+$("#toggleAll").addEventListener("click",()=>{allOpen=!allOpen;
+  document.querySelectorAll("details.ans").forEach(d=>d.open=allOpen);
+  $("#toggleAll").textContent=allOpen?"Close all answers":"Open all answers"});
+
+/* ---------- stats ---------- */
+function count(key,vals){return vals.map(v=>`${v} <b>${QS.filter(x=>x[key]===v).length}</b>`).join(" · ")}
+$("#stats").innerHTML=`<span><b>${QS.length}</b> questions loaded</span><span>${count("level",LEVELS)}</span><span>${count("type",TYPES.filter(t=>t!=="Behavioral"))}</span><span>${PARTS}</span>`;
+
+/* ---------- render ---------- */
+const strip=h=>h.replace(/<[^>]+>/g," ");
+function matches(x){
+  if(state.skill!=="all"&&x.skill!==state.skill)return false;
+  if(state.levels.size&&!state.levels.has(x.level))return false;
+  if(state.types.size&&!state.types.has(x.type))return false;
+  if(state.status==="done"&&!reviewed[x.id])return false;
+  if(state.status==="todo"&&reviewed[x.id])return false;
+  if(state.text){const hay=(x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
+    if(!hay.includes(state.text))return false}
+  return true;
+}
+const ul=arr=>`<ul>${arr.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+function item(x,i){
+  const done=!!reviewed[x.id];
+  return `<li class="q${done?" done":""}" id="${x.id}">
+    <div class="qhead"><span class="num">${x.id}</span><div>
+      <p class="qtext">${x.q}</p>
+      <div class="tags"><span class="tag">${x.skill}</span><span class="tag lv lv-${x.level}">${x.level}</span><span class="tag">${x.type}</span>${x.verify?`<span class="tag verify">VERIFY</span>`:""}
+        <label class="check"><input type="checkbox" data-id="${x.id}" ${done?"checked":""}> Reviewed</label></div>
+    </div></div>
+    <div class="body">
+      <details class="ans"><summary>Model answer, key points and red flags</summary><div class="dbody">
+        ${x.a}
+        ${x.tools?`<h4>Tools and metrics to check</h4>${ul(x.tools)}`:""}
+        <h4>What the interviewer listens for</h4>${ul(x.keys)}
+        ${x.trade?`<h4>Trade-offs and "it depends on"</h4>${ul(x.trade)}`:""}
+        <h4 class="rf">Red flags</h4>${ul(x.rf)}
+        ${x.verify?`<p class="note">[VERIFY] ${x.verify}</p>`:""}
+      </div></details>
+      ${(x.fu||[]).map(f=>`<details class="fu ans"><summary><span class="fl">FOLLOW-UP</span><span>${f.q}</span></summary><div class="dbody"><p>${f.a}</p></div></details>`).join("")}
+    </div></li>`;
+}
+function render(){
+  const list=QS.filter(matches);
+  $("#list").innerHTML=list.length?list.map(item).join(""):`<li class="empty">No questions match these filters.</li>`;
+  if(allOpen)document.querySelectorAll("details.ans").forEach(d=>d.open=true);
+  const n=QS.filter(x=>reviewed[x.id]).length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${list.length} shown`;
+  $("#pfill").style.width=(QS.length?n/QS.length*100:0)+"%";
+}
+$("#list").addEventListener("change",e=>{const c=e.target.closest("input[data-id]");if(!c)return;
+  const id=c.dataset.id;if(c.checked)reviewed[id]=1;else delete reviewed[id];save();
+  c.closest("li.q").classList.toggle("done",c.checked);
+  const n=QS.filter(x=>reviewed[x.id]).length;const shown=document.querySelectorAll("li.q").length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${shown} shown`;$("#pfill").style.width=(n/QS.length*100)+"%";});
+render();
+</script>
+
+</html>

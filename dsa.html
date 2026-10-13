@@ -1,0 +1,1391 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>DSA Refresher Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, sticky filter bar, questions as divided rows (not cards), answers in disclosure blocks */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --accent-ink:#FFFFFF; --code:#EEF1F7;
+  --basic:#2B7A57; --inter:#2A4BD7; --adv:#7438BF; --lead:#B05E08;
+  --good:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:28px 18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,5vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=search]{flex:1 1 220px}
+select{flex:0 1 220px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.track{flex:1;height:6px;background:var(--soft);border-radius:999px;overflow:hidden;min-width:80px}
+.fill{height:100%;background:var(--good);width:0;transition:width .3s}
+.sep{width:1px;height:18px;background:var(--line)}
+
+ol.qs{list-style:none;margin:0;padding:0}
+li.q{padding-block:22px;border-bottom:1px solid var(--line);display:grid;gap:12px}
+li.q.done .qtext{color:var(--muted)}
+.qhead{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.num{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:4px;min-width:34px}
+.qtext{font-weight:600;font-size:16.5px;line-height:1.45;margin:0;text-wrap:pretty}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.tag{font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.tag.lv{color:var(--surface);font-weight:500}
+.lv-Basic{background:var(--basic)} .lv-Intermediate{background:var(--inter)} .lv-Advanced{background:var(--adv)} .lv-Lead{background:var(--lead)}
+.tag.verify{background:transparent;border:1px solid var(--verify);color:var(--verify)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);cursor:pointer;margin-left:auto}
+.check input{width:16px;height:16px;accent-color:var(--good)}
+.body{padding-left:46px;display:grid;gap:8px;min-width:0}
+details{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details>summary{cursor:pointer;padding:9px 12px;font-size:14px;font-weight:500;list-style:none;display:flex;gap:8px;align-items:baseline}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px;flex:none}
+details[open]>summary::before{content:"−"}
+.dbody{padding:2px 14px 14px;display:grid;gap:10px;min-width:0}
+.dbody p,.dbody ul,.dbody ol{margin:0}
+.dbody ul,.dbody ol{padding-left:20px}
+.dbody li+li{margin-top:3px}
+h4{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:500}
+h4.rf{color:var(--warn)}
+.fu summary{font-weight:400}
+.fu summary .fl{font-family:var(--f-mono);font-size:11px;color:var(--muted);flex:none}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:3px}
+pre{margin:0;background:var(--code);padding:12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5}
+.body table{border-collapse:collapse;width:100%;font-size:14px;margin:8px 0;display:block;overflow-x:auto}
+.body th,.body td{border:1px solid var(--line);padding:6px 8px;text-align:left;vertical-align:top}
+pre code{background:none;padding:0;font-size:inherit}
+.star dt{font-weight:600}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--verify);padding-left:10px}
+@media (max-width:560px){ .body{padding-left:0} .num{min-width:28px} }
+@media (prefers-reduced-motion:reduce){ .fill{transition:none} }
+</style>
+
+<p style="margin:0 auto;max-width:860px;padding:16px 0 0;font-size:14px"><a href="index.html">&larr; All banks</a></p>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Senior TL / EM interview prep</div>
+  <h1>DSA Refresher (C#)</h1>
+  <p class="lede">Built for getting back into DSA after years away: 15 core patterns, each with a concept card and two classic problems in C#, plus a study plan and an interview talk track. Levels map to Easy (Basic), Medium (Intermediate) and Hard (Advanced). Attempt each problem for 25 minutes before opening the answer, and re-solve it a few days later.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="bar">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search questions and answers" aria-label="Search">
+    <select id="skill" aria-label="Filter by skill"></select>
+    <select id="status" aria-label="Filter by review status">
+      <option value="all">All questions</option>
+      <option value="todo">Not reviewed</option>
+      <option value="done">Reviewed</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="chips" id="levels" aria-label="Level"></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="chips" id="types" aria-label="Type"></div>
+  </div>
+  <div class="row">
+    <div class="progress" style="flex:1"><span id="ptext">0 / 0 reviewed</span><div class="track"><div class="fill" id="pfill"></div></div></div>
+    <button class="btn" id="toggleAll" type="button">Open all answers</button>
+  </div>
+</div>
+
+<ol class="qs" id="list"></ol>
+</div>
+
+<script>
+const LEVELS=["Basic","Intermediate","Advanced","Lead"];
+const TYPES=["Strategy","Pattern","Problem"];
+const PARTS="Complete: all 3 parts loaded.";
+
+const QS=[
+{id:"D001",skill:"Getting Started",level:"Basic",type:"Strategy",
+q:"Refresher: Big-O, reading constraints, and the C# collections you'll actually use in coding rounds.",
+a:`<p><b>Read the constraints first; they tell you the target complexity</b> (roughly 10^7–10^8 simple operations per second):</p>
+<table>
+<tr><th>Input size n</th><th>Usually acceptable</th><th>Typical techniques</th></tr>
+<tr><td>≤ 20</td><td>O(2^n), O(n!)</td><td>Backtracking, bitmask</td></tr>
+<tr><td>≤ 1,000</td><td>O(n²)</td><td>Nested loops, 2D DP</td></tr>
+<tr><td>≤ 100,000</td><td>O(n log n)</td><td>Sorting, heaps, binary search</td></tr>
+<tr><td>≤ 10,000,000</td><td>O(n)</td><td>Hashing, two pointers, sliding window, prefix sums</td></tr>
+</table>
+<p><b>C# collections and their costs:</b></p>
+<table>
+<tr><th>Need</th><th>Type</th><th>Cost</th></tr>
+<tr><td>Indexable list</td><td><code>List&lt;T&gt;</code>, arrays</td><td>Index O(1); insert/remove in middle O(n); Add amortised O(1)</td></tr>
+<tr><td>Lookup / counting</td><td><code>Dictionary&lt;K,V&gt;</code>, <code>HashSet&lt;T&gt;</code></td><td>O(1) average</td></tr>
+<tr><td>Sorted keys, floor/ceiling</td><td><code>SortedDictionary</code>, <code>SortedSet</code> (<code>GetViewBetween</code>, <code>Min</code>, <code>Max</code>)</td><td>O(log n)</td></tr>
+<tr><td>Min-heap</td><td><code>PriorityQueue&lt;TElement,TPriority&gt;</code> (.NET 6+)</td><td>Enqueue/Dequeue O(log n); for a max-heap use negated priority or a reversed comparer</td></tr>
+<tr><td>FIFO / LIFO</td><td><code>Queue&lt;T&gt;</code>, <code>Stack&lt;T&gt;</code></td><td>O(1)</td></tr>
+<tr><td>Sorting</td><td><code>Array.Sort</code>, <code>List.Sort</code></td><td>O(n log n), not stable; LINQ <code>OrderBy</code> is stable</td></tr>
+</table>
+<p><b>C# gotchas in interviews:</b> strings are immutable, so build with <code>StringBuilder</code> or <code>char[]</code>; <code>int</code> overflow is silent (use <code>long</code> for sums and products); <code>c - 'a'</code> gives a letter index; <code>Math.Max</code>/<code>Math.Min</code>; <code>int.MaxValue</code> as infinity (careful adding to it); deep recursion can overflow the stack around 10,000+ frames, so convert DFS to an explicit stack when depth can be large; LINQ is fine for readability but can hide O(n) costs inside loops.</p>`,
+keys:["Constraints → target complexity","Dictionary/HashSet O(1), Sorted* O(log n), PriorityQueue min-heap","Max-heap via negated priority","StringBuilder; long for overflow","Recursion depth and hidden LINQ costs"],
+fu:[{q:"What's the space complexity of a recursive DFS on a tree of height h?",a:"O(h) for the call stack: O(log n) for a balanced tree, O(n) for a skewed one."},{q:"Is Dictionary lookup always O(1)?",a:"Average O(1); worst case degrades with many hash collisions, which is rare with good hashes. Interviewers accept O(1) average."}],
+rf:["Ignores constraints","Uses List.Contains inside loops (O(n²))","String concatenation in loops"]},
+
+{id:"D002",skill:"Getting Started",level:"Basic",type:"Strategy",
+q:"I haven't done DSA in years. What's a realistic 6-week plan, and how should I talk through a problem in the interview?",
+a:`<p><b>6-week plan</b> (60–90 minutes a day, 2–3 problems; the problems in this bank plus similar ones from a curated list such as NeetCode 150):</p>
+<table>
+<tr><th>Week</th><th>Focus</th></tr>
+<tr><td>1</td><td>Complexity refresher, arrays and hashing, two pointers, sliding window</td></tr>
+<tr><td>2</td><td>Prefix sums, stacks (incl. monotonic), binary search, linked lists</td></tr>
+<tr><td>3</td><td>Trees (DFS/BFS), heaps / top-K, intervals</td></tr>
+<tr><td>4</td><td>Graphs: BFS/DFS on grids, topological sort, Dijkstra</td></tr>
+<tr><td>5</td><td>Backtracking, 1D and 2D dynamic programming</td></tr>
+<tr><td>6</td><td>Mixed, timed practice: 2 problems in 45 minutes, talking out loud; 2–3 mock interviews with a friend or platform</td></tr>
+</table>
+<p><b>How to practise:</b> time-box each problem (about 25 minutes); if stuck, read the approach (not the code), then write the code yourself; <b>re-solve it from scratch 2–3 days later</b> (spaced repetition matters more than volume); keep a short log: pattern, key insight, mistake you made.</p>
+<p><b>Talk track in the interview</b> (seniors are judged on communication as much as code):</p>
+<ol>
+<li><b>Understand:</b> restate the problem, ask about input size, duplicates, negatives, empty input, expected output format.</li>
+<li><b>Examples:</b> walk through one normal and one edge case.</li>
+<li><b>Brute force first</b>, stated with its complexity ("O(n²) by checking all pairs"), then <b>optimise</b> by naming the pattern ("a hash map of seen values brings it to O(n)").</li>
+<li><b>Agree on the approach</b> before coding.</li>
+<li><b>Code cleanly:</b> meaningful names, small helpers, handle edge cases.</li>
+<li><b>Test:</b> trace your example through the code, then edge cases (empty, one element, all same, negatives, large values).</li>
+<li><b>State time and space complexity</b> and mention trade-offs.</li>
+</ol>
+<p>Being rusty is common for leads; interviewers mostly look for structured thinking, correct complexity reasoning and working code for medium-level problems.</p>`,
+keys:["Pattern-by-pattern plan, mixed timed practice at the end","Time-box, read approach, re-solve later","Clarify → examples → brute force → optimise","Agree, code, trace, edge cases","Always state complexity"],
+fu:[{q:"How many problems is enough?",a:"Quality over quantity: about 100–150 problems covering all patterns, each re-solved at least once, is usually enough for TL/EM loops."},{q:"What if I can't find the optimal solution in the interview?",a:"Implement a correct brute force, state its complexity, and discuss how you'd optimise. A working, well-explained suboptimal solution beats an unfinished optimal one."}],
+rf:["Jumps into code without clarifying","Silent coding","Never states complexity","Memorises solutions without patterns"]},
+
+{id:"D003",skill:"Arrays & Hashing",level:"Basic",type:"Pattern",
+q:"Pattern: arrays and hashing. When do you reach for a HashSet or Dictionary, and what problems does it turn from O(n²) into O(n)?",
+a:`<p><b>Recognise it when:</b> you need to know "have I seen this before?", count frequencies, find a complement (target − x), group items by a key, or deduplicate.</p>
+<p><b>Core moves:</b></p>
+<ul>
+<li><b>Seen set:</b> <code>HashSet&lt;T&gt;</code> to detect duplicates in O(n).</li>
+<li><b>Value → index map:</b> find pairs with a property in one pass (Two Sum).</li>
+<li><b>Frequency map:</b> <code>counts[x] = counts.GetValueOrDefault(x) + 1</code>; for lowercase letters an <code>int[26]</code> array is faster.</li>
+<li><b>Grouping by canonical key:</b> sorted string or count signature for anagrams; tuple keys for coordinates.</li>
+</ul>
+<pre><code>// Contains duplicate: O(n) time, O(n) space
+public bool ContainsDuplicate(int[] nums)
+{
+    var seen = new HashSet&lt;int&gt;();
+    foreach (var x in nums)
+        if (!seen.Add(x)) return true;   // Add returns false if already present
+    return false;
+}</code></pre>
+<p><b>Trade-off:</b> O(n) extra space for O(n) time. If space must be O(1), sorting (O(n log n)) is the usual alternative.</p>`,
+keys:["Seen-before, complement, counting, grouping","HashSet.Add returns false on duplicates","int[26] for letter counts","Canonical keys for grouping","Space vs time trade-off; sorting alternative"],
+fu:[{q:"How do you use a pair of ints as a dictionary key in C#?",a:"Use a value tuple: Dictionary<(int, int), T>; tuples have structural equality and hashing."}],
+rf:["Nested loops where a set suffices","List.Contains inside a loop"]},
+
+{id:"D004",skill:"Arrays & Hashing",level:"Basic",type:"Problem",
+q:"Two Sum: given an integer array and a target, return the indices of the two numbers that add up to the target (exactly one solution exists).",
+a:`<p><b>Brute force:</b> check every pair: O(n²) time, O(1) space.</p>
+<p><b>Optimal:</b> one pass with a dictionary from value to index. For each number, check whether its complement (<code>target - x</code>) has been seen already.</p>
+<pre><code>public int[] TwoSum(int[] nums, int target)
+{
+    var seen = new Dictionary&lt;int, int&gt;();          // value -&gt; index
+    for (var i = 0; i &lt; nums.Length; i++)
+    {
+        if (seen.TryGetValue(target - nums[i], out var j)) return new[] { j, i };
+        seen[nums[i]] = i;                           // add after checking, so we don't pair an element with itself
+    }
+    return Array.Empty&lt;int&gt;();
+}</code></pre>
+<p><b>Complexity:</b> O(n) time, O(n) space.</p>
+<p><b>Talk track:</b> "Brute force is all pairs, O(n²). For each number I need to know whether its complement appeared earlier, which is a hash lookup, so one pass with a dictionary gives O(n). I insert after checking to avoid using the same element twice, and duplicates like [3,3] still work because the first 3 is stored before the second is checked."</p>`,
+keys:["Complement lookup in a dictionary","Check before insert (no self-pairing)","Handles duplicate values","O(n) time, O(n) space","Brute force stated first"],
+fu:[{q:"What if the array is sorted?",a:"Two pointers from both ends: move left up if the sum is too small, right down if too large. O(n) time, O(1) space."},{q:"Return all pairs, not just one, without duplicates?",a:"Sort and use two pointers, skipping duplicate values; or use a counts map carefully."}],
+rf:["Inserts before checking","O(n²) without mentioning the optimisation","Returns values instead of indices"]},
+
+{id:"D005",skill:"Arrays & Hashing",level:"Intermediate",type:"Problem",
+q:"Group Anagrams: given a list of lowercase strings, group words that are anagrams of each other.",
+a:`<p><b>Idea:</b> anagrams share a canonical form. Two choices: the sorted characters (O(k log k) per word) or a 26-letter count signature (O(k) per word).</p>
+<pre><code>public IList&lt;IList&lt;string&gt;&gt; GroupAnagrams(string[] words)
+{
+    var groups = new Dictionary&lt;string, List&lt;string&gt;&gt;();
+    foreach (var w in words)
+    {
+        var counts = new int[26];
+        foreach (var c in w) counts[c - 'a']++;
+        var key = string.Join(',', counts);            // e.g. "1,0,0,...": separators avoid ambiguity
+        if (!groups.TryGetValue(key, out var list)) groups[key] = list = new List&lt;string&gt;();
+        list.Add(w);
+    }
+    return groups.Values.Select(g =&gt; (IList&lt;string&gt;)g).ToList();
+}</code></pre>
+<p><b>Complexity:</b> O(n·k) time with count keys (n words, max length k), O(n·k) space.</p>
+<p><b>Talk track:</b> "Anagrams have the same letter counts, so I map each word to a count signature and group by it. Sorting each word also works but costs k log k per word."</p>`,
+keys:["Canonical key: sorted string or count signature","Dictionary from key to list","Separator in count key prevents collisions","O(n·k) with counts","Ask about character set (Unicode?)"],
+fu:[{q:"What if strings contain any Unicode characters?",a:"Use a sorted string key or a Dictionary<char,int> frequency signature serialised in sorted order; fixed 26-array no longer works."},{q:"Why the comma separator in the key?",a:"Without it, counts like [1,11] and [11,1] could produce the same string '111'."}],
+rf:["Compares every pair of words","Key without separators","Assumes lowercase without asking"]},
+
+{id:"D006",skill:"Two Pointers",level:"Basic",type:"Pattern",
+q:"Pattern: two pointers. When does it apply, and what are the common variants?",
+a:`<p><b>Recognise it when:</b> the input is sorted (or can be sorted), you're looking for pairs/triplets with a target sum, comparing from both ends (palindromes), or partitioning in place.</p>
+<ul>
+<li><b>Opposite ends:</b> <code>left = 0, right = n - 1</code>, move one pointer based on a comparison. Used for pair sums in sorted arrays, container problems, palindromes.</li>
+<li><b>Same direction (fast/slow):</b> a write pointer and a read pointer for in-place filtering (remove duplicates, move zeros); fast/slow pointers in linked lists for cycles and middles.</li>
+</ul>
+<pre><code>// Valid palindrome ignoring non-alphanumeric characters and case
+public bool IsPalindrome(string s)
+{
+    int l = 0, r = s.Length - 1;
+    while (l &lt; r)
+    {
+        if (!char.IsLetterOrDigit(s[l])) { l++; continue; }
+        if (!char.IsLetterOrDigit(s[r])) { r--; continue; }
+        if (char.ToLowerInvariant(s[l]) != char.ToLowerInvariant(s[r])) return false;
+        l++; r--;
+    }
+    return true;
+}</code></pre>
+<p><b>Why it works:</b> sortedness means moving a pointer changes the sum in a known direction, so each step safely discards possibilities. That turns O(n²) pair checks into O(n).</p>`,
+keys:["Sorted input or symmetric comparison","Opposite-ends vs fast/slow variants","Each move discards impossible candidates","O(n) after sorting","In-place filtering with read/write pointers"],
+fu:[{q:"Remove duplicates from a sorted array in place and return the new length.",a:"Write pointer k = 1; for each i from 1, if nums[i] != nums[k-1], copy to nums[k++]. O(n) time, O(1) space."}],
+rf:["Uses two pointers on unsorted data without sorting","Off-by-one loop conditions"]},
+
+{id:"D007",skill:"Two Pointers",level:"Intermediate",type:"Problem",
+q:"3Sum: find all unique triplets in an array that sum to zero.",
+a:`<p><b>Approach:</b> sort, then fix each element <code>i</code> and solve two-sum-to-<code>-nums[i]</code> on the rest with two pointers. Skip duplicate values to avoid duplicate triplets.</p>
+<pre><code>public IList&lt;IList&lt;int&gt;&gt; ThreeSum(int[] nums)
+{
+    Array.Sort(nums);
+    var result = new List&lt;IList&lt;int&gt;&gt;();
+    for (var i = 0; i &lt; nums.Length - 2; i++)
+    {
+        if (nums[i] &gt; 0) break;                              // sorted: no zero-sum possible after this
+        if (i &gt; 0 &amp;&amp; nums[i] == nums[i - 1]) continue;       // skip duplicate anchors
+        int l = i + 1, r = nums.Length - 1;
+        while (l &lt; r)
+        {
+            var sum = nums[i] + nums[l] + nums[r];
+            if (sum &lt; 0) l++;
+            else if (sum &gt; 0) r--;
+            else
+            {
+                result.Add(new List&lt;int&gt; { nums[i], nums[l], nums[r] });
+                l++; r--;
+                while (l &lt; r &amp;&amp; nums[l] == nums[l - 1]) l++;  // skip duplicate second values
+            }
+        }
+    }
+    return result;
+}</code></pre>
+<p><b>Complexity:</b> O(n²) time (sort is O(n log n), then n × two-pointer scan), O(1) extra space besides output (sorting in place).</p>
+<p><b>Talk track:</b> "Brute force is O(n³). Sorting lets me fix one number and use two pointers for the other two, O(n²). Duplicates are handled by skipping equal neighbours for the anchor and after recording a triplet."</p>`,
+keys:["Sort, fix one, two-pointer the rest","Skip duplicate anchors and duplicate second values","Early break when anchor > 0","O(n²) time","Explain why brute force is O(n³)"],
+fu:[{q:"Generalise to 4Sum or kSum.",a:"Recursive reduction: fix elements until two remain, then two pointers: O(n^(k-1)); watch overflow with large values (use long)."},{q:"Could hashing do better than O(n²)?",a:"Not asymptotically for 3Sum in general; O(n²) is the standard expectation."}],
+rf:["Uses a set of lists to dedupe after the fact (works but clumsy and slower)","Misses duplicate skipping","Forgets to move both pointers after a match"]},
+
+{id:"D008",skill:"Two Pointers",level:"Intermediate",type:"Problem",
+q:"Container With Most Water: given heights of vertical lines, find two lines that, with the x-axis, hold the most water.",
+a:`<p><b>Brute force:</b> all pairs, O(n²).</p>
+<p><b>Insight:</b> area = min(height[l], height[r]) × (r − l). Start with the widest container. Moving the taller line inward can't increase the area (width shrinks, height limited by the shorter line), so always move the <b>shorter</b> line.</p>
+<pre><code>public int MaxArea(int[] height)
+{
+    int l = 0, r = height.Length - 1, best = 0;
+    while (l &lt; r)
+    {
+        best = Math.Max(best, Math.Min(height[l], height[r]) * (r - l));
+        if (height[l] &lt; height[r]) l++; else r--;
+    }
+    return best;
+}</code></pre>
+<p><b>Complexity:</b> O(n) time, O(1) space.</p>
+<p><b>Talk track:</b> explain the greedy proof briefly: "Any container using the shorter line with a narrower width is worse than the current one, so we can discard that line."</p>`,
+keys:["Area formula","Start widest","Move the shorter side and why","O(n) time, O(1) space","Brief correctness argument"],
+fu:[{q:"How is this different from Trapping Rain Water?",a:"Trapping Rain Water sums water above each bar between taller bars on both sides; solved with two pointers tracking left-max and right-max, or prefix/suffix max arrays."}],
+rf:["Moves the taller side","Can't justify the greedy step"]},
+
+{id:"D009",skill:"Sliding Window",level:"Basic",type:"Pattern",
+q:"Pattern: sliding window. How do you recognise it, and what's the template for variable-size windows?",
+a:`<p><b>Recognise it when:</b> the question asks for the longest/shortest/count of <b>contiguous</b> subarrays or substrings satisfying a condition that changes predictably as the window grows or shrinks (at most K distinct, no repeats, sum ≥ target with positive numbers).</p>
+<p><b>Fixed-size window:</b> add the new element, remove the one leaving, update the answer.</p>
+<p><b>Variable-size template:</b></p>
+<pre><code>int left = 0, best = 0;
+for (int right = 0; right &lt; n; right++)
+{
+    // 1. add element at right to the window state
+    while (/* window is invalid */)
+    {
+        // 2. remove element at left from the state
+        left++;
+    }
+    // 3. window [left..right] is valid: update the answer
+    best = Math.Max(best, right - left + 1);
+}</code></pre>
+<p>Each element enters and leaves the window at most once, so total work is O(n) even with the inner <code>while</code>.</p>
+<p><b>When it doesn't work:</b> conditions that aren't monotonic, e.g. subarray sums with <b>negative</b> numbers (shrinking may not help); use prefix sums with a hash map instead.</p>`,
+keys:["Contiguous + monotonic condition","Fixed vs variable windows","Expand right, shrink left while invalid","Amortised O(n)","Fails with negatives → prefix sums"],
+fu:[{q:"Find the max sum of any subarray of size k.",a:"Fixed window: sum the first k, then slide adding nums[i] and subtracting nums[i-k], tracking the maximum. O(n)."}],
+rf:["Recomputes window state from scratch each step (O(n·k))","Uses sliding window with negative numbers for sum targets"]},
+
+{id:"D010",skill:"Sliding Window",level:"Intermediate",type:"Problem",
+q:"Longest Substring Without Repeating Characters.",
+a:`<p><b>Approach:</b> variable window; track the last index of each character. When the current character was seen inside the window, jump <code>start</code> past its previous position.</p>
+<pre><code>public int LengthOfLongestSubstring(string s)
+{
+    var lastSeen = new Dictionary&lt;char, int&gt;();
+    int start = 0, best = 0;
+    for (var i = 0; i &lt; s.Length; i++)
+    {
+        if (lastSeen.TryGetValue(s[i], out var prev) &amp;&amp; prev &gt;= start)
+            start = prev + 1;                       // shrink to exclude the earlier duplicate
+        lastSeen[s[i]] = i;
+        best = Math.Max(best, i - start + 1);
+    }
+    return best;
+}</code></pre>
+<p><b>Complexity:</b> O(n) time; O(min(n, alphabet)) space.</p>
+<p><b>Talk track:</b> "Brute force checks all substrings, O(n²) or worse. A window that always has unique characters can extend right; on a repeat, the window must start after the previous occurrence. The <code>prev >= start</code> check ignores occurrences that are already outside the window."</p>`,
+keys:["Window of unique characters","Last-seen index map","Jump start past the previous duplicate","Check prev ≥ start","O(n)"],
+fu:[{q:"Longest substring with at most K distinct characters.",a:"Window with a count map; while the map has more than K keys, decrement the left character's count and remove it at zero; track max length."}],
+rf:["Moves start backwards (forgetting prev ≥ start)","Uses a set but forgets to remove characters when shrinking"]},
+
+{id:"D011",skill:"Sliding Window",level:"Advanced",type:"Problem",
+q:"Minimum Window Substring: find the smallest substring of s that contains all characters of t (including duplicates).",
+a:`<p><b>Approach:</b> expand right until the window contains everything needed, then shrink from the left while it still does, recording the best window. Track how many distinct required characters are satisfied (<code>formed</code>) to check validity in O(1).</p>
+<pre><code>public string MinWindow(string s, string t)
+{
+    if (t.Length == 0 || s.Length &lt; t.Length) return "";
+    var need = new Dictionary&lt;char, int&gt;();
+    foreach (var c in t) need[c] = need.GetValueOrDefault(c) + 1;
+
+    var window = new Dictionary&lt;char, int&gt;();
+    int required = need.Count, formed = 0, left = 0, bestLen = int.MaxValue, bestStart = 0;
+
+    for (var right = 0; right &lt; s.Length; right++)
+    {
+        var c = s[right];
+        window[c] = window.GetValueOrDefault(c) + 1;
+        if (need.TryGetValue(c, out var n) &amp;&amp; window[c] == n) formed++;
+
+        while (formed == required)                     // valid: try to shrink
+        {
+            if (right - left + 1 &lt; bestLen) { bestLen = right - left + 1; bestStart = left; }
+            var d = s[left];
+            window[d]--;
+            if (need.TryGetValue(d, out var m) &amp;&amp; window[d] &lt; m) formed--;
+            left++;
+        }
+    }
+    return bestLen == int.MaxValue ? "" : s.Substring(bestStart, bestLen);
+}</code></pre>
+<p><b>Complexity:</b> O(|s| + |t|) time, O(alphabet) space.</p>
+<p><b>Talk track:</b> "I need counts, not just presence, because t can have duplicates. <code>formed</code> counts characters whose required count is met, so validity is a single comparison."</p>`,
+keys:["Need counts vs window counts","formed tracks satisfied characters","Expand to valid, shrink while valid","Record best during shrink","O(|s| + |t|)"],
+fu:[{q:"Why increment formed only when window[c] == need[c], not ≥?",a:"So each character contributes once when it first reaches the required count; further copies don't change validity."}],
+rf:["Checks validity by comparing whole maps each step (slower)","Ignores duplicates in t","Off-by-one in substring extraction"]},
+
+{id:"D012",skill:"Prefix Sums",level:"Basic",type:"Pattern",
+q:"Pattern: prefix sums. What problems do they solve, and how do you combine them with a hash map?",
+a:`<p><b>Idea:</b> <code>prefix[i]</code> = sum of the first i elements. Then the sum of any range [l, r] is <code>prefix[r + 1] - prefix[l]</code> in O(1) after O(n) preprocessing.</p>
+<pre><code>// Range sum queries
+var prefix = new long[nums.Length + 1];
+for (var i = 0; i &lt; nums.Length; i++) prefix[i + 1] = prefix[i] + nums[i];
+long RangeSum(int l, int r) =&gt; prefix[r + 1] - prefix[l];</code></pre>
+<p><b>Prefix sum + hash map:</b> to count subarrays with sum K (works with negative numbers, unlike sliding window), note that subarray (j, i] sums to K when <code>prefix[i] - prefix[j] = K</code>, i.e. <code>prefix[j] = prefix[i] - K</code>. Count how many earlier prefixes equal that value.</p>
+<p><b>Variants:</b> prefix products, prefix XOR, 2D prefix sums for matrix region queries, difference arrays for range updates, prefix-and-suffix arrays (product except self).</p>`,
+keys:["prefix[r+1] − prefix[l] for range sums","O(n) preprocess, O(1) query","Hash map of prefix counts for 'sum = K'","Works with negatives","Variants: 2D, XOR, difference arrays"],
+fu:[{q:"What's a difference array?",a:"diff[l] += v, diff[r+1] -= v for each range update; a prefix sum of diff reconstructs final values. O(1) per update, O(n) to rebuild."}],
+rf:["Off-by-one with prefix indexing","int overflow for large sums"]},
+
+{id:"D013",skill:"Prefix Sums",level:"Intermediate",type:"Problem",
+q:"Subarray Sum Equals K: count contiguous subarrays whose sum equals k (values can be negative).",
+a:`<p><b>Why not sliding window?</b> With negative numbers, expanding or shrinking doesn't change the sum monotonically.</p>
+<p><b>Approach:</b> running prefix sum and a count of how many times each prefix sum has occurred. At each position, the number of subarrays ending here with sum k equals the count of earlier prefixes equal to <code>sum - k</code>.</p>
+<pre><code>public int SubarraySum(int[] nums, int k)
+{
+    var counts = new Dictionary&lt;int, int&gt; { [0] = 1 };   // empty prefix
+    int sum = 0, result = 0;
+    foreach (var x in nums)
+    {
+        sum += x;
+        result += counts.GetValueOrDefault(sum - k);
+        counts[sum] = counts.GetValueOrDefault(sum) + 1;
+    }
+    return result;
+}</code></pre>
+<p><b>Complexity:</b> O(n) time, O(n) space.</p>
+<p><b>Talk track:</b> "Seeding the map with prefix 0 → 1 counts subarrays that start at index 0. I look up before adding the current prefix so a subarray isn't counted against itself."</p>`,
+keys:["Sliding window fails with negatives","Prefix count map seeded with {0:1}","Look up sum − k, then record sum","O(n)","Consider long for large sums"],
+fu:[{q:"Longest subarray with sum k?",a:"Store the first index of each prefix sum; at i, if sum − k was seen at j, length is i − j; keep the earliest index for maximum length."}],
+rf:["Forgets the {0:1} seed","Updates the map before lookup","Uses sliding window with negatives"]},
+
+{id:"D014",skill:"Prefix Sums",level:"Intermediate",type:"Problem",
+q:"Product of Array Except Self: return an array where each element is the product of all other elements, without division, in O(n).",
+a:`<p><b>Idea:</b> answer[i] = (product of everything left of i) × (product of everything right of i). Compute left products in one pass into the output array, then multiply by a running right product in a backward pass.</p>
+<pre><code>public int[] ProductExceptSelf(int[] nums)
+{
+    var n = nums.Length;
+    var result = new int[n];
+    result[0] = 1;
+    for (var i = 1; i &lt; n; i++) result[i] = result[i - 1] * nums[i - 1];   // prefix products
+    var suffix = 1;
+    for (var i = n - 1; i &gt;= 0; i--)
+    {
+        result[i] *= suffix;
+        suffix *= nums[i];
+    }
+    return result;
+}</code></pre>
+<p><b>Complexity:</b> O(n) time, O(1) extra space (the output array doesn't count).</p>
+<p><b>Talk track:</b> "Division fails with zeros and is disallowed. Prefix and suffix products give each position everything except itself; reusing the output array keeps extra space at O(1)."</p>`,
+keys:["Left product × right product","Prefix pass into output","Backward pass with running suffix","No division (zeros)","O(n) time, O(1) extra space"],
+fu:[{q:"What if division were allowed?",a:"Total product divided by each element fails with zeros: count zeros; if more than one, all zeros; if one, only that index gets the product of the rest."}],
+rf:["Uses division","O(n²) nested loops","Extra prefix and suffix arrays without noting O(1) optimisation"]},
+
+{id:"D015",skill:"Stack",level:"Basic",type:"Pattern",
+q:"Pattern: stacks and monotonic stacks. When do you use each?",
+a:`<p><b>Plain stack</b> when the most recent unresolved item must be matched first: bracket matching, undo, evaluating expressions, simulating recursion iteratively, parsing paths.</p>
+<p><b>Monotonic stack</b> when you need the <b>next greater/smaller element</b> (or previous) for every position: daily temperatures, stock span, largest rectangle in histogram. Keep the stack in increasing or decreasing order; when a new element breaks the order, it's the answer for the elements it pops.</p>
+<pre><code>// Next greater element to the right for each index (-1 if none)
+public int[] NextGreater(int[] nums)
+{
+    var result = Enumerable.Repeat(-1, nums.Length).ToArray();
+    var stack = new Stack&lt;int&gt;();                       // indices, values decreasing from bottom to top
+    for (var i = 0; i &lt; nums.Length; i++)
+    {
+        while (stack.Count &gt; 0 &amp;&amp; nums[stack.Peek()] &lt; nums[i])
+            result[stack.Pop()] = nums[i];
+        stack.Push(i);
+    }
+    return result;
+}</code></pre>
+<p>Each index is pushed and popped at most once: O(n). Store <b>indices</b>, not values, when you need distances or positions.</p>`,
+keys:["Stack for most-recent-first matching","Monotonic stack for next greater/smaller","Store indices","Each element pushed/popped once: O(n)","Recognise 'next greater' phrasing"],
+fu:[{q:"Next greater element in a circular array?",a:"Iterate 2n times using i % n, pushing only during the first pass; elements still on the stack have no greater element."}],
+rf:["Nested loops for next greater (O(n²))","Stores values when indices are needed"]},
+
+{id:"D016",skill:"Stack",level:"Basic",type:"Problem",
+q:"Valid Parentheses: determine if a string of brackets ()[]{} is properly opened and closed in order.",
+a:`<pre><code>public bool IsValid(string s)
+{
+    var pairs = new Dictionary&lt;char, char&gt; { [')'] = '(', [']'] = '[', ['}'] = '{' };
+    var stack = new Stack&lt;char&gt;();
+    foreach (var c in s)
+    {
+        if (pairs.TryGetValue(c, out var open))
+        {
+            if (stack.Count == 0 || stack.Pop() != open) return false;   // closing with no match
+        }
+        else stack.Push(c);
+    }
+    return stack.Count == 0;                                           // unclosed openers remain?
+}</code></pre>
+<p><b>Complexity:</b> O(n) time, O(n) space.</p>
+<p><b>Talk track:</b> "The most recently opened bracket must close first, which is exactly a stack. Edge cases: a closer on an empty stack, and leftovers at the end." Quick check: odd length can return false immediately.</p>`,
+keys:["Stack of openers","Closer must match the top","Empty stack on closer → invalid","Leftovers → invalid","O(n)"],
+fu:[{q:"Minimum additions to make it valid (single bracket type)?",a:"Track open count; on ')' with zero open, increment additions; at the end, add remaining open count. O(n), O(1) space."}],
+rf:["Counts brackets without checking order","Forgets the final empty check"]},
+
+{id:"D017",skill:"Stack",level:"Intermediate",type:"Problem",
+q:"Daily Temperatures: for each day, how many days until a warmer temperature (0 if never)?",
+a:`<p><b>Recognise:</b> "next greater element" with distance → monotonic decreasing stack of indices.</p>
+<pre><code>public int[] DailyTemperatures(int[] temps)
+{
+    var result = new int[temps.Length];
+    var stack = new Stack&lt;int&gt;();                     // indices of days waiting for a warmer day
+    for (var i = 0; i &lt; temps.Length; i++)
+    {
+        while (stack.Count &gt; 0 &amp;&amp; temps[stack.Peek()] &lt; temps[i])
+        {
+            var j = stack.Pop();
+            result[j] = i - j;
+        }
+        stack.Push(i);
+    }
+    return result;                                    // remaining indices keep 0
+}</code></pre>
+<p><b>Complexity:</b> O(n) time, O(n) space.</p>
+<p><b>Talk track:</b> "Brute force scans forward from each day, O(n²). The stack holds days still waiting for a warmer day, in decreasing temperature order; a warmer day resolves all cooler days on top."</p>`,
+keys:["Monotonic decreasing stack of indices","Pop and resolve while current is warmer","Distance = i − j","Unresolved stay 0","O(n) amortised"],
+fu:[{q:"Largest Rectangle in Histogram uses the same idea. How?",a:"Monotonic increasing stack of indices; when a lower bar arrives, pop bars and compute area with the popped height and width between the new top and current index. O(n)."}],
+rf:["O(n²) forward scans without noting it","Stack of temperatures without indices"]},
+{id:"D018",skill:"Binary Search",level:"Basic",type:"Pattern",
+q:"Pattern: binary search. Which templates should you know, and what is 'binary search on the answer'?",
+a:`<p><b>Recognise it when:</b> data is sorted (or rotated sorted), you need the first/last position satisfying a condition, or the answer is a number in a range where a yes/no check is <b>monotonic</b> ("can we finish with speed x?" becomes true once x is large enough).</p>
+<p><b>Template 1: find exact value</b> (<code>lo &lt;= hi</code>, return mid when equal).</p>
+<p><b>Template 2: lower bound</b>, the first index where <code>a[i] &gt;= target</code> (the most reusable form):</p>
+<pre><code>int LowerBound(int[] a, int target)
+{
+    int lo = 0, hi = a.Length;              // search space [lo, hi)
+    while (lo &lt; hi)
+    {
+        var mid = lo + (hi - lo) / 2;       // avoids overflow of lo + hi
+        if (a[mid] &lt; target) lo = mid + 1;
+        else hi = mid;
+    }
+    return lo;                              // a.Length if all elements are smaller
+}</code></pre>
+<p><b>Template 3: binary search on the answer</b>, the smallest x in [lo, hi] where <code>Feasible(x)</code> is true, given Feasible is false…false, true…true:</p>
+<pre><code>while (lo &lt; hi)
+{
+    var mid = lo + (hi - lo) / 2;
+    if (Feasible(mid)) hi = mid; else lo = mid + 1;
+}
+return lo;</code></pre>
+<p><b>Built-ins:</b> <code>Array.BinarySearch</code> and <code>List.BinarySearch</code> return the index, or the bitwise complement (<code>~index</code>) of the insertion point when not found.</p>
+<p><b>Pitfalls:</b> infinite loops from <code>lo = mid</code> with floor division; inconsistent open/closed bounds; overflow in <code>(lo + hi) / 2</code>.</p>`,
+keys:["Sorted data or monotonic feasibility","Lower-bound template with [lo, hi)","Search on the answer","mid = lo + (hi − lo) / 2","Built-in BinarySearch complement result"],
+fu:[{q:"How do you find the last position of a target?",a:"Upper bound (first index with a[i] > target) minus one, checking that the element equals the target."}],
+rf:["Mixing bound conventions","lo = mid causing infinite loops","Linear scan on sorted data"]},
+
+{id:"D019",skill:"Binary Search",level:"Intermediate",type:"Problem",
+q:"Search in Rotated Sorted Array: a sorted array (distinct values) was rotated at an unknown pivot. Find the index of a target in O(log n).",
+a:`<p><b>Insight:</b> at any mid, at least one half ([lo..mid] or [mid..hi]) is sorted. Check whether the target lies within the sorted half; if yes, search there, otherwise search the other half.</p>
+<pre><code>public int Search(int[] nums, int target)
+{
+    int lo = 0, hi = nums.Length - 1;
+    while (lo &lt;= hi)
+    {
+        var mid = lo + (hi - lo) / 2;
+        if (nums[mid] == target) return mid;
+
+        if (nums[lo] &lt;= nums[mid])                      // left half sorted
+        {
+            if (nums[lo] &lt;= target &amp;&amp; target &lt; nums[mid]) hi = mid - 1;
+            else lo = mid + 1;
+        }
+        else                                            // right half sorted
+        {
+            if (nums[mid] &lt; target &amp;&amp; target &lt;= nums[hi]) lo = mid + 1;
+            else hi = mid - 1;
+        }
+    }
+    return -1;
+}</code></pre>
+<p><b>Complexity:</b> O(log n) time, O(1) space.</p>
+<p><b>Talk track:</b> "I can't compare to mid alone because of the rotation, but one side is always sorted, and for a sorted range I can check membership with its endpoints. The <code>&lt;=</code> in <code>nums[lo] &lt;= nums[mid]</code> handles the case where lo equals mid."</p>`,
+keys:["One half is always sorted","Range check on the sorted half","Discard the other half","Careful boundary comparisons","O(log n)"],
+fu:[{q:"What if duplicates are allowed?",a:"When nums[lo] == nums[mid] == nums[hi] you can't tell which half is sorted; shrink lo++ and hi--; worst case becomes O(n)."},{q:"Find the minimum in a rotated sorted array.",a:"Compare mid with hi: if nums[mid] > nums[hi], the minimum is right of mid (lo = mid + 1), else hi = mid."}],
+rf:["Finds the pivot then does two searches without explaining (fine, but longer)","Wrong strict/non-strict comparisons","Linear search"]},
+
+{id:"D020",skill:"Binary Search",level:"Intermediate",type:"Problem",
+q:"Koko Eating Bananas: piles of bananas, h hours; each hour Koko eats up to k bananas from one pile. Find the minimum integer k to finish within h hours.",
+a:`<p><b>Recognise:</b> "minimum speed such that a condition holds" with a monotonic condition (faster speed never takes more hours) → binary search on the answer over k in [1, max pile].</p>
+<pre><code>public int MinEatingSpeed(int[] piles, int h)
+{
+    int lo = 1, hi = piles.Max();
+    while (lo &lt; hi)
+    {
+        var mid = lo + (hi - lo) / 2;
+        if (HoursNeeded(piles, mid) &lt;= h) hi = mid;   // feasible: try slower
+        else lo = mid + 1;                           // too slow
+    }
+    return lo;
+}
+
+private static long HoursNeeded(int[] piles, int speed)
+{
+    long hours = 0;
+    foreach (var p in piles) hours += ((long)p + speed - 1) / speed;   // ceiling division without floating point
+    return hours;
+}</code></pre>
+<p><b>Complexity:</b> O(n log m) where m is the largest pile; O(1) space.</p>
+<p><b>Talk track:</b> "Brute force tries every speed from 1 upward: O(n·m). Feasibility is monotonic, so I binary search for the smallest feasible speed. Ceiling division is (p + k − 1) / k, computed in long to avoid overflow."</p>`,
+keys:["Monotonic feasibility → search on answer","Bounds [1, max pile]","Ceiling division in integers","long to avoid overflow","O(n log m)"],
+fu:[{q:"Name other problems with the same pattern.",a:"Capacity to ship packages within D days, split array largest sum, minimum days to make bouquets, allocate books; all 'minimise the maximum' or 'minimum feasible value'."}],
+rf:["Floating-point ceiling","Linear search over speeds","Wrong direction when feasible"]},
+
+{id:"D021",skill:"Linked List",level:"Basic",type:"Pattern",
+q:"Pattern: linked lists. Which techniques solve most linked-list problems?",
+a:`<pre><code>public class ListNode
+{
+    public int val;
+    public ListNode? next;
+    public ListNode(int val = 0, ListNode? next = null) { this.val = val; this.next = next; }
+}</code></pre>
+<ul>
+<li><b>Dummy (sentinel) head:</b> simplifies building or deleting at the head: <code>var dummy = new ListNode(); var tail = dummy;</code> then return <code>dummy.next</code>.</li>
+<li><b>In-place reversal:</b> three pointers (prev, current, next); used for reversing whole lists, sublists, k-groups, and palindrome checks.</li>
+<li><b>Fast and slow pointers:</b> slow moves 1, fast moves 2: find the middle, detect cycles (Floyd), find the cycle start.</li>
+<li><b>Two pointers with a gap:</b> remove the nth node from the end by advancing one pointer n steps first.</li>
+<li><b>Merge:</b> merging two sorted lists with a dummy head; basis for merge sort on lists and k-way merges with a heap.</li>
+</ul>
+<p><b>Habits:</b> draw the pointers before coding; check null before dereferencing <code>.next</code>; consider empty and single-node lists; don't lose the rest of the list when rewiring (save <code>next</code> first).</p>`,
+keys:["Dummy head","Reversal with prev/cur/next","Fast/slow for middle and cycles","Gap pointers for nth from end","Draw it; save next before rewiring"],
+fu:[{q:"Find the middle of a list in one pass.",a:"Slow and fast pointers: when fast reaches the end, slow is at the middle (second middle for even lengths with the usual loop)."}],
+rf:["Loses the list by overwriting next","Null dereferences on short lists","Special-casing the head instead of using a dummy"]},
+
+{id:"D022",skill:"Linked List",level:"Basic",type:"Problem",
+q:"Reverse a singly linked list, iteratively and recursively.",
+a:`<pre><code>// Iterative: O(n) time, O(1) space
+public ListNode? ReverseList(ListNode? head)
+{
+    ListNode? prev = null, current = head;
+    while (current != null)
+    {
+        var next = current.next;   // save the rest
+        current.next = prev;       // reverse the pointer
+        prev = current;
+        current = next;
+    }
+    return prev;
+}
+
+// Recursive: O(n) time, O(n) stack space
+public ListNode? ReverseRecursive(ListNode? head)
+{
+    if (head?.next == null) return head;
+    var newHead = ReverseRecursive(head.next);
+    head.next.next = head;          // the node after head now points back to head
+    head.next = null;
+    return newHead;
+}</code></pre>
+<p><b>Talk track:</b> "Iteratively, I walk the list and flip each next pointer, keeping a reference to the rest so it isn't lost. The recursive version reverses the tail first, then attaches the current node at its end; it uses O(n) stack, which can overflow for very long lists."</p>`,
+keys:["Save next, flip, advance","Return prev as new head","Recursive version and its stack cost","Handles empty and single-node lists","O(n) time"],
+fu:[{q:"Reverse only nodes from position m to n.",a:"Walk to the node before m (use a dummy), reverse the sublist with the same three-pointer loop, then reconnect both ends."},{q:"Reverse in groups of k.",a:"Check k nodes remain, reverse them, connect the previous group's tail to the new head, repeat; leave a final short group as is."}],
+rf:["Loses the list by not saving next","Returns head instead of prev","Doesn't mention recursion stack depth"]},
+
+{id:"D023",skill:"Linked List",level:"Intermediate",type:"Problem",
+q:"Linked List Cycle II: return the node where a cycle begins, or null if there's no cycle, using O(1) extra space.",
+a:`<p><b>Floyd's algorithm:</b> slow moves 1 step, fast moves 2. If they meet, there's a cycle. Then move one pointer to the head and advance both one step at a time; they meet at the cycle start.</p>
+<pre><code>public ListNode? DetectCycle(ListNode? head)
+{
+    ListNode? slow = head, fast = head;
+    while (fast != null &amp;&amp; fast.next != null)
+    {
+        slow = slow!.next;
+        fast = fast.next.next;
+        if (slow == fast)
+        {
+            var p = head;
+            while (p != slow) { p = p!.next; slow = slow!.next; }
+            return p;
+        }
+    }
+    return null;
+}</code></pre>
+<p><b>Why it works:</b> let the distance from head to cycle start be a, and the meeting point be b steps into the cycle of length c. Fast travelled twice as far as slow: 2(a + b) = a + b + k·c, so a = k·c − b. Starting one pointer at the head and one at the meeting point, after a steps both reach the cycle start.</p>
+<p><b>Complexity:</b> O(n) time, O(1) space. (A HashSet of visited nodes is O(n) space and simpler to explain as the first idea.)</p>`,
+keys:["Fast/slow meet if a cycle exists","Reset one pointer to head; meet at start","Brief proof a = k·c − b","O(1) space","HashSet as the simpler first idea"],
+fu:[{q:"How do you find the cycle length?",a:"After meeting, keep one pointer fixed and move the other until they meet again, counting steps."}],
+rf:["Only detects the cycle, not the start","Null checks missing in the loop","Can't explain why the reset works"]},
+
+{id:"D024",skill:"Trees",level:"Basic",type:"Pattern",
+q:"Pattern: binary trees. When do you use DFS vs BFS, and what are the standard traversal templates?",
+a:`<pre><code>public class TreeNode
+{
+    public int val;
+    public TreeNode? left, right;
+    public TreeNode(int val = 0, TreeNode? left = null, TreeNode? right = null)
+    { this.val = val; this.left = left; this.right = right; }
+}
+
+// DFS: max depth (post-order thinking: combine children's answers)
+public int MaxDepth(TreeNode? root) =&gt;
+    root == null ? 0 : 1 + Math.Max(MaxDepth(root.left), MaxDepth(root.right));</code></pre>
+<ul>
+<li><b>DFS (recursive)</b>: most tree problems: depth, path sums, validating properties, lowest common ancestor. Think "what does each child return to its parent?" Pre-order (node first) for top-down info such as bounds; post-order (children first) for bottom-up combinations such as heights.</li>
+<li><b>BFS (queue)</b>: level-by-level questions: level order, right side view, minimum depth, nearest nodes.</li>
+<li><b>BST property</b>: in-order traversal yields sorted values; search/insert in O(h).</li>
+<li><b>Iterative DFS</b> with an explicit stack when recursion depth could be large (skewed trees).</li>
+</ul>
+<p><b>Complexity:</b> traversals are O(n) time; space O(h) for DFS (h = height), O(w) for BFS (w = maximum width).</p>`,
+keys:["DFS: what each subtree returns","Pre-order for top-down, post-order for bottom-up","BFS for level questions","BST in-order is sorted","O(h) vs O(w) space"],
+fu:[{q:"Lowest common ancestor in a binary search tree?",a:"Walk from the root: if both values are smaller go left, if both larger go right, otherwise the current node is the LCA. O(h)."}],
+rf:["Global mutable state where a return value would do","Forgets null base case","Recursion on very deep trees without noting stack limits"]},
+
+{id:"D025",skill:"Trees",level:"Intermediate",type:"Problem",
+q:"Binary Tree Level Order Traversal: return node values level by level.",
+a:`<pre><code>public IList&lt;IList&lt;int&gt;&gt; LevelOrder(TreeNode? root)
+{
+    var result = new List&lt;IList&lt;int&gt;&gt;();
+    if (root == null) return result;
+    var queue = new Queue&lt;TreeNode&gt;();
+    queue.Enqueue(root);
+    while (queue.Count &gt; 0)
+    {
+        var size = queue.Count;                  // number of nodes in the current level
+        var level = new List&lt;int&gt;(size);
+        for (var i = 0; i &lt; size; i++)
+        {
+            var node = queue.Dequeue();
+            level.Add(node.val);
+            if (node.left != null) queue.Enqueue(node.left);
+            if (node.right != null) queue.Enqueue(node.right);
+        }
+        result.Add(level);
+    }
+    return result;
+}</code></pre>
+<p><b>Complexity:</b> O(n) time, O(w) space for the queue.</p>
+<p><b>Talk track:</b> "BFS with a queue; capturing the queue size at the start of each loop separates levels without storing depths."</p>`,
+keys:["Queue-based BFS","Snapshot queue size per level","Null root handled","O(n) time","Variants: zigzag, right view, averages"],
+fu:[{q:"Right side view of a tree?",a:"Same BFS; record the last node of each level (or DFS visiting right child first, recording the first node seen at each depth)."},{q:"Zigzag order?",a:"Same BFS; reverse every other level's list (or insert at the front for odd levels)."}],
+rf:["Stores depth per node unnecessarily","Mixes levels by not snapshotting size"]},
+
+{id:"D026",skill:"Trees",level:"Intermediate",type:"Problem",
+q:"Validate Binary Search Tree.",
+a:`<p><b>Common mistake:</b> checking only that each node is greater than its left child and smaller than its right child. A node deep in the left subtree must also be smaller than every ancestor where we went left.</p>
+<p><b>Approach:</b> DFS passing down the allowed (exclusive) range.</p>
+<pre><code>public bool IsValidBST(TreeNode? root) =&gt; Valid(root, long.MinValue, long.MaxValue);
+
+private static bool Valid(TreeNode? node, long low, long high) =&gt;
+    node == null ||
+    (node.val &gt; low &amp;&amp; node.val &lt; high &amp;&amp;
+     Valid(node.left, low, node.val) &amp;&amp;
+     Valid(node.right, node.val, high));</code></pre>
+<p><b>Complexity:</b> O(n) time, O(h) space.</p>
+<p><b>Alternative:</b> in-order traversal must produce strictly increasing values; track the previous value.</p>
+<p><b>Talk track:</b> "Each node constrains its subtrees: left values must be below it and above the node's own lower bound. Using long bounds avoids issues when nodes hold int.MinValue or int.MaxValue."</p>`,
+keys:["Parent-only comparison is wrong","Pass down (low, high) bounds","Exclusive bounds for strictness","long bounds for int extremes","In-order alternative"],
+fu:[{q:"Find the kth smallest element in a BST.",a:"In-order traversal, counting nodes; stop at the kth. O(h + k) with an iterative stack."}],
+rf:["Only compares with immediate children","int bounds failing on extreme values","Allows duplicates without clarifying"]},
+
+{id:"D027",skill:"Heap / Top-K",level:"Basic",type:"Pattern",
+q:"Pattern: heaps (priority queues). When do you use them, and how do you use C#'s PriorityQueue for top-K problems?",
+a:`<p><b>Recognise it when:</b> you need the k largest/smallest/most frequent items, repeatedly take the current best (scheduling, Dijkstra), merge k sorted sequences, or maintain a running median.</p>
+<p><b>C# specifics:</b> <code>PriorityQueue&lt;TElement, TPriority&gt;</code> is a <b>min-heap</b> by priority. For a max-heap, use negated priorities or a reversed comparer: <code>new PriorityQueue&lt;int, int&gt;(Comparer&lt;int&gt;.Create((a, b) =&gt; b.CompareTo(a)))</code>.</p>
+<p><b>Top-K largest with a min-heap of size k:</b> keep only the k best seen so far; the smallest of them sits at the top and gets evicted when something better arrives. O(n log k) time, O(k) space, better than sorting everything when k is small.</p>
+<pre><code>public int FindKthLargest(int[] nums, int k)
+{
+    var heap = new PriorityQueue&lt;int, int&gt;();
+    foreach (var x in nums)
+    {
+        heap.Enqueue(x, x);
+        if (heap.Count &gt; k) heap.Dequeue();     // drop the smallest
+    }
+    return heap.Peek();                          // smallest of the k largest = kth largest
+}</code></pre>
+<p><b>Two heaps</b> (a max-heap for the lower half, a min-heap for the upper half) maintain a running median in O(log n) per insert.</p>`,
+keys:["PriorityQueue is a min-heap","Max-heap via reversed comparer or negation","Min-heap of size k for top-k largest","O(n log k)","Two heaps for medians; k-way merges"],
+fu:[{q:"Is there something faster than O(n log k) for the kth largest?",a:"Quickselect: average O(n), worst O(n²) unless using randomised pivots; mention as an alternative."}],
+rf:["Sorts everything when k is small (acceptable but mention trade-off)","Uses a max-heap of all n then pops k (O(n + k log n), fine but explain)","Forgets PriorityQueue is a min-heap"]},
+
+{id:"D028",skill:"Heap / Top-K",level:"Intermediate",type:"Problem",
+q:"Top K Frequent Elements: return the k most frequent elements.",
+a:`<p><b>Approach 1 (heap):</b> count frequencies, keep a min-heap of size k ordered by frequency.</p>
+<pre><code>public int[] TopKFrequent(int[] nums, int k)
+{
+    var counts = new Dictionary&lt;int, int&gt;();
+    foreach (var x in nums) counts[x] = counts.GetValueOrDefault(x) + 1;
+
+    var heap = new PriorityQueue&lt;int, int&gt;();          // element, frequency (min-heap)
+    foreach (var (value, freq) in counts)
+    {
+        heap.Enqueue(value, freq);
+        if (heap.Count &gt; k) heap.Dequeue();            // drop the least frequent
+    }
+    var result = new int[k];
+    for (var i = k - 1; i &gt;= 0; i--) result[i] = heap.Dequeue();   // most frequent last out
+    return result;
+}</code></pre>
+<p><b>Complexity:</b> O(n log k) time, O(n) space.</p>
+<p><b>Approach 2 (bucket sort):</b> frequencies are at most n, so create buckets indexed by frequency and collect from the highest bucket down: O(n) time.</p>
+<p><b>Talk track:</b> "Counting is O(n). For the top k, a size-k min-heap avoids sorting all distinct values. If the interviewer wants O(n), bucket by frequency."</p>`,
+keys:["Count with a dictionary","Size-k min-heap by frequency","O(n log k)","Bucket sort alternative O(n)","Ties: clarify expected order"],
+fu:[{q:"What if the data is a stream too large for memory?",a:"Approximate heavy hitters: Count-Min Sketch with a small heap, or Misra-Gries; exact answers need all counts."}],
+rf:["Sorts all elements by frequency without considering k","Max-heap of everything without explaining","Doesn't mention bucket sort when asked for O(n)"]},
+
+{id:"D029",skill:"Heap / Top-K",level:"Advanced",type:"Problem",
+q:"Merge k Sorted Lists: merge k sorted linked lists into one sorted list.",
+a:`<p><b>Approach:</b> a min-heap holding the current head of each list. Repeatedly take the smallest, append it, and push its successor.</p>
+<pre><code>public ListNode? MergeKLists(ListNode?[] lists)
+{
+    var heap = new PriorityQueue&lt;ListNode, int&gt;();
+    foreach (var node in lists)
+        if (node != null) heap.Enqueue(node, node.val);
+
+    var dummy = new ListNode();
+    var tail = dummy;
+    while (heap.Count &gt; 0)
+    {
+        var smallest = heap.Dequeue();
+        tail.next = smallest;
+        tail = smallest;
+        if (smallest.next != null) heap.Enqueue(smallest.next, smallest.next.val);
+    }
+    return dummy.next;
+}</code></pre>
+<p><b>Complexity:</b> O(N log k) time for N total nodes; O(k) heap space.</p>
+<p><b>Alternative:</b> divide and conquer, merging lists in pairs (like merge sort), also O(N log k) with O(1) extra space beyond recursion.</p>
+<p><b>Talk track:</b> "Merging lists one at a time is O(N·k). The heap always holds at most k candidates, so each of the N nodes costs log k."</p>`,
+keys:["Heap of current heads","Push successor after popping","Dummy head for output","O(N log k)","Pairwise merge alternative"],
+fu:[{q:"Where does this show up in real systems?",a:"External sorting (merging sorted runs from disk), merging sorted results from shards, log merging by timestamp."}],
+rf:["Merges sequentially (O(N·k)) without noting it","Pushes all N nodes into the heap at once (O(N log N))","Null lists not handled"]},
+
+{id:"D030",skill:"Intervals",level:"Basic",type:"Pattern",
+q:"Pattern: intervals. What are the standard techniques for overlapping-interval problems?",
+a:`<p><b>Recognise it when:</b> the input is ranges (meetings, bookings, time windows) and you need to merge them, find overlaps, count concurrent ones, or insert a new one.</p>
+<ul>
+<li><b>Sort by start</b>, then sweep once: most merging problems become O(n log n).</li>
+<li><b>Overlap test</b> for [a1, a2] and [b1, b2]: <code>a1 &lt;= b2 &amp;&amp; b1 &lt;= a2</code> (closed intervals); with half-open [start, end), use strict comparisons. Clarify which the problem uses (do meetings ending at 10 and starting at 10 conflict?).</li>
+<li><b>Min-heap of end times</b> to count resources in use (meeting rooms, platforms).</li>
+<li><b>Sweep line:</b> convert intervals to +1 at start and −1 at end events, sort events, and track the running count; the maximum is the peak concurrency.</li>
+<li><b>Greedy by end time:</b> to keep the maximum number of non-overlapping intervals, always choose the one that ends earliest.</li>
+</ul>`,
+keys:["Sort by start then sweep","Overlap condition; clarify open/closed ends","Heap of end times for concurrency","Sweep line events","Greedy by end time for max non-overlapping"],
+fu:[{q:"Minimum number of intervals to remove so the rest don't overlap?",a:"Sort by end; greedily keep intervals that start after the last kept end; removals = n − kept."}],
+rf:["Doesn't sort first","Ambiguous handling of touching intervals"]},
+
+{id:"D031",skill:"Intervals",level:"Intermediate",type:"Problem",
+q:"Merge Intervals: merge all overlapping intervals.",
+a:`<pre><code>public int[][] Merge(int[][] intervals)
+{
+    if (intervals.Length == 0) return intervals;
+    Array.Sort(intervals, (a, b) =&gt; a[0].CompareTo(b[0]));
+    var merged = new List&lt;int[]&gt; { intervals[0] };
+    foreach (var current in intervals.Skip(1))
+    {
+        var last = merged[^1];
+        if (current[0] &lt;= last[1]) last[1] = Math.Max(last[1], current[1]);   // overlap: extend
+        else merged.Add(current);
+    }
+    return merged.ToArray();
+}</code></pre>
+<p><b>Complexity:</b> O(n log n) for sorting, O(n) for the sweep; O(n) output space.</p>
+<p><b>Talk track:</b> "After sorting by start, any overlapping interval must overlap the last merged one, so a single pass suffices. I extend the end with Max because an interval can be fully contained in the previous one."</p>`,
+keys:["Sort by start","Compare with last merged only","Extend end with Max (containment)","Touching intervals: clarify","O(n log n)"],
+fu:[{q:"Insert a new interval into a sorted, non-overlapping list.",a:"Add intervals ending before the new one, merge all that overlap it (expanding start and end), then add the rest. O(n)."}],
+rf:["Forgets Math.Max for contained intervals","Compares each pair (O(n²))","Mutates input unexpectedly without mentioning"]},
+
+{id:"D032",skill:"Intervals",level:"Intermediate",type:"Problem",
+q:"Meeting Rooms II: given meeting intervals, find the minimum number of rooms required.",
+a:`<p><b>Approach 1: min-heap of end times.</b> Sort by start; for each meeting, if the earliest-ending room is free (end ≤ start), reuse it; otherwise allocate a new room.</p>
+<pre><code>public int MinMeetingRooms(int[][] intervals)
+{
+    Array.Sort(intervals, (a, b) =&gt; a[0].CompareTo(b[0]));
+    var endTimes = new PriorityQueue&lt;int, int&gt;();
+    foreach (var meeting in intervals)
+    {
+        if (endTimes.Count &gt; 0 &amp;&amp; endTimes.Peek() &lt;= meeting[0]) endTimes.Dequeue();   // reuse a room
+        endTimes.Enqueue(meeting[1], meeting[1]);
+    }
+    return endTimes.Count;                    // rooms ever needed simultaneously
+}</code></pre>
+<p><b>Approach 2: sweep line.</b> Sort start times and end times separately; walk through starts, advancing an end pointer whenever an end ≤ the current start; track the maximum number of active meetings.</p>
+<p><b>Complexity:</b> O(n log n) time, O(n) space.</p>
+<p><b>Talk track:</b> "The answer is the maximum number of overlapping meetings at any moment. The heap tracks rooms by when they become free."</p>`,
+keys:["Answer = peak concurrency","Sort by start; heap of end times","Reuse when earliest end ≤ start","Sweep line alternative","O(n log n)"],
+fu:[{q:"Which specific room does each meeting get?",a:"Heap of (endTime, roomId); when reusing, assign the popped roomId; otherwise create a new room ID."},{q:"Is end == start a conflict?",a:"Clarify; with half-open intervals it isn't, so the comparison is ≤ as above."}],
+rf:["Counts overlaps pairwise (O(n²))","Uses a max-heap","Doesn't clarify touching meetings"]},
+{id:"D033",skill:"Graphs (BFS/DFS)",level:"Basic",type:"Pattern",
+q:"Pattern: graph traversal with BFS and DFS, including grids. How do you represent graphs in C#, and which traversal do you pick?",
+a:`<p><b>Representation:</b> adjacency list: <code>List&lt;int&gt;[] graph</code> or <code>Dictionary&lt;int, List&lt;int&gt;&gt;</code>; for weighted graphs store <code>(int To, int Weight)</code> tuples. Grids are implicit graphs: neighbours are the 4 (or 8) adjacent cells.</p>
+<pre><code>// Grid neighbour boilerplate
+var directions = new (int Dr, int Dc)[] { (1, 0), (-1, 0), (0, 1), (0, -1) };
+bool InBounds(int r, int c) =&gt; r &gt;= 0 &amp;&amp; r &lt; rows &amp;&amp; c &gt;= 0 &amp;&amp; c &lt; cols;
+
+// BFS template on an adjacency list
+var visited = new bool[n];
+var queue = new Queue&lt;int&gt;();
+queue.Enqueue(start); visited[start] = true;          // mark when enqueuing, not when dequeuing
+while (queue.Count &gt; 0)
+{
+    var node = queue.Dequeue();
+    foreach (var next in graph[node])
+        if (!visited[next]) { visited[next] = true; queue.Enqueue(next); }
+}</code></pre>
+<ul>
+<li><b>BFS:</b> shortest path in <b>unweighted</b> graphs, level-by-level spreading (multi-source BFS: start the queue with all sources).</li>
+<li><b>DFS:</b> connectivity, counting components, cycle detection, exhaustive exploration; recursive is concise, iterative avoids stack overflow on big grids.</li>
+<li><b>Union-Find</b> (disjoint set) is an alternative for dynamic connectivity questions.</li>
+</ul>
+<p><b>Complexity:</b> O(V + E); for an R×C grid, O(R·C).</p>`,
+keys:["Adjacency lists; grids as implicit graphs","Mark visited on enqueue","BFS for unweighted shortest paths and spreading","DFS for components and cycles","O(V + E)"],
+fu:[{q:"Why mark visited when enqueuing rather than when dequeuing?",a:"Otherwise the same node can be enqueued many times by different neighbours before it's processed, wasting time and memory (and inflating BFS distances in some implementations)."}],
+rf:["No visited tracking (infinite loops)","Recursion on a 1000×1000 grid without considering stack depth","BFS for weighted shortest paths"]},
+
+{id:"D034",skill:"Graphs (BFS/DFS)",level:"Intermediate",type:"Problem",
+q:"Number of Islands: count connected groups of '1' cells in a grid (4-directional).",
+a:`<p><b>Approach:</b> scan the grid; each unvisited land cell starts a new island; flood-fill it (BFS or DFS) to mark the whole island visited.</p>
+<pre><code>public int NumIslands(char[][] grid)
+{
+    int rows = grid.Length, cols = grid[0].Length, islands = 0;
+    var directions = new (int Dr, int Dc)[] { (1, 0), (-1, 0), (0, 1), (0, -1) };
+
+    for (var r = 0; r &lt; rows; r++)
+        for (var c = 0; c &lt; cols; c++)
+        {
+            if (grid[r][c] != '1') continue;
+            islands++;
+            grid[r][c] = '0';                                  // mark visited (mutates input; clarify)
+            var queue = new Queue&lt;(int R, int C)&gt;();
+            queue.Enqueue((r, c));
+            while (queue.Count &gt; 0)
+            {
+                var (cr, cc) = queue.Dequeue();
+                foreach (var (dr, dc) in directions)
+                {
+                    int nr = cr + dr, nc = cc + dc;
+                    if (nr &gt;= 0 &amp;&amp; nr &lt; rows &amp;&amp; nc &gt;= 0 &amp;&amp; nc &lt; cols &amp;&amp; grid[nr][nc] == '1')
+                    {
+                        grid[nr][nc] = '0';
+                        queue.Enqueue((nr, nc));
+                    }
+                }
+            }
+        }
+    return islands;
+}</code></pre>
+<p><b>Complexity:</b> O(R·C) time; O(min(R, C)) to O(R·C) queue space.</p>
+<p><b>Talk track:</b> "Each land cell is visited once. I mark cells as water when enqueued so they aren't added twice. If modifying the input isn't allowed, I'd use a separate visited array."</p>`,
+keys:["Count flood-fill starts","Mark on enqueue","BFS avoids recursion depth issues","Clarify input mutation","O(R·C)"],
+fu:[{q:"Islands keep being added one cell at a time (Number of Islands II). How do you answer after each addition efficiently?",a:"Union-Find: each new land cell is a new set; union with neighbouring land; track the number of sets. Near O(1) amortised per operation."},{q:"Find the largest island area.",a:"Same flood fill, counting cells per island and tracking the maximum."}],
+rf:["Recursive DFS on huge grids without noting stack risk","Marks visited on dequeue causing duplicates","Off-by-one bounds checks"]},
+
+{id:"D035",skill:"Graphs (BFS/DFS)",level:"Intermediate",type:"Problem",
+q:"Rotting Oranges: each minute, rotten oranges rot their 4-directional fresh neighbours. Return the minutes until no fresh orange remains, or -1 if impossible.",
+a:`<p><b>Recognise:</b> spreading from many starting points simultaneously, measured in steps → <b>multi-source BFS</b> (start the queue with all rotten oranges).</p>
+<pre><code>public int OrangesRotting(int[][] grid)
+{
+    int rows = grid.Length, cols = grid[0].Length, fresh = 0, minutes = 0;
+    var queue = new Queue&lt;(int R, int C)&gt;();
+    for (var r = 0; r &lt; rows; r++)
+        for (var c = 0; c &lt; cols; c++)
+            if (grid[r][c] == 2) queue.Enqueue((r, c));
+            else if (grid[r][c] == 1) fresh++;
+
+    var directions = new (int Dr, int Dc)[] { (1, 0), (-1, 0), (0, 1), (0, -1) };
+    while (queue.Count &gt; 0 &amp;&amp; fresh &gt; 0)
+    {
+        var size = queue.Count;                        // one minute = one BFS level
+        for (var i = 0; i &lt; size; i++)
+        {
+            var (r, c) = queue.Dequeue();
+            foreach (var (dr, dc) in directions)
+            {
+                int nr = r + dr, nc = c + dc;
+                if (nr &lt; 0 || nr &gt;= rows || nc &lt; 0 || nc &gt;= cols || grid[nr][nc] != 1) continue;
+                grid[nr][nc] = 2;
+                fresh--;
+                queue.Enqueue((nr, nc));
+            }
+        }
+        minutes++;
+    }
+    return fresh == 0 ? minutes : -1;
+}</code></pre>
+<p><b>Complexity:</b> O(R·C) time and space.</p>
+<p><b>Talk track:</b> "All rotten oranges start together, so they're all sources at level 0. Each BFS level is one minute. I stop when no fresh oranges remain, and return -1 if some are unreachable."</p>`,
+keys:["Multi-source BFS","Level = one time step","Count fresh to detect impossibility","Stop when fresh hits zero","O(R·C)"],
+fu:[{q:"Distance from each cell to the nearest gate/zero (Walls and Gates / 01 Matrix)?",a:"Multi-source BFS from all gates/zeros at once, recording distances as cells are first reached."}],
+rf:["Runs BFS separately from each rotten orange","Counts minutes off by one (incrementing after the last level when nothing rotted)","Doesn't handle the no-fresh-oranges case (answer 0)"]},
+
+{id:"D036",skill:"Topological Sort & Shortest Paths",level:"Basic",type:"Pattern",
+q:"Pattern: topological sort and shortest paths. When do you use Kahn's algorithm, BFS, or Dijkstra?",
+a:`<p><b>Topological sort</b> orders nodes of a <b>directed acyclic graph</b> so every edge goes from earlier to later: build orders, course prerequisites, task dependencies, migration ordering.</p>
+<p><b>Kahn's algorithm (BFS by in-degree):</b> repeatedly take nodes with in-degree 0, removing their outgoing edges. If not all nodes are output, there's a cycle.</p>
+<p><b>Shortest paths:</b></p>
+<ul>
+<li><b>Unweighted:</b> plain BFS.</li>
+<li><b>Non-negative weights:</b> <b>Dijkstra</b> with a min-heap: O((V + E) log V).</li>
+<li><b>Negative weights:</b> Bellman-Ford (also detects negative cycles); rarely asked.</li>
+<li><b>Weights 0/1:</b> 0-1 BFS with a deque.</li>
+</ul>
+<pre><code>// Dijkstra skeleton with C#'s PriorityQueue (lazy deletion of stale entries)
+var dist = new int[n]; Array.Fill(dist, int.MaxValue); dist[source] = 0;
+var heap = new PriorityQueue&lt;int, int&gt;();
+heap.Enqueue(source, 0);
+while (heap.TryDequeue(out var node, out var d))
+{
+    if (d &gt; dist[node]) continue;                   // stale entry
+    foreach (var (next, w) in graph[node])
+        if (d + w &lt; dist[next]) { dist[next] = d + w; heap.Enqueue(next, dist[next]); }
+}</code></pre>
+<p>C#'s <code>PriorityQueue</code> has no decrease-key, so push duplicates and skip stale ones, as above.</p>`,
+keys:["Topological order only for DAGs","Kahn's: in-degree 0 queue; leftover = cycle","BFS for unweighted, Dijkstra for non-negative","Lazy deletion with PriorityQueue","Bellman-Ford for negative weights"],
+fu:[{q:"How do you detect a cycle in a directed graph with DFS?",a:"Three colours: unvisited, in progress (on the current recursion path), done. Reaching an in-progress node means a cycle."}],
+rf:["Dijkstra with negative weights","Topological sort on a graph with cycles without detecting them","Forgets stale-entry check"]},
+
+{id:"D037",skill:"Topological Sort & Shortest Paths",level:"Intermediate",type:"Problem",
+q:"Course Schedule II: given numCourses and prerequisite pairs [course, prerequisite], return an order to take all courses, or an empty array if impossible.",
+a:`<pre><code>public int[] FindOrder(int numCourses, int[][] prerequisites)
+{
+    var graph = new List&lt;int&gt;[numCourses];
+    for (var i = 0; i &lt; numCourses; i++) graph[i] = new List&lt;int&gt;();
+    var inDegree = new int[numCourses];
+    foreach (var p in prerequisites)
+    {
+        graph[p[1]].Add(p[0]);                // prerequisite -&gt; course
+        inDegree[p[0]]++;
+    }
+
+    var queue = new Queue&lt;int&gt;();
+    for (var i = 0; i &lt; numCourses; i++) if (inDegree[i] == 0) queue.Enqueue(i);
+
+    var order = new List&lt;int&gt;(numCourses);
+    while (queue.Count &gt; 0)
+    {
+        var course = queue.Dequeue();
+        order.Add(course);
+        foreach (var next in graph[course])
+            if (--inDegree[next] == 0) queue.Enqueue(next);
+    }
+    return order.Count == numCourses ? order.ToArray() : Array.Empty&lt;int&gt;();   // leftover nodes mean a cycle
+}</code></pre>
+<p><b>Complexity:</b> O(V + E) time and space.</p>
+<p><b>Talk track:</b> "Edges go from prerequisite to course. Courses with no remaining prerequisites can be taken now; taking one reduces its dependents' in-degree. If we can't output every course, a cycle blocks them."</p>`,
+keys:["Edge direction prerequisite → course","In-degree counts","Queue of zero in-degree nodes","Cycle if order shorter than V","O(V + E)"],
+fu:[{q:"Course Schedule I (just yes/no)?",a:"Same algorithm, return order.Count == numCourses."},{q:"Minimum number of semesters if you can take any number of courses per semester?",a:"Process Kahn's algorithm level by level; the number of levels is the answer."}],
+rf:["Reversed edges","No cycle detection","Recursion-based DFS without cycle states"]},
+
+{id:"D038",skill:"Topological Sort & Shortest Paths",level:"Intermediate",type:"Problem",
+q:"Network Delay Time: directed edges (u, v, w) with travel times, n nodes, signal sent from node k. How long until all nodes receive it? Return -1 if some never do.",
+a:`<p><b>Recognise:</b> single-source shortest paths with non-negative weights → Dijkstra; the answer is the maximum of the shortest distances.</p>
+<pre><code>public int NetworkDelayTime(int[][] times, int n, int k)
+{
+    var graph = new List&lt;(int To, int W)&gt;[n + 1];
+    for (var i = 1; i &lt;= n; i++) graph[i] = new List&lt;(int, int)&gt;();
+    foreach (var t in times) graph[t[0]].Add((t[1], t[2]));
+
+    var dist = new int[n + 1];
+    Array.Fill(dist, int.MaxValue);
+    dist[k] = 0;
+    var heap = new PriorityQueue&lt;int, int&gt;();
+    heap.Enqueue(k, 0);
+
+    while (heap.TryDequeue(out var node, out var d))
+    {
+        if (d &gt; dist[node]) continue;                   // stale entry
+        foreach (var (next, w) in graph[node])
+        {
+            var nd = d + w;
+            if (nd &lt; dist[next]) { dist[next] = nd; heap.Enqueue(next, nd); }
+        }
+    }
+
+    var max = 0;
+    for (var i = 1; i &lt;= n; i++)
+    {
+        if (dist[i] == int.MaxValue) return -1;
+        max = Math.Max(max, dist[i]);
+    }
+    return max;
+}</code></pre>
+<p><b>Complexity:</b> O((V + E) log V) time, O(V + E) space.</p>
+<p><b>Talk track:</b> "BFS isn't enough because edges have different weights. Dijkstra settles nodes in order of distance; since PriorityQueue lacks decrease-key, I allow duplicates and skip stale ones."</p>`,
+keys:["Dijkstra for non-negative weights","1-indexed nodes handled","Lazy deletion of stale entries","Answer = max shortest distance; -1 if unreachable","O((V + E) log V)"],
+fu:[{q:"Cheapest flight with at most K stops?",a:"Dijkstra breaks with a stop limit; use Bellman-Ford limited to K+1 relaxation rounds, or BFS by levels tracking cost."}],
+rf:["BFS ignoring weights","Visited set that blocks better later paths incorrectly","int overflow when adding to int.MaxValue (check before adding)"]},
+
+{id:"D039",skill:"Backtracking",level:"Basic",type:"Pattern",
+q:"Pattern: backtracking. What's the template, and how do you keep it from exploding?",
+a:`<p><b>Recognise it when:</b> the question asks for <b>all</b> combinations, permutations, subsets, partitions or placements (N-Queens, Sudoku), and constraints are small (n ≤ ~20).</p>
+<p><b>Template: choose, explore, un-choose:</b></p>
+<pre><code>var results = new List&lt;IList&lt;int&gt;&gt;();
+var current = new List&lt;int&gt;();
+
+void Backtrack(int start /* plus other state */)
+{
+    if (/* goal reached */) { results.Add(new List&lt;int&gt;(current)); return; }   // copy!
+    for (var i = start; i &lt; candidates.Length; i++)
+    {
+        if (/* choice invalid or can't lead to a solution */) continue;          // prune
+        current.Add(candidates[i]);          // choose
+        Backtrack(i + 1);                    // explore (i for reuse, i + 1 for no reuse)
+        current.RemoveAt(current.Count - 1); // un-choose
+    }
+}</code></pre>
+<p><b>Controlling the search:</b> pass a <code>start</code> index to avoid generating the same combination in different orders; sort input to prune early (break when candidates exceed the remaining target) and to skip duplicates (<code>i > start && a[i] == a[i - 1]</code>); use a <code>used[]</code> array for permutations.</p>
+<p><b>Complexity:</b> usually exponential: subsets O(2^n · n), permutations O(n! · n). Say so; the point is to explore efficiently, not to be polynomial.</p>`,
+keys:["Choose → explore → un-choose","Copy the current path when saving","start index for combinations; used[] for permutations","Sort to prune and skip duplicates","Exponential complexity stated"],
+fu:[{q:"Permutations of distinct numbers?",a:"Backtrack over all indices not yet used (used[] array), adding each unused number; record when current has n elements. O(n! · n)."}],
+rf:["Adds current without copying (all results end up empty)","Forgets to un-choose","Generates duplicates then deduplicates with a set"]},
+
+{id:"D040",skill:"Backtracking",level:"Intermediate",type:"Problem",
+q:"Subsets: return all subsets (the power set) of an array of distinct integers.",
+a:`<pre><code>public IList&lt;IList&lt;int&gt;&gt; Subsets(int[] nums)
+{
+    var result = new List&lt;IList&lt;int&gt;&gt;();
+    var current = new List&lt;int&gt;();
+
+    void Backtrack(int start)
+    {
+        result.Add(new List&lt;int&gt;(current));          // every node of the recursion tree is a subset
+        for (var i = start; i &lt; nums.Length; i++)
+        {
+            current.Add(nums[i]);
+            Backtrack(i + 1);
+            current.RemoveAt(current.Count - 1);
+        }
+    }
+
+    Backtrack(0);
+    return result;
+}</code></pre>
+<p><b>Complexity:</b> O(2^n · n) time (2^n subsets, copying up to n each), O(n) recursion depth.</p>
+<p><b>Alternative:</b> iterative: start with [[]] and for each number add it to a copy of every existing subset; or bitmasks from 0 to 2^n − 1.</p>
+<p><b>Talk track:</b> "Each element is either in or out, so there are 2^n subsets. The start index ensures each subset is generated once, in increasing index order."</p>`,
+keys:["Record at every node","start index prevents duplicates","Copy before storing","O(2^n · n)","Iterative and bitmask alternatives"],
+fu:[{q:"Subsets II: input contains duplicates; return unique subsets.",a:"Sort first; in the loop, skip nums[i] when i > start and nums[i] == nums[i − 1]."}],
+rf:["Stores references to the same list","Uses a HashSet of strings to dedupe"]},
+
+{id:"D041",skill:"Backtracking",level:"Intermediate",type:"Problem",
+q:"Combination Sum: distinct positive candidates, each usable unlimited times; return all unique combinations that sum to a target.",
+a:`<pre><code>public IList&lt;IList&lt;int&gt;&gt; CombinationSum(int[] candidates, int target)
+{
+    Array.Sort(candidates);                          // enables early break
+    var result = new List&lt;IList&lt;int&gt;&gt;();
+    var current = new List&lt;int&gt;();
+
+    void Backtrack(int start, int remaining)
+    {
+        if (remaining == 0) { result.Add(new List&lt;int&gt;(current)); return; }
+        for (var i = start; i &lt; candidates.Length; i++)
+        {
+            if (candidates[i] &gt; remaining) break;    // sorted: larger ones won't fit either
+            current.Add(candidates[i]);
+            Backtrack(i, remaining - candidates[i]); // i (not i + 1): reuse allowed
+            current.RemoveAt(current.Count - 1);
+        }
+    }
+
+    Backtrack(0, target);
+    return result;
+}</code></pre>
+<p><b>Complexity:</b> exponential in target / smallest candidate; pruning makes it practical for the given constraints.</p>
+<p><b>Talk track:</b> "Passing i rather than i + 1 allows reusing the same number; never going back to earlier indices prevents permutations of the same combination. Sorting lets me stop the loop once candidates exceed what's left."</p>`,
+keys:["Pass i for reuse","Start index avoids permutation duplicates","Sort and break for pruning","Base case remaining == 0","Copy results"],
+fu:[{q:"Combination Sum II: each candidate used once, input may contain duplicates.",a:"Recurse with i + 1, sort, and skip duplicates at the same level (i > start && a[i] == a[i − 1])."},{q:"Only need the number of combinations, not the lists?",a:"Dynamic programming (unbounded knapsack counting): dp[s] += dp[s − c] iterating coins in the outer loop. O(n · target)."}],
+rf:["Recurse with i + 1 (no reuse)","No pruning","Duplicates from restarting at 0"]},
+
+{id:"D042",skill:"Dynamic Programming (1D)",level:"Basic",type:"Pattern",
+q:"Pattern: dynamic programming. How do you go from a recursive idea to a DP solution?",
+a:`<p><b>Recognise it when:</b> the question asks for a count of ways, a minimum/maximum, or feasibility, and the problem breaks into <b>overlapping subproblems</b> with <b>optimal substructure</b> (the best answer is built from best answers to smaller problems).</p>
+<p><b>Five steps:</b></p>
+<ol>
+<li><b>Define the state:</b> what does <code>dp[i]</code> mean, in one sentence? ("dp[a] = fewest coins to make amount a.")</li>
+<li><b>Transition:</b> how does <code>dp[i]</code> depend on smaller states? ("dp[a] = min over coins c of dp[a − c] + 1.")</li>
+<li><b>Base cases:</b> dp[0] = 0, and how to mark impossible states.</li>
+<li><b>Order:</b> compute so dependencies are ready (usually increasing i).</li>
+<li><b>Answer and space:</b> which state is the answer; can you keep only the last few values?</li>
+</ol>
+<p><b>Top-down vs bottom-up:</b> start with recursion + memoisation (natural to derive, explain it this way), then convert to a bottom-up table if asked (no recursion depth issues, often easier to optimise space).</p>
+<pre><code>// Top-down memoisation skeleton
+var memo = new Dictionary&lt;int, long&gt;();
+long Solve(int i)
+{
+    if (i &lt;= 1) return 1;                         // base case
+    if (memo.TryGetValue(i, out var cached)) return cached;
+    return memo[i] = Solve(i - 1) + Solve(i - 2); // transition
+}</code></pre>`,
+keys:["Overlapping subproblems + optimal substructure","State in one sentence","Transition, base cases, order","Memoised recursion first, then bottom-up","Space optimisation"],
+fu:[{q:"How do you tell greedy from DP?",a:"Greedy works when a local choice is provably part of an optimal solution (exchange argument). If a counterexample shows the locally best choice can be wrong (coin change with {1, 3, 4}), use DP."}],
+rf:["Jumps to a table without defining state","Exponential recursion without memo","Can't explain the transition"]},
+
+{id:"D043",skill:"Dynamic Programming (1D)",level:"Basic",type:"Problem",
+q:"Climbing Stairs: you can climb 1 or 2 steps at a time. How many distinct ways to reach step n?",
+a:`<p><b>State:</b> ways(i) = number of ways to reach step i. <b>Transition:</b> ways(i) = ways(i − 1) + ways(i − 2) (last move was 1 or 2 steps). <b>Base:</b> ways(0) = 1, ways(1) = 1.</p>
+<pre><code>public int ClimbStairs(int n)
+{
+    int prev = 1, curr = 1;            // ways(0), ways(1)
+    for (var i = 2; i &lt;= n; i++)
+    {
+        (prev, curr) = (curr, prev + curr);
+    }
+    return curr;
+}</code></pre>
+<p><b>Complexity:</b> O(n) time, O(1) space.</p>
+<p><b>Talk track:</b> "It's Fibonacci. Plain recursion recomputes the same states exponentially; memoisation or a rolling pair of variables makes it linear."</p>`,
+keys:["State and transition from the last move","Base cases","Rolling variables for O(1) space","Fibonacci recognition","Explain why naive recursion is exponential"],
+fu:[{q:"Steps of size from a given set, e.g. {1, 3, 5}?",a:"ways(i) = sum over steps s ≤ i of ways(i − s); O(n · |steps|)."},{q:"House Robber uses a similar shape. What's the transition?",a:"best(i) = max(best(i − 1), best(i − 2) + nums[i]): skip this house or rob it."}],
+rf:["Naive recursion","Wrong base case for n = 0/1"]},
+
+{id:"D044",skill:"Dynamic Programming (1D)",level:"Intermediate",type:"Problem",
+q:"Coin Change: given coin denominations and an amount, return the fewest coins needed, or -1 if impossible (unlimited coins of each type).",
+a:`<p><b>Why not greedy?</b> With coins {1, 3, 4} and amount 6, greedy takes 4+1+1 (3 coins) but 3+3 (2 coins) is optimal.</p>
+<p><b>State:</b> dp[a] = fewest coins to make amount a. <b>Transition:</b> dp[a] = min over coins c ≤ a of dp[a − c] + 1. <b>Base:</b> dp[0] = 0; "impossible" marked as a value larger than any real answer.</p>
+<pre><code>public int CoinChange(int[] coins, int amount)
+{
+    var dp = new int[amount + 1];
+    Array.Fill(dp, amount + 1);              // sentinel for "impossible" (more than max possible coins)
+    dp[0] = 0;
+    for (var a = 1; a &lt;= amount; a++)
+        foreach (var c in coins)
+            if (c &lt;= a) dp[a] = Math.Min(dp[a], dp[a - c] + 1);
+    return dp[amount] &gt; amount ? -1 : dp[amount];
+}</code></pre>
+<p><b>Complexity:</b> O(amount × coins) time, O(amount) space.</p>
+<p><b>Talk track:</b> "I use amount + 1 as infinity instead of int.MaxValue so that adding 1 can't overflow. Each amount takes the best of using each coin last."</p>`,
+keys:["Greedy counterexample","dp[a] state and min transition","Sentinel avoids overflow","Unbounded use via iterating amounts","O(amount × coins)"],
+fu:[{q:"Count the number of ways to make the amount (Coin Change II).",a:"dp[0] = 1; loop coins in the outer loop and amounts in the inner loop, dp[a] += dp[a − c]; outer-coin order counts combinations, not permutations."},{q:"Reconstruct which coins were used.",a:"Store the coin chosen for each amount when dp improves, then walk back from amount."}],
+rf:["Greedy","int.MaxValue + 1 overflow","Loop order confusion between combinations and permutations"]},
+
+{id:"D045",skill:"Dynamic Programming (2D)",level:"Basic",type:"Pattern",
+q:"Pattern: 2D dynamic programming on grids and strings. How do you set up the table?",
+a:`<p><b>Two common shapes:</b></p>
+<ul>
+<li><b>Grid DP:</b> dp[r, c] depends on neighbours already computed (top and left): unique paths, minimum path sum, maximal square.</li>
+<li><b>Two-sequence DP:</b> dp[i, j] = answer for the first i characters of string A and the first j of string B: longest common subsequence, edit distance, interleaving strings. Use a (m+1)×(n+1) table so row 0 and column 0 represent empty prefixes (clean base cases).</li>
+<li><b>Interval DP:</b> dp[i, j] over a substring/subarray range (palindromic substrings, burst balloons); fill by increasing length.</li>
+</ul>
+<pre><code>// Unique paths in an R x C grid moving only right/down
+public int UniquePaths(int rows, int cols)
+{
+    var dp = new int[cols];
+    Array.Fill(dp, 1);                                 // first row: one way to each cell
+    for (var r = 1; r &lt; rows; r++)
+        for (var c = 1; c &lt; cols; c++)
+            dp[c] += dp[c - 1];                        // from above (old dp[c]) + from left
+    return dp[cols - 1];
+}</code></pre>
+<p><b>Space optimisation:</b> when a row depends only on the previous row, keep one or two 1D arrays, as above. Draw a small table for an example before coding; it makes the transition obvious.</p>`,
+keys:["Grid, two-sequence and interval shapes","(m+1)×(n+1) with empty-prefix bases","Fill order follows dependencies","Row-based space optimisation","Draw the table first"],
+fu:[{q:"Edit distance transition?",a:"If A[i−1] == B[j−1], dp[i,j] = dp[i−1,j−1]; else 1 + min(insert dp[i,j−1], delete dp[i−1,j], replace dp[i−1,j−1]); bases dp[i,0] = i, dp[0,j] = j."}],
+rf:["Off-by-one indexing between table and strings","Wrong fill order","Doesn't draw an example"]},
+
+{id:"D046",skill:"Dynamic Programming (2D)",level:"Intermediate",type:"Problem",
+q:"Longest Common Subsequence: length of the longest subsequence common to two strings.",
+a:`<p><b>State:</b> dp[i, j] = LCS length of the first i characters of a and the first j of b. <b>Transition:</b> if a[i−1] == b[j−1], dp[i, j] = dp[i−1, j−1] + 1; otherwise max(dp[i−1, j], dp[i, j−1]). <b>Base:</b> row 0 and column 0 are 0 (empty prefix).</p>
+<pre><code>public int LongestCommonSubsequence(string a, string b)
+{
+    int m = a.Length, n = b.Length;
+    var dp = new int[m + 1, n + 1];
+    for (var i = 1; i &lt;= m; i++)
+        for (var j = 1; j &lt;= n; j++)
+            dp[i, j] = a[i - 1] == b[j - 1]
+                ? dp[i - 1, j - 1] + 1
+                : Math.Max(dp[i - 1, j], dp[i, j - 1]);
+    return dp[m, n];
+}</code></pre>
+<p><b>Complexity:</b> O(m·n) time and space; space can drop to O(min(m, n)) with two rows.</p>
+<p><b>Talk track:</b> "If the last characters match, they're part of the LCS; otherwise drop one character from either string and take the better result. The extra row and column handle empty prefixes."</p>`,
+keys:["dp over prefixes","Match → diagonal + 1; else max of skip-one","Empty-prefix bases","O(m·n)","Two-row space optimisation"],
+fu:[{q:"Reconstruct the actual subsequence.",a:"Walk back from dp[m, n]: on a match, take the character and move diagonally; otherwise move toward the larger neighbour."},{q:"Where is LCS used in practice?",a:"Diff tools (line-based LCS), DNA sequence comparison, version control merges."}],
+rf:["Confuses subsequence with substring","Index off-by-one","Recursion without memo"]},
+
+{id:"D047",skill:"Dynamic Programming (2D)",level:"Intermediate",type:"Problem",
+q:"Word Break: can the string be segmented into a sequence of dictionary words?",
+a:`<p><b>State:</b> dp[i] = true if the prefix s[0..i) can be segmented. <b>Transition:</b> dp[i] is true if there's a j &lt; i with dp[j] true and s[j..i) in the dictionary. <b>Base:</b> dp[0] = true (empty prefix).</p>
+<pre><code>public bool WordBreak(string s, IList&lt;string&gt; wordDict)
+{
+    var words = new HashSet&lt;string&gt;(wordDict);
+    var maxLen = wordDict.Count == 0 ? 0 : wordDict.Max(w =&gt; w.Length);
+    var dp = new bool[s.Length + 1];
+    dp[0] = true;
+    for (var i = 1; i &lt;= s.Length; i++)
+        for (var j = Math.Max(0, i - maxLen); j &lt; i; j++)        // only check lengths that could be words
+            if (dp[j] &amp;&amp; words.Contains(s.Substring(j, i - j)))
+            {
+                dp[i] = true;
+                break;
+            }
+    return dp[s.Length];
+}</code></pre>
+<p><b>Complexity:</b> O(n · L · L) time with the max-word-length bound (substring creation costs O(L)); O(n) space plus the dictionary.</p>
+<p><b>Talk track:</b> "Naive recursion tries every split and repeats work for the same suffixes; memoising by position (or this bottom-up table) makes it polynomial. Limiting j to the longest word length avoids pointless checks."</p>
+<p>(This is technically a 1D DP over positions; it's grouped here with string DP because the reasoning about prefixes is the same.)</p>`,
+keys:["dp over prefix positions","Split point j with dictionary check","dp[0] = true","Limit by max word length","HashSet for O(1) lookups"],
+fu:[{q:"Return all possible sentences (Word Break II).",a:"Backtracking with memoisation by start index (map index → list of sentences); output can be exponential, so mention that."},{q:"Could a trie help?",a:"Yes: from each reachable position, walk a trie of dictionary words along the string, marking reachable end positions; avoids substring allocations."}],
+rf:["Exponential recursion without memo","Forgets dp[0] = true","Creates substrings for every j up to i without bounding"]}
+
+
+
+];
+
+/* ---------- state ---------- */
+const KEY="dsa-bank-reviewed-v1";
+let reviewed={};
+try{reviewed=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){reviewed={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(reviewed))}catch(e){}}
+
+const state={text:"",skill:"all",status:"all",levels:new Set(),types:new Set()};
+const $=s=>document.querySelector(s);
+
+/* ---------- controls ---------- */
+const skills=[...new Set(QS.map(x=>x.skill))];
+$("#skill").innerHTML=`<option value="all">All skills</option>`+skills.map(s=>`<option value="${s}">${s}</option>`).join("");
+function chipRow(el,items,set){
+  el.innerHTML=items.map(i=>`<button type="button" class="chip" aria-pressed="false" data-v="${i}">${i}</button>`).join("");
+  el.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+    if(set.has(v)){set.delete(v);b.setAttribute("aria-pressed","false")}else{set.add(v);b.setAttribute("aria-pressed","true")}render()});
+}
+chipRow($("#levels"),LEVELS,state.levels);
+chipRow($("#types"),TYPES,state.types);
+$("#q").addEventListener("input",e=>{state.text=e.target.value.trim().toLowerCase();render()});
+$("#skill").addEventListener("change",e=>{state.skill=e.target.value;render()});
+$("#status").addEventListener("change",e=>{state.status=e.target.value;render()});
+let allOpen=false;
+$("#toggleAll").addEventListener("click",()=>{allOpen=!allOpen;
+  document.querySelectorAll("details.ans").forEach(d=>d.open=allOpen);
+  $("#toggleAll").textContent=allOpen?"Close all answers":"Open all answers"});
+
+/* ---------- stats ---------- */
+function count(key,vals){return vals.map(v=>`${v} <b>${QS.filter(x=>x[key]===v).length}</b>`).join(" · ")}
+$("#stats").innerHTML=`<span><b>${QS.length}</b> questions loaded</span><span>${count("level",LEVELS)}</span><span>${count("type",TYPES.filter(t=>t!=="Behavioral"))}</span><span>${PARTS}</span>`;
+
+/* ---------- render ---------- */
+const strip=h=>h.replace(/<[^>]+>/g," ");
+function matches(x){
+  if(state.skill!=="all"&&x.skill!==state.skill)return false;
+  if(state.levels.size&&!state.levels.has(x.level))return false;
+  if(state.types.size&&!state.types.has(x.type))return false;
+  if(state.status==="done"&&!reviewed[x.id])return false;
+  if(state.status==="todo"&&reviewed[x.id])return false;
+  if(state.text){const hay=(x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
+    if(!hay.includes(state.text))return false}
+  return true;
+}
+const ul=arr=>`<ul>${arr.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+function item(x,i){
+  const done=!!reviewed[x.id];
+  return `<li class="q${done?" done":""}" id="${x.id}">
+    <div class="qhead"><span class="num">${x.id}</span><div>
+      <p class="qtext">${x.q}</p>
+      <div class="tags"><span class="tag">${x.skill}</span><span class="tag lv lv-${x.level}">${x.level}</span><span class="tag">${x.type}</span>${x.verify?`<span class="tag verify">VERIFY</span>`:""}
+        <label class="check"><input type="checkbox" data-id="${x.id}" ${done?"checked":""}> Reviewed</label></div>
+    </div></div>
+    <div class="body">
+      <details class="ans"><summary>Model answer, key points and red flags</summary><div class="dbody">
+        ${x.a}
+        ${x.tools?`<h4>Tools and metrics to check</h4>${ul(x.tools)}`:""}
+        <h4>What the interviewer listens for</h4>${ul(x.keys)}
+        ${x.trade?`<h4>Trade-offs and "it depends on"</h4>${ul(x.trade)}`:""}
+        <h4 class="rf">Red flags</h4>${ul(x.rf)}
+        ${x.verify?`<p class="note">[VERIFY] ${x.verify}</p>`:""}
+      </div></details>
+      ${(x.fu||[]).map(f=>`<details class="fu ans"><summary><span class="fl">FOLLOW-UP</span><span>${f.q}</span></summary><div class="dbody"><p>${f.a}</p></div></details>`).join("")}
+    </div></li>`;
+}
+function render(){
+  const list=QS.filter(matches);
+  $("#list").innerHTML=list.length?list.map(item).join(""):`<li class="empty">No questions match these filters.</li>`;
+  if(allOpen)document.querySelectorAll("details.ans").forEach(d=>d.open=true);
+  const n=QS.filter(x=>reviewed[x.id]).length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${list.length} shown`;
+  $("#pfill").style.width=(QS.length?n/QS.length*100:0)+"%";
+}
+$("#list").addEventListener("change",e=>{const c=e.target.closest("input[data-id]");if(!c)return;
+  const id=c.dataset.id;if(c.checked)reviewed[id]=1;else delete reviewed[id];save();
+  c.closest("li.q").classList.toggle("done",c.checked);
+  const n=QS.filter(x=>reviewed[x.id]).length;const shown=document.querySelectorAll("li.q").length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${shown} shown`;$("#pfill").style.width=(n/QS.length*100)+"%";});
+render();
+</script>
+
+</html>

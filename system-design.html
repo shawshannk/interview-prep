@@ -1,0 +1,1168 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>System Design Drill Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, sticky filter bar, questions as divided rows (not cards), answers in disclosure blocks */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --accent-ink:#FFFFFF; --code:#EEF1F7;
+  --basic:#2B7A57; --inter:#2A4BD7; --adv:#7438BF; --lead:#B05E08;
+  --good:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:28px 18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,5vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=search]{flex:1 1 220px}
+select{flex:0 1 220px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.track{flex:1;height:6px;background:var(--soft);border-radius:999px;overflow:hidden;min-width:80px}
+.fill{height:100%;background:var(--good);width:0;transition:width .3s}
+.sep{width:1px;height:18px;background:var(--line)}
+
+ol.qs{list-style:none;margin:0;padding:0}
+li.q{padding-block:22px;border-bottom:1px solid var(--line);display:grid;gap:12px}
+li.q.done .qtext{color:var(--muted)}
+.qhead{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.num{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:4px;min-width:34px}
+.qtext{font-weight:600;font-size:16.5px;line-height:1.45;margin:0;text-wrap:pretty}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.tag{font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.tag.lv{color:var(--surface);font-weight:500}
+.lv-Basic{background:var(--basic)} .lv-Intermediate{background:var(--inter)} .lv-Advanced{background:var(--adv)} .lv-Lead{background:var(--lead)}
+.tag.verify{background:transparent;border:1px solid var(--verify);color:var(--verify)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);cursor:pointer;margin-left:auto}
+.check input{width:16px;height:16px;accent-color:var(--good)}
+.body{padding-left:46px;display:grid;gap:8px;min-width:0}
+details{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details>summary{cursor:pointer;padding:9px 12px;font-size:14px;font-weight:500;list-style:none;display:flex;gap:8px;align-items:baseline}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px;flex:none}
+details[open]>summary::before{content:"−"}
+.dbody{padding:2px 14px 14px;display:grid;gap:10px;min-width:0}
+.dbody p,.dbody ul,.dbody ol{margin:0}
+.dbody ul,.dbody ol{padding-left:20px}
+.dbody li+li{margin-top:3px}
+h4{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:500}
+h4.rf{color:var(--warn)}
+.fu summary{font-weight:400}
+.fu summary .fl{font-family:var(--f-mono);font-size:11px;color:var(--muted);flex:none}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:3px}
+pre{margin:0;background:var(--code);padding:12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5}
+pre code{background:none;padding:0;font-size:inherit}
+.star dt{font-weight:600}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--verify);padding-left:10px}
+@media (max-width:560px){ .body{padding-left:0} .num{min-width:28px} }
+@media (prefers-reduced-motion:reduce){ .fill{transition:none} }
+</style>
+
+<p style="margin:0 auto;max-width:860px;padding:16px 0 0;font-size:14px"><a href="index.html">&larr; All banks</a></p>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Senior TL / EM interview prep</div>
+  <h1>Cross-Cutting Scenarios &amp; System Design</h1>
+  <p class="lede">Production incidents, debugging walkthroughs and design problems that span the stack. Each answer gives the diagnostic or design sequence, the tools and metrics to check, and the trade-offs. Work through it out loud before opening.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="bar">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search questions and answers" aria-label="Search">
+    <select id="skill" aria-label="Filter by skill"></select>
+    <select id="status" aria-label="Filter by review status">
+      <option value="all">All questions</option>
+      <option value="todo">Not reviewed</option>
+      <option value="done">Reviewed</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="chips" id="levels" aria-label="Level"></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="chips" id="types" aria-label="Type"></div>
+  </div>
+  <div class="row">
+    <div class="progress" style="flex:1"><span id="ptext">0 / 0 reviewed</span><div class="track"><div class="fill" id="pfill"></div></div></div>
+    <button class="btn" id="toggleAll" type="button">Open all answers</button>
+  </div>
+</div>
+
+<ol class="qs" id="list"></ol>
+</div>
+
+<script>
+const LEVELS=["Basic","Intermediate","Advanced","Lead"];
+const TYPES=["Concept","Scenario","Architecture","Behavioral"];
+const PARTS="Complete: all 3 parts loaded.";
+
+const QS=[
+/* ================= PRODUCTION INCIDENTS ================= */
+{id:"C001",skill:"Production Incident",level:"Basic",type:"Scenario",
+q:"Right after a deploy, API p95 latency doubles and error rate creeps up. You're on call. Walk through your first 15 minutes.",
+a:`<ol>
+<li><b>Confirm and scope (2 min):</b> is it real and how wide? Check the service dashboard for request rate, errors and duration (RED). Is it every endpoint or one, every instance or some, every region or one?</li>
+<li><b>Correlate with change (1 min):</b> the deploy timestamp lines up. Check what else changed in the same window: config, feature flags, infrastructure, a dependency's deploy.</li>
+<li><b>Mitigate before diagnosing:</b> if the deploy is the most likely cause and rollback is safe (no irreversible DB migration), <b>roll back now</b>. Restoring service comes before understanding it. If rollback isn't safe, turn off the new feature by flag, or shift traffic back to the old task set.</li>
+<li><b>Communicate:</b> post in the incident channel what you see, what you're doing, and when you'll update next.</li>
+<li><b>After recovery:</b> diff the release, compare traces for slow endpoints before and after (new N+1 query, missing index, a new sync call, a changed timeout), and reproduce in staging.</li>
+</ol>`,
+tools:["RED dashboard per endpoint (rate, errors, duration p50/p95/p99)","Deploy markers on graphs","Distributed traces: slowest spans before vs after","DB: top queries by total time (Query Store / pg_stat_statements)","ECS: task health, CPU/memory per task set"],
+keys:["Scope before guessing","Correlates with all changes, not just the deploy","Mitigates first (rollback/flag), diagnoses after","Checks rollback safety (migrations)","Communicates on a cadence"],
+trade:["Fast rollback restores service but loses the live evidence; grab a few traces or a dump first if it's cheap","A rollback blocked by a non-backward-compatible migration means the deploy process itself needs fixing (expand/contract)"],
+fu:[{q:"Rollback didn't fix it. What now?",a:"The deploy probably wasn't the cause, or it changed something persistent such as data, cache contents, or a migration. Widen the search: dependency health, traffic mix (a bot or a new client version), infrastructure events, and DB plan changes. Keep updating the incident channel."}],
+rf:["Starts reading code before checking dashboards","Debugs in production for 30 minutes before considering rollback","Doesn't check whether rollback is safe"]},
+
+{id:"C002",skill:"Production Incident",level:"Basic",type:"Scenario",
+q:"Users see intermittent 502 and 504 errors from the ALB in front of an ECS service. The app's own logs show no errors. How do you find the cause?",
+a:`<p>Logs are clean because the failures happen at the connection level, before or outside your handler. Separate the codes first:</p>
+<ul>
+<li><b>502 (bad gateway):</b> the target closed the connection or sent an invalid response. Classic causes:
+  <ul>
+  <li><b>Keep-alive mismatch.</b> The app closes idle connections sooner than the ALB (idle timeout 60s by default). Node.js's default <code>keepAliveTimeout</code> is 5 seconds, so a NestJS/Express service behind an ALB produces exactly these random 502s. Set <code>server.keepAliveTimeout</code> above the ALB idle timeout (for example 65s), and <code>headersTimeout</code> slightly higher still. Kestrel's default (130s) is already above 60s.</li>
+  <li><b>Tasks killed mid-request:</b> OOM (exit code 137), crashes, or deployments without connection draining.</li>
+  </ul></li>
+<li><b>504 (gateway timeout):</b> the target didn't respond within the ALB timeout. That means slow requests, a saturated service, or a blocked thread or event loop.</li>
+</ul>
+<p>Steps:</p>
+<ol>
+<li>Check ALB metrics: <code>HTTPCode_ELB_502_Count</code> vs <code>HTTPCode_Target_5XX_Count</code>, and <code>TargetResponseTime</code>.</li>
+<li>Enable ALB access logs to see per-request timings and the <code>error_reason</code> field.</li>
+<li>Check ECS stopped tasks for stop reasons, and health check flapping.</li>
+<li>Check whether errors cluster around deploys, which points to deregistration delay and graceful shutdown.</li>
+</ol>`,
+tools:["ALB CloudWatch metrics (ELB vs Target 5xx, TargetResponseTime)","ALB access logs (request/target/response processing times, error_reason)","ECS stopped-task reasons and exit codes","Container memory metrics","Deploy timeline"],
+keys:["Distinguishes ELB-generated vs target-generated errors","Knows the keep-alive timeout mismatch (esp. Node)","Considers OOM kills and deployments","Uses access logs, not guesses"],
+trade:["Longer keep-alive on the app avoids 502s but holds more idle connections; usually fine","A longer deregistration delay makes deploys slower but stops in-flight requests being cut"],
+fu:[{q:"Errors spike only during deployments. Why?",a:"Tasks are stopped while still receiving traffic: the deregistration delay is too short, or the app exits immediately on SIGTERM. Handle SIGTERM by finishing in-flight requests before exiting, and keep the deregistration delay longer than your longest normal request."}],
+rf:["Treats 502 and 504 as the same","Only looks at app logs","Increases the ALB timeout as the fix for 502s"]},
+
+{id:"C003",skill:"Production Incident",level:"Intermediate",type:"Scenario",
+q:"An ASP.NET Core service on ECS restarts every 6 hours or so with exit code 137. Memory climbs steadily until the kill. How do you find and fix the leak?",
+a:`<ol>
+<li><b>Confirm OOM:</b> the ECS stopped reason is "OutOfMemoryError: Container killed", and the memory graph shows a sawtooth rising to the task limit.</li>
+<li><b>Managed or native?</b> Compare <code>dotnet-counters</code> GC heap size with process working set. A growing GC heap means managed objects are retained. A flat GC heap with a growing working set points to native memory (unmanaged buffers, native libraries, many threads).</li>
+<li><b>Capture evidence</b> while memory is high: <code>dotnet-gcdump</code> (lightweight) or <code>dotnet-dump collect</code>. Take two dumps an hour apart and compare.</li>
+<li><b>Analyse:</b> <code>dotnet-dump analyze</code> → <code>dumpheap -stat</code> to see which types are growing, then <code>gcroot</code> on a sample to see <i>what keeps it alive</i>.</li>
+</ol>
+<p>Usual culprits in ASP.NET Core:</p>
+<ul>
+<li>A static or singleton cache with no size limit or expiry, such as <code>MemoryCache</code> without <code>SizeLimit</code>, or a static dictionary.</li>
+<li>Event handlers subscribed and never unsubscribed.</li>
+<li>A scoped service captured in a singleton (captive dependency).</li>
+<li>Large buffers creating LOH fragmentation.</li>
+<li>Unbounded in-memory queues or channels.</li>
+</ul>
+<p>Also check the container settings. .NET sizes its heap from the container limit (by default the GC heap hard limit is 75% of it), so very small memory limits leave little headroom.</p>`,
+tools:["ECS stopped reason, container memory utilisation graph","dotnet-counters (GC heap size, gen2 count, LOH size, working set)","dotnet-gcdump / dotnet-dump + dumpheap -stat, gcroot","Two-snapshot comparison"],
+keys:["Separates managed from native growth","Captures dumps at high memory, compares two","Uses gcroot to find the retention path","Names common ASP.NET Core leak patterns","Container memory limit awareness"],
+trade:["Raising the memory limit buys time, not a fix","Full dumps are large and pause the process; gcdump is lighter but managed-only"],
+fu:[{q:"How would you catch captive dependencies before production?",a:"Enable scope validation (ValidateScopes and ValidateOnBuild on the service provider). It is on by default only in the Development environment, so turn it on in CI integration tests too. It throws when a scoped service is resolved from the root provider."}],
+rf:["\"Restart it on a schedule\"","Calls GC.Collect() to fix it","Never captures a dump"]},
+
+{id:"C004",skill:"Production Incident",level:"Intermediate",type:"Scenario",
+q:"After a new feature that updates Orders and Inventory together, SQL Server reports dozens of deadlocks per minute at peak, and some checkouts fail with error 1205. Diagnose and fix.",
+a:`<ol>
+<li><b>Get the deadlock graphs.</b> SQL Server's built-in <code>system_health</code> Extended Events session captures <code>xml_deadlock_report</code> by default. Read which statements, objects, indexes and lock modes are involved.</li>
+<li><b>Typical patterns:</b>
+  <ul>
+  <li><b>Opposite access order:</b> path A updates Orders then Inventory, and path B updates Inventory then Orders.</li>
+  <li><b>Scans instead of seeks:</b> a missing index makes an UPDATE scan and lock far more rows (or escalate to a table lock), so unrelated transactions collide.</li>
+  <li><b>Long transactions:</b> the transaction includes an external API call or a slow loop, so locks are held for seconds.</li>
+  <li><b>Readers blocking writers</b> under default READ COMMITTED with locking reads.</li>
+  </ul></li>
+<li><b>Fixes:</b> access tables in one consistent order across all code paths. Add indexes so updates seek. Move external calls outside the transaction. Keep transactions short. Consider READ_COMMITTED_SNAPSHOT so readers don't take shared locks.</li>
+<li><b>Safety net:</b> retry error 1205 (deadlock victim) with backoff. EF Core's SQL Server retrying execution strategy treats it as transient. Retries hide symptoms, though, so fix the cause.</li>
+</ol>`,
+tools:["system_health XE session → xml_deadlock_report","sys.dm_tran_locks, sys.dm_exec_requests (blocking)","Query Store for the involved statements' plans","Application metrics: 1205 error rate, checkout failure rate"],
+keys:["Reads deadlock graphs instead of guessing","Lock order, scans and transaction length as causes","Indexes reduce lock footprint","RCSI considered with its implications","Retry 1205 as safety net only"],
+trade:["RCSI removes reader/writer blocking but adds tempdb version store load and changes read semantics (reads see the last committed version)","Retries mask the problem and add load if the deadlock rate is high"],
+fu:[{q:"Could UPDLOCK hints help?",a:"Yes. In a read-then-update pattern, reading with UPDLOCK takes the update lock up front, so two transactions can't both hold shared locks and then deadlock converting to exclusive. It serialises access to those rows, which is usually the intent."}],
+rf:["\"Use NOLOCK\"","Only adds retries","Doesn't look at the deadlock graph"]},
+
+{id:"C005",skill:"Production Incident",level:"Intermediate",type:"Scenario",
+q:"At 2 am, database CPU jumps to 100% and stays there. No deploy happened. How do you work it out?",
+a:`<ol>
+<li><b>Find what's consuming CPU now:</b> top queries by CPU in the last hour. In SQL Server use Query Store or <code>sys.dm_exec_query_stats</code>; in PostgreSQL use <code>pg_stat_statements</code> and <code>pg_stat_activity</code>. Is it one query or everything?</li>
+<li><b>One query with a sudden plan change</b> (same query, much higher CPU per execution): a <b>plan regression</b>. Typical triggers are parameter sniffing (a plan compiled for an unusual parameter value), statistics auto-updating, or an index being rebuilt or dropped. In SQL Server, Query Store shows the plan history; <b>force the last good plan</b> as mitigation.</li>
+<li><b>Same plan, more executions:</b> a load change, such as a batch job, a retry loop in some client, or a bot. Check calls per minute and which application or user is running it.</li>
+<li><b>Everything slower:</b> possibly a scheduled maintenance job (index rebuild, backup), or storage throttling (burst credits exhausted on gp2 volumes, or IOPS caps).</li>
+<li><b>Fix properly afterwards:</b> address the parameter sensitivity (query rewrite, OPTIMIZE FOR, or SQL Server 2022's parameter-sensitive plan optimisation), add the right index, rate-limit the job, or reschedule it.</li>
+</ol>`,
+tools:["SQL Server Query Store (regressed queries, plan history, force plan)","PostgreSQL pg_stat_statements, pg_stat_activity, auto_explain","RDS Performance Insights (load by wait/SQL)","Scheduled job logs, app request rates"],
+keys:["Separates plan regression from load change","Knows parameter sniffing and statistics updates","Forces a known-good plan as mitigation","Checks scheduled jobs and storage throttling","Permanent fix after mitigation"],
+trade:["Forcing a plan stabilises quickly but may be wrong as data changes; revisit it","OPTION (RECOMPILE) avoids sniffing but costs CPU per execution"],
+fu:[{q:"How do you prevent plan regressions from becoming 2 am pages?",a:"Keep Query Store enabled with automatic plan correction (SQL Server's automatic tuning can revert to the last good plan), alert on per-query regressions rather than only total CPU, and test heavy queries with realistic parameter distributions."}],
+rf:["Restarts the DB server","Immediately scales up the instance without finding the query","Doesn't know Query Store"]},
+
+{id:"C006",skill:"Production Incident",level:"Intermediate",type:"Scenario",
+q:"The AWS bill for yesterday is eight times normal. Nothing obvious broke. How do you find out why and stop it?",
+a:`<ol>
+<li><b>Find the service and usage type:</b> Cost Explorer grouped by service, then usage type, at daily or hourly granularity. Cost Anomaly Detection may already have flagged it.</li>
+<li><b>Common culprits, by service:</b>
+  <ul>
+  <li><b>Lambda:</b> a recursive loop (a function writes to the S3 bucket or queue that triggers it). Check invocations per function. Lambda's loop detection covers some services, but don't rely on it.</li>
+  <li><b>CloudWatch Logs:</b> ingestion charges from debug logging left on, or a log-per-message loop.</li>
+  <li><b>NAT Gateway:</b> data processing charges because containers pull images or call S3 or DynamoDB through NAT instead of VPC endpoints.</li>
+  <li><b>Bedrock or other AI APIs:</b> a retry loop resending large prompts, or a prompt that grew because the full conversation history was attached.</li>
+  <li><b>Data transfer:</b> cross-AZ or internet egress from a new integration.</li>
+  </ul></li>
+<li><b>Stop the bleeding:</b> disable the trigger, set a function's reserved concurrency to 0, or turn off the flag.</li>
+<li><b>Prevent:</b> per-account budgets and anomaly alerts, cost-allocation tags per service, VPC endpoints for S3 and DynamoDB, log level controlled by config with sampling, and token budgets on AI calls.</li>
+</ol>`,
+tools:["Cost Explorer (service → usage type, hourly)","Cost Anomaly Detection, AWS Budgets","CloudWatch metrics: Lambda invocations, log IncomingBytes, NAT BytesProcessed","Bedrock invocation and token metrics"],
+keys:["Drills from service to usage type","Knows common hidden-cost sources (NAT, logs, recursion)","Stops the cost before full root cause","Prevention: budgets, tags, VPC endpoints"],
+trade:["VPC endpoints cost a little per hour but usually far less than NAT processing at volume","Verbose logs help debugging but cost real money; use sampling and dynamic log levels"],
+fu:[{q:"How do you make cost a normal engineering signal instead of a monthly surprise?",a:"Tag resources by service and team, publish a weekly cost dashboard per team, alert on daily anomalies, and include cost in design reviews for anything with per-request pricing (AI, Lambda, data transfer)."}],
+rf:["Waits for the monthly invoice","Doesn't know NAT data processing charges","Investigates for hours while the cost keeps running"],
+verify:"Which services Lambda recursive loop detection covers has expanded over time; check current docs."},
+
+{id:"C007",skill:"Production Incident",level:"Intermediate",type:"Scenario",
+q:"The Redis cache cluster failed over. Within a minute the database is saturated and the whole API is timing out, even though Redis came back. Explain and fix.",
+a:`<p>The cache was quietly carrying most of the read load. When it emptied (a failover with no replica data, a flush, or a restart), every request missed at once, and many concurrent requests for the same hot keys all went to the database: a <b>cache stampede</b>. The DB saturates, requests slow, and cache refills are themselves slow, so the cache never warms.</p>
+<p><b>Now:</b> shed load (rate-limit at the edge, disable expensive features), warm the hottest keys with a script, and let traffic back gradually.</p>
+<p><b>Structural fixes:</b></p>
+<ul>
+<li><b>Request coalescing:</b> only one request recomputes a given key while others wait for it. .NET 9's <code>HybridCache</code> does this built in. Otherwise use a per-key lock or a <code>Lazy</code>/Task cache.</li>
+<li><b>Serve stale while revalidating:</b> keep a stale copy and refresh in the background.</li>
+<li><b>Jittered TTLs</b> so keys don't expire together.</li>
+<li><b>A two-level cache</b> (in-memory plus Redis), so a Redis outage isn't a total miss.</li>
+<li><b>Protect the DB:</b> a concurrency limit on DB-heavy paths, and a circuit breaker on the cache client so a dead Redis fails fast instead of adding timeouts.</li>
+<li><b>Redis HA:</b> replicas with automatic failover (ElastiCache Multi-AZ), so failover keeps the data.</li>
+</ul>
+<p>Also capacity-plan for the worst case: the DB can't serve 100% of reads, so a cache outage <i>is</i> a DB outage unless you shed load.</p>`,
+tools:["Cache hit ratio, Redis evictions, connected clients","DB connections, CPU, top queries during the event","Request latency by endpoint","ElastiCache failover events"],
+keys:["Explains stampede mechanism and why the cache doesn't recover","Request coalescing / stale-while-revalidate","Jittered TTLs, two-level cache","DB protection and cache-client circuit breaker","Recognises cache as a capacity dependency"],
+trade:["Stale data during recovery vs total outage","In-memory L1 cache adds per-instance inconsistency in exchange for resilience","It depends on: how stale each data type may be"],
+fu:[{q:"How would you test this before it happens?",a:"Run a game day: flush or fail over the cache in staging under realistic load and watch DB behaviour. If the system can't survive an empty cache, you need load shedding or a warm-up strategy before production finds out."}],
+rf:["\"Just restart Redis\"","Doesn't see the cache as a capacity dependency","No coalescing, every miss hits the DB"]},
+
+{id:"C008",skill:"Production Incident",level:"Advanced",type:"Scenario",
+q:"Support reports a user saw another user's profile details on their own account page. It can't be reproduced. How do you respond, and what are the likely causes?",
+a:`<p>Treat it as a <b>security incident</b> immediately, not a bug ticket: possible personal-data exposure with legal notification duties.</p>
+<p><b>Response:</b></p>
+<ol>
+<li>Declare an incident and bring in security.</li>
+<li>Preserve logs.</li>
+<li>If a likely cause is identified, kill it fast: disable caching on the affected routes and invalidate the CDN.</li>
+<li>Scope who could have been affected and for how long.</li>
+<li>Involve legal or the DPO for breach-notification timelines (GDPR's 72-hour rule where it applies).</li>
+</ol>
+<p><b>Likely causes, roughly in order:</b></p>
+<ul>
+<li><b>CDN or proxy caching personalised responses.</b> The origin sends cacheable headers on a per-user endpoint, and the cookie or auth header isn't in the cache key. CloudFront then serves one user's page to another.</li>
+<li><b>Framework caching.</b> In the Next.js App Router, <code>fetch</code> results were cached by default up to Next.js 14 (15 changed the default to no-store), and a route can be statically rendered if it uses no dynamic functions. User data gets baked in.</li>
+<li><b>Server-side state leaking between requests.</b> A singleton or static field holding the "current user" in .NET, a scoped service captured in a singleton, or module-level variables in Node (shared across requests in one process).</li>
+<li><b>Application cache key missing the user ID</b> (<code>"profile"</code> instead of <code>"profile:{userId}"</code>).</li>
+</ul>
+<p>Find it by comparing the timestamps of both users' requests in access logs and CDN logs (cache status: Hit), and by reviewing recent changes to caching headers and shared state.</p>`,
+tools:["CloudFront/CDN logs (x-edge-result-type Hit/Miss), cache policy","Response headers (Cache-Control, Vary) on the endpoint","App logs correlated by timestamp for both users","Code search: static/singleton state, cache keys"],
+keys:["Escalates as a security/privacy incident","Contain first (disable cache), then scope","Knows CDN cache key and Cache-Control pitfalls","Framework caching defaults by version","Shared mutable state across requests"],
+trade:["Disabling caching restores safety at a cost in load and latency, an easy call during the incident","Long-term: Cache-Control: private, no-store on personalised responses, with explicit opt-in caching only where safe"],
+fu:[{q:"How do you stop this class of bug happening again?",a:"Default personalised endpoints to Cache-Control: private, no-store via middleware, require explicit opt-in for caching, add automated tests that request the same endpoint as two users and assert isolation, and include caching behaviour in code review checklists."}],
+rf:["Treats it as unreproducible and closes it","Doesn't involve security or legal","Never considers the CDN"]},
+
+{id:"C009",skill:"Production Incident",level:"Advanced",type:"Scenario",
+q:"After a routine deploy of a Kafka consumer, some orders were never processed. Another team says their consumer re-sent thousands of old notifications. Both deploys renamed the consumer group ID. Explain both.",
+a:`<p>Changing <code>group.id</code> creates a <b>new consumer group with no committed offsets</b>, so the <code>auto.offset.reset</code> policy decides where it starts:</p>
+<ul>
+<li><b>Missing orders:</b> the Confluent .NET client defaults to <code>AutoOffsetReset.Latest</code>. The new group started at the end of the log and skipped everything produced between the old consumer stopping and the new one starting.</li>
+<li><b>Re-sent notifications:</b> the other team set <code>Earliest</code>. Their new group read the whole retained topic from the beginning and re-ran side effects for days of old events.</li>
+</ul>
+<p><b>Recovery:</b></p>
+<ul>
+<li><b>Gap:</b> find the time window, then reset the new group's offsets to just before the switchover (<code>--reset-offsets --to-datetime</code>, with the group stopped). Rely on idempotency for any overlap.</li>
+<li><b>Duplicates:</b> stop the consumer, assess the damage, apologise to users if needed, and fix the dedup gap.</li>
+</ul>
+<p><b>Prevention:</b> treat group IDs as stable identifiers in config, not derived from service version names. Before a planned rename, seed the new group's offsets from the old group's. Make side-effect consumers idempotent with a dedup store. Choose <code>auto.offset.reset</code> explicitly per consumer, based on whether missing or repeating is worse.</p>`,
+tools:["kafka-consumer-groups --describe for old and new groups","Lag and committed offsets per partition","Deploy timeline vs topic offsets by timestamp","Notification send logs"],
+keys:["New group = no offsets → auto.offset.reset applies","Knows .NET client default (Latest)","Earliest re-runs side effects","Recovery by timestamp-based offset reset","Prevention: stable IDs, seeded offsets, idempotency"],
+trade:["Latest favours never repeating side effects at the risk of gaps; Earliest favours completeness at the risk of duplicates","Explicit choice per consumer, combined with idempotency, removes most of the risk"],
+fu:[{q:"How do you rename a group safely when you must?",a:"Stop the old group, read its committed offsets, set the new group's offsets to the same values (reset-offsets --to-offset per partition, or from the exported list), then start the new consumers. Verify with --describe before re-enabling traffic."}],
+rf:["Doesn't know a new group has no offsets","Assumes the default is Earliest","No idempotency on notification sending"]},
+
+{id:"C010",skill:"Production Incident",level:"Advanced",type:"Scenario",
+q:"A PostgreSQL-backed service gets slower week by week, and disk usage keeps growing. A manual VACUUM FULL made it fast again, but it's degrading once more. What's happening?",
+a:`<p>Two separate problems often show up together:</p>
+<ol>
+<li><b>Table bloat:</b> PostgreSQL's MVCC leaves dead tuples on update and delete. Autovacuum normally reclaims them for reuse, but it <b>cannot remove tuples still visible to the oldest open transaction</b>. Common blockers:
+  <ul>
+  <li>An application connection left "idle in transaction" (a code path that opens a transaction and never commits, such as an ORM transaction leaked on an error path).</li>
+  <li>A long-running report or migration.</li>
+  <li>A replica running long queries with <code>hot_standby_feedback</code> on.</li>
+  </ul>
+  Check <code>pg_stat_activity</code> for <code>idle in transaction</code> and old <code>xact_start</code>, and <code>pg_stat_user_tables</code> for <code>n_dead_tup</code> and last autovacuum time.</li>
+<li><b>Disk growth from WAL:</b> an <b>inactive replication slot</b> (for example a logical slot created for a CDC tool that was later removed or stopped) makes PostgreSQL keep all WAL since the slot's position. Check <code>pg_replication_slots</code> (active, restart_lsn) and drop slots nobody uses.</li>
+</ol>
+<p><b>Fixes:</b></p>
+<ul>
+<li>Set <code>idle_in_transaction_session_timeout</code> and a statement timeout for the app role.</li>
+<li>Fix the leaking code path.</li>
+<li>Tune autovacuum per hot table (lower scale factor).</li>
+<li>Monitor slot lag.</li>
+<li>Use <code>pg_repack</code> instead of <code>VACUUM FULL</code>, which takes an exclusive lock.</li>
+</ul>`,
+tools:["pg_stat_activity (state, xact_start)","pg_stat_user_tables (n_dead_tup, last_autovacuum)","pg_replication_slots (active, restart_lsn, WAL retained)","RDS FreeStorageSpace, TransactionLogsDiskUsage","pgstattuple / bloat estimate queries"],
+keys:["MVCC dead tuples and why autovacuum can't clean them","Idle-in-transaction / long transactions as blockers","Inactive replication slots retaining WAL","Preventive timeouts and slot monitoring","Knows VACUUM FULL locks; pg_repack alternative"],
+trade:["Aggressive timeouts can kill legitimate long reports; give reporting its own role or replica","More aggressive autovacuum uses I/O but keeps tables healthy"],
+fu:[{q:"Why is VACUUM FULL a poor routine fix?",a:"It rewrites the table under an ACCESS EXCLUSIVE lock, blocking reads and writes for the duration, and it doesn't remove the cause, so bloat returns. pg_repack rebuilds online with only brief locks."}],
+rf:["Schedules VACUUM FULL weekly as the fix","Doesn't know about replication slots","Never checks for idle-in-transaction sessions"]},
+
+{id:"C011",skill:"Production Incident",level:"Advanced",type:"Scenario",
+q:"The Bedrock-based assistant slows to 20-second responses at peak, and logs show ThrottlingException. Users are abandoning chats. What do you do now and later?",
+a:`<p>Bedrock enforces per-account, per-region, per-model quotas on requests and tokens per minute. Peak traffic, or prompts that grew larger, hit them, and client retries add latency on top.</p>
+<p><b>Now:</b></p>
+<ul>
+<li>Confirm with Bedrock CloudWatch metrics (invocations, throttles, input and output token counts) against the quotas in Service Quotas.</li>
+<li>Reduce tokens per request: trim conversation history, cap retrieved chunks, set a lower <code>max_tokens</code>.</li>
+<li>Make retries exponential with jitter and a cap, so retries don't consume quota themselves.</li>
+<li>Stream responses so users see progress.</li>
+</ul>
+<p><b>Later:</b></p>
+<ul>
+<li>Request quota increases ahead of growth.</li>
+<li>Use cross-region inference profiles to spread load across regions.</li>
+<li>Consider provisioned throughput for predictable baseline load.</li>
+<li>Route simple requests to a smaller, cheaper model.</li>
+<li>Cache answers to common questions, and use prompt caching for long shared prefixes where the model supports it.</li>
+<li>Put a queue or concurrency limiter in front, so overload becomes a short wait with a visible message rather than a timeout.</li>
+</ul>
+<p>Measure tokens per conversation as a first-class metric. It is both your capacity and your cost driver.</p>`,
+tools:["Bedrock CloudWatch metrics (Invocations, InvocationThrottles, InputTokenCount, OutputTokenCount, latency)","Service Quotas for the model","App metrics: tokens per request, retries, time to first token","Cost per conversation"],
+keys:["Identifies quota-driven throttling, not 'Bedrock is slow'","Token reduction as fastest lever","Jittered capped retries","Cross-region inference / provisioned throughput / model routing","Streaming and graceful queueing for UX"],
+trade:["Provisioned throughput guarantees capacity but costs whether used or not","Smaller models are cheaper and faster but may lower answer quality; measure with evals","Trimming history saves tokens but can lose context"],
+fu:[{q:"How do you decide between provisioned throughput and on-demand?",a:"Look at baseline vs peak usage. If baseline traffic is steady and high, provisioned capacity can be cheaper and removes throttling for that slice, with on-demand absorbing peaks. If traffic is spiky and low, on-demand with quota increases is usually cheaper."}],
+rf:["Retries immediately in a loop","Doesn't know quotas exist per model and region","No token metrics"],
+verify:"Bedrock quota values, cross-region inference availability and prompt caching support vary by model and region; check current docs."},
+
+{id:"C012",skill:"Production Incident",level:"Advanced",type:"Scenario",
+q:"At 3 am, every service using the orders database starts failing with login errors. Secrets Manager rotated the database password an hour ago. Why the delay, and how do you make rotation safe?",
+a:`<p>The apps read the connection string <b>once at startup</b> and cached it. Existing pooled connections kept working because they had already authenticated. As connections were recycled over the next hour (pool lifetime, idle timeouts, scaling events), new ones tried the old password and failed. A single-user rotation strategy invalidates the old password immediately, so there's no overlap.</p>
+<p><b>Now:</b> restart or redeploy services so they read the new secret. That's the fastest fix if every service reads the secret at startup.</p>
+<p><b>Making rotation safe:</b></p>
+<ul>
+<li>Use the <b>alternating users</b> rotation strategy: two DB users, with rotation updating the inactive one and then switching. The previous credentials stay valid until the next rotation.</li>
+<li>Have the app <b>re-fetch the secret on authentication failure</b>, or refresh it periodically through a caching client (the AWS Secrets Manager caching library, or the Parameters and Secrets Lambda extension), instead of reading once at startup.</li>
+<li>Prefer <b>IAM database authentication</b> or RDS Proxy where they fit, which removes long-lived passwords from apps.</li>
+<li>Alert on rotation failures, and run rotation in staging on the same schedule.</li>
+</ul>`,
+tools:["Secrets Manager rotation events in CloudTrail","DB login failure metrics/logs","App error logs by connection open time","Connection pool lifetime settings"],
+keys:["Explains why failures lag rotation (pooled connections)","Single vs alternating users rotation","Refresh on auth failure / cached secret client","IAM auth / RDS Proxy alternatives","Rotation tested in staging"],
+trade:["Alternating users means two DB users to manage and grant, in exchange for zero-downtime rotation","Frequent secret refresh calls cost a little and add a dependency; caching with a TTL balances it"],
+fu:[{q:"Should you just disable rotation to avoid this?",a:"No. Rotation limits the damage of a leaked credential. Fix the application's secret handling instead, because the same failure would happen whenever a password changes for any reason."}],
+rf:["Disables rotation","Hard-codes credentials in environment variables at build time","No alerting on rotation failure"]},
+
+{id:"C013",skill:"Production Incident",level:"Intermediate",type:"Scenario",
+q:"Push notifications for iOS users stopped two days ago. Android is fine, nothing errors in your logs, and nobody noticed until a user complained. Investigate and fix the monitoring gap.",
+a:`<p>iOS-only failure points at the Apple Push Notification service (APNs) path:</p>
+<ul>
+<li><b>Expired APNs certificate:</b> certificate-based auth expires yearly. Token-based auth with a .p8 key doesn't expire, but its JWT must be regenerated regularly.</li>
+<li><b>Environment mismatch:</b> development (sandbox) tokens sent to the production APNs endpoint, or the reverse, after a build configuration change.</li>
+<li><b>Topic or bundle ID changed</b> in the app.</li>
+<li><b>Provider-side state:</b> with SNS, platform endpoints get disabled after APNs rejects tokens; with a third-party provider, check its dashboard.</li>
+</ul>
+<p>Logs show nothing because sending is asynchronous: your service hands messages to SNS or the provider and logs "sent", while the delivery failure lives in the provider's feedback, which nobody reads.</p>
+<p><b>Fixes:</b></p>
+<ul>
+<li>Restore the credential.</li>
+<li>Move to token-based APNs auth to avoid yearly expiry.</li>
+<li>Monitor <b>delivery success rate per platform</b> from provider feedback (SNS delivery status logging, or the provider API).</li>
+<li>Alert on drops, and put credential expiry dates in a monitored calendar or alarm.</li>
+<li>Add a synthetic test device that should receive a notification every hour.</li>
+</ul>`,
+tools:["SNS delivery status logs / provider delivery reports","Credential expiry dates","Per-platform delivery success rate","Synthetic notification canary"],
+keys:["Separates 'sent to provider' from 'delivered'","APNs cert expiry / token auth / sandbox vs production","Provider feedback as the missing signal","Per-platform delivery metrics and canary"],
+trade:["Synthetic canaries cost little and catch silent failures that metrics miss","Third-party push providers simplify credentials but add a vendor dependency"],
+fu:[{q:"How do you handle device tokens that keep failing?",a:"Remove or mark invalid tokens based on provider feedback (APNs reports unregistered tokens, and FCM returns UNREGISTERED), so you don't keep sending to dead devices and hurt deliverability or provider limits."}],
+rf:["Trusts \"sent\" logs as delivery","No per-platform monitoring","Doesn't know APNs certificates expire"]},
+
+{id:"C014",skill:"Production Incident",level:"Lead",type:"Scenario",
+q:"Payments are failing intermittently, about 15% of attempts. Three teams (checkout, payments, platform) each believe it's someone else. You're the incident commander. How do you run it?",
+a:`<ol>
+<li><b>Set up structure:</b> declare a severity, open one incident channel and a bridge, and assign roles. You are incident commander (coordination, not debugging). Name a communications lead for stakeholder and customer updates, and an ops or tech lead per team. Keep a scribe or a running timeline.</li>
+<li><b>Agree on facts before theories:</b> what's failing (which step, error codes), since when, what percentage, which segment (card type, region, app version). Pull the shared trace for a failing payment and walk it hop by hop together. That ends the "not my service" stalemate quickly.</li>
+<li><b>Mitigate in parallel:</b> list candidate mitigations and their risks (roll back the last deploys in the window, switch payment provider route, disable a new feature) and decide quickly. For payments, a fallback route or graceful "try again" messaging protects revenue while debugging continues.</li>
+<li><b>Communicate on a fixed cadence</b> (every 30 minutes), including "no change". Engage the payment provider's support early if signs point to them.</li>
+<li><b>Close it:</b> confirm recovery with metrics, keep monitoring, then run a blameless postmortem with owners and dates for each action item.</li>
+</ol>`,
+tools:["Shared trace of a failing transaction","Payment success rate by step, provider, card type, app version","Change log across all three teams' services in the window","Provider status page / support channel"],
+keys:["Separates IC role from debugging","Facts and shared trace before blame","Parallel mitigation with explicit risk calls","Fixed communication cadence","Blameless postmortem with owned actions"],
+trade:["Rolling back several teams' changes at once may fix it fastest but hides which change was responsible; acceptable when revenue is burning","Too many people on the bridge slows decisions; keep the core group small"],
+fu:[{q:"A senior engineer keeps pushing their own theory and derails the call. What do you do?",a:"Acknowledge it, assign them to test their theory in parallel with a time box and report back, and keep the main call on the agreed plan. Decisions are based on evidence, and everyone can contribute without taking over coordination."}],
+rf:["IC starts debugging and stops coordinating","No stakeholder updates","Lets teams argue without a shared trace"]},
+
+{id:"C015",skill:"Production Incident",level:"Lead",type:"Scenario",
+q:"One service caused six Sev-2 incidents last quarter. Every postmortem produced action items, yet nothing improves. What do you do?",
+a:`<ol>
+<li><b>Look across the postmortems, not at each one:</b> what's common? Same dependency, same type of change, same missing test, same alert gap? Six incidents with one systemic cause is a design problem, not six bad days.</li>
+<li><b>Audit the action items:</b> how many were completed? Often they're filed and never prioritised against features. That's the real finding.</li>
+<li><b>Make reliability a measured trade-off:</b> define an SLO for the service and an <b>error budget policy</b> agreed with product. When the budget is spent, feature work on that service pauses for reliability work. This turns "we should" into a rule both sides signed.</li>
+<li><b>Fund the structural fix:</b> if the root is architectural (a fragile dependency, no isolation, risky deploys), propose a scoped reliability project with an owner, a timeline and success metrics such as incident count, MTTR and change failure rate.</li>
+<li><b>Check ownership and skills:</b> is the service owned by a team with capacity and context? Orphaned services accumulate incidents.</li>
+</ol>`,
+tools:["Postmortem action item completion rate","SLO / error budget burn","DORA: change failure rate, time to restore","Incident categorisation by cause"],
+keys:["Cross-incident pattern analysis","Action item follow-through as the real problem","SLO + error budget policy with product buy-in","Funded structural fix with metrics","Ownership check"],
+trade:["Freezing features costs short-term delivery; continued incidents cost more in trust and on-call burnout","An error budget policy needs product agreement in advance; imposing it mid-crisis creates conflict"],
+fu:[{q:"Product refuses to pause features. How do you make the case?",a:"Put numbers on the incidents: revenue impact, support tickets, engineering hours spent on firefighting, on-call load and attrition risk. Compare them with the cost of the reliability work, and propose a time-boxed investment with checkpoints, not an open-ended freeze."}],
+rf:["Writes a seventh postmortem","Blames individuals","No mechanism to prioritise reliability against features"]},
+/* ================= DEBUGGING WALKTHROUGHS ================= */
+{id:"D016",skill:"Debugging Walkthrough",level:"Basic",type:"Scenario",
+q:"A feature works locally and in staging but returns a generic 500 in production. Walk through how you debug it.",
+a:`<ol>
+<li><b>Get the actual error.</b> Find the failing request by correlation or trace ID in centralised logs, along with the stack trace and the span that failed. If the log lacks detail, that's the first fix. Don't debug blind.</li>
+<li><b>List what differs between environments</b> and check each:
+  <ul>
+  <li><b>Config and secrets:</b> missing or different values, feature flags.</li>
+  <li><b>Permissions:</b> the IAM role, DB user grants, or the S3 bucket policy in prod.</li>
+  <li><b>Network:</b> security groups, VPC endpoints, egress rules to a third party.</li>
+  <li><b>Data:</b> prod has nulls, long strings, unusual characters or volumes staging never had.</li>
+  <li><b>Versions:</b> image tag, dependency versions, runtime, schema migrations applied.</li>
+  </ul></li>
+<li><b>Reproduce</b> with prod-like inputs. Replay the failing request against staging with anonymised prod data, or test with a prod feature flag targeted to an internal user.</li>
+<li><b>Fix with a test</b> that captures the prod-specific condition, so it can't come back.</li>
+</ol>`,
+tools:["Centralised logs by trace/correlation ID","Distributed trace of the failing request","Config/secret diff between environments","IAM policy simulator / CloudTrail AccessDenied events","Deployed image tags and migration history"],
+keys:["Gets the real error before theorising","Systematic environment diff (config, IAM, network, data, versions)","Reproduces with prod-like data","Adds a regression test"],
+trade:["Debugging directly in prod is fast but risky; use read-only inspection and flags targeting internal users","Copying prod data to staging requires anonymisation for personal data"],
+fu:[{q:"The logs only say 'An error occurred'. What do you change?",a:"Structured logging with exception details and trace IDs on every log line, a global exception handler that logs the full exception server-side while returning a safe Problem Details response to the client, and log levels configurable at runtime."}],
+rf:["Starts changing code to see what happens","Asks for prod DB access to 'try things'","Doesn't consider data differences"]},
+
+{id:"D017",skill:"Debugging Walkthrough",level:"Basic",type:"Scenario",
+q:"Users from one region or ISP say the site won't load. You and your team can't reproduce it. How do you investigate?",
+a:`<ol>
+<li><b>Collect specifics:</b> exact error (DNS failure, TLS error, timeout, blank page), browser and OS, network, a screenshot or HAR file, timestamps.</li>
+<li><b>DNS:</b> was a record changed recently? Old TTLs keep some resolvers on stale answers, and some ISPs' resolvers misbehave. Check from multiple locations with <code>dig</code>, online multi-location DNS checkers, or the ISP's public resolver.</li>
+<li><b>TLS:</b> an incomplete certificate chain or an expired intermediate breaks older clients and some Android versions, while modern browsers repair it. Test with <code>openssl s_client</code> and an SSL checker.</li>
+<li><b>CDN edge:</b> check CloudFront logs for that region's edge location (error rates, cache status). Geo restrictions or WAF rules may block a country or an IP range.</li>
+<li><b>Network path:</b> IPv6-only issues (an AAAA record pointing to something broken), MTU problems, or corporate proxies stripping headers.</li>
+<li><b>Get real-user data:</b> RUM or synthetic monitors from that region confirm and track the fix.</li>
+</ol>`,
+tools:["dig / multi-location DNS checks","openssl s_client, SSL Labs-style chain check","CloudFront logs by edge location, WAF sampled requests","Synthetic monitoring from the affected region","Customer HAR file"],
+keys:["Collects specifics first","Checks DNS, TLS chain, CDN/WAF, IPv6 in turn","Uses edge logs by location","Synthetic monitoring from the region"],
+trade:["Geo-blocking or strict WAF rules reduce attack surface but can block legitimate users; review false positives"],
+fu:[{q:"How would you have caught it before users did?",a:"Synthetic checks from several regions and networks, certificate-chain validation in monitoring, and WAF block-rate alerts by country, so a regional failure shows up as an alert rather than a support ticket."}],
+rf:["\"Works for me, can't reproduce, closing\"","Only tests from the office network"]},
+
+{id:"D018",skill:"Debugging Walkthrough",level:"Intermediate",type:"Scenario",
+q:"An integration test passes locally every time but fails about 1 in 10 runs in CI. How do you track it down?",
+a:`<ol>
+<li><b>Reproduce the flake:</b> run the test in a loop (for example 100 times), in CI conditions: same parallelism, same container resources, randomised test order. Capture logs and state on failure.</li>
+<li><b>Check the usual suspects:</b>
+  <ul>
+  <li><b>Shared state:</b> tests share a database, a static field, or a singleton cache. One test leaves data another depends on, so results depend on run order and parallelism.</li>
+  <li><b>Timing:</b> fixed <code>Task.Delay</code> or sleep waits that are too short on slower CI machines, an un-awaited task, or polling with a timeout too tight.</li>
+  <li><b>Time and locale:</b> a test that fails near midnight UTC, in a different timezone, or on DST boundaries (CI agents usually run in UTC).</li>
+  <li><b>External dependencies:</b> real network calls, rate limits, or container start-up not awaited (Testcontainers wait strategies).</li>
+  <li><b>Ordering assumptions:</b> asserting the order of results from a query without <code>ORDER BY</code>.</li>
+  </ul></li>
+<li><b>Fix the cause:</b> isolate data per test (unique IDs, a transaction rolled back after each test, or a database per test class), replace sleeps with condition-based waits, inject a clock, and add ORDER BY.</li>
+<li><b>Policy:</b> quarantine known flaky tests with an owner and a deadline. Never just re-run until green.</li>
+</ol>`,
+tools:["Test loop runner (repeat N times), randomised order","CI logs/artifacts captured on failure","Test timing distribution","Testcontainers wait strategies"],
+keys:["Reproduces under CI-like conditions","Names shared state, timing, time zones, unordered queries","Fixes cause, not retries","Quarantine policy with ownership"],
+trade:["Per-test database isolation is reliable but slower; transactions rolled back per test are fast but can't test commit behaviour","Automatic retries hide real race conditions that may also exist in production"],
+fu:[{q:"Could the flake be a real production bug?",a:"Yes, and that's why you don't just retry. A test that fails on ordering or timing may be exposing a race in the code under test, for example an async operation not awaited before returning. Check that possibility before 'fixing' the test."}],
+rf:["Adds retry-on-failure to CI as the fix","Increases sleep durations","Deletes the test"]},
+
+{id:"D019",skill:"Debugging Walkthrough",level:"Intermediate",type:"Scenario",
+q:"Reports show some orders on the wrong day, and appointment times display 5.5 hours off for some users. The stack is a .NET API, SQL Server or PostgreSQL, and a React front end. Where do you look?",
+a:`<p>Time bugs come from mixing <b>instants</b> (a point in time) with <b>local wall-clock times</b> somewhere along the path. Walk the value end to end:</p>
+<ol>
+<li><b>Client:</b> JavaScript <code>new Date("2026-10-13")</code> is parsed as UTC midnight, but <code>"2026-10-13T10:00"</code> (no offset) is parsed as local time. Sending <code>toISOString()</code> converts to UTC, which shifts the date for users east of UTC.</li>
+<li><b>API:</b> <code>DateTime.Now</code> uses the server's timezone (UTC in containers, IST on a dev machine), so code that works locally breaks in prod. <code>DateTimeKind.Unspecified</code> values from deserialisation get treated inconsistently.</li>
+<li><b>Database:</b> SQL Server <code>datetime</code>/<code>datetime2</code> store no offset, while <code>datetimeoffset</code> does. PostgreSQL <code>timestamp</code> (without time zone) vs <code>timestamptz</code>. Npgsql 6+ requires UTC <code>DateTime</code> values for <code>timestamptz</code> and throws otherwise, which teams sometimes "fix" by switching to <code>timestamp</code> and losing correctness.</li>
+<li><b>Reporting:</b> "orders per day" grouped by UTC date, while the business expects the clinic's or user's local date.</li>
+</ol>
+<p><b>Rules to fix it:</b></p>
+<ul>
+<li>Store instants as UTC (or <code>datetimeoffset</code>/<code>timestamptz</code>).</li>
+<li>Transmit ISO 8601 with an offset.</li>
+<li>Store the relevant IANA time zone (for example <code>Asia/Kolkata</code>) where local meaning matters, such as appointments and business days.</li>
+<li>Convert to local only at the edges (display, day bucketing).</li>
+<li>Inject a clock (.NET 8 <code>TimeProvider</code>) so tests cover timezone and DST cases.</li>
+</ul>`,
+tools:["Trace one value from UI → API → DB → report with raw values logged","Column types in schema","Server/container TZ settings","Unit tests with fixed TimeProvider across time zones and DST dates"],
+keys:["Instant vs local time distinction","Knows JS date parsing quirks","DateTime.Now vs UtcNow and DateTimeKind","DB type choice (datetimeoffset / timestamptz)","Store IANA zone for local-meaning data; TimeProvider for tests"],
+trade:["Storing UTC plus time zone needs more columns but gives correct local reporting","Future appointments may need local time + zone rather than a UTC instant, because DST rules can change before the date"],
+fu:[{q:"Why might you store a future appointment as local time plus time zone instead of UTC?",a:"If the government changes DST rules before the appointment, a stored UTC instant would now map to the wrong local time. The appointment was agreed as '10:00 at the clinic', so storing local time plus the IANA zone keeps that meaning, and you compute the instant when needed."}],
+rf:["\"Store everything in local time\"","Uses DateTime.Now in server code","Switches timestamptz to timestamp to silence Npgsql errors"]},
+
+{id:"D020",skill:"Debugging Walkthrough",level:"Intermediate",type:"Scenario",
+q:"The React app shows a CORS error calling the API, but only in production and only on some requests. How do you debug it?",
+a:`<p>"CORS error" in the console often hides a different failure. The browser reports CORS whenever the response lacks the CORS headers, including when the request failed for another reason.</p>
+<ol>
+<li><b>Open the Network tab:</b> find the failing request and its preflight (<code>OPTIONS</code>). What status did each actually return?</li>
+<li><b>Error responses without CORS headers:</b> if the API returned 500, 401 or 413 from a layer that doesn't add CORS headers (gateway, WAF, ALB, an exception thrown before CORS middleware runs), the browser shows it as CORS. In ASP.NET Core, put <code>UseCors</code> before auth and endpoints, and check that error handlers also emit the headers.</li>
+<li><b>Preflight blocked:</b> WAF rules or API Gateway routes that don't allow <code>OPTIONS</code>, or a gateway authoriser that rejects the unauthenticated preflight.</li>
+<li><b>CDN caching:</b> CloudFront caches a response with one origin's <code>Access-Control-Allow-Origin</code> and serves it to another origin. Forward the <code>Origin</code> header in the cache key, or return <code>Vary: Origin</code>.</li>
+<li><b>Credentials rules:</b> with cookies (<code>credentials: include</code>), <code>Access-Control-Allow-Origin: *</code> is not allowed. It must echo the exact origin plus <code>Access-Control-Allow-Credentials: true</code>.</li>
+<li><b>Reproduce with curl</b>, sending the same <code>Origin</code> and method as the browser.</li>
+</ol>`,
+tools:["Browser Network tab (preflight + actual request, status codes)","curl -i -X OPTIONS -H 'Origin: …' -H 'Access-Control-Request-Method: …'","Gateway/WAF logs for OPTIONS","CloudFront cache policy (Origin header / Vary)"],
+keys:["CORS errors can mask other failures","Checks preflight separately","Middleware order and error paths","CDN caching of CORS headers","Credentials + wildcard rule"],
+trade:["Serving API and app from the same origin (path-based routing through CloudFront) removes CORS entirely, at the cost of a routing setup"],
+fu:[{q:"Is CORS a security control for your API?",a:"No. CORS only tells browsers whether a page from another origin may read the response. It doesn't stop curl, servers or attackers calling the API directly. Authentication and authorisation protect the API; CORS protects users' browsers."}],
+rf:["Sets Access-Control-Allow-Origin: * with credentials","Disables CORS checks in the browser to 'fix' it","Thinks CORS protects the API from attackers"]},
+
+{id:"D021",skill:"Debugging Walkthrough",level:"Intermediate",type:"Scenario",
+q:"An admin updates a product in the back office, but the public Next.js site keeps showing the old data, sometimes for minutes, sometimes until a redeploy. How do you find which layer is stale?",
+a:`<p>There are several caches between the database and the user. Bisect them from the origin outward:</p>
+<ol>
+<li><b>Database / API:</b> call the API directly (<code>curl</code>), bypassing the CDN. Is the data fresh there? If not, check the API's own cache (Redis TTL, missing invalidation on update).</li>
+<li><b>Next.js server caches (App Router):</b> the <b>data cache</b> for <code>fetch</code> results and the <b>full route cache</b> for statically rendered pages. A page with no dynamic functions may be built statically and served until revalidation or redeploy, which matches "until a redeploy". Fix with <code>revalidate</code> intervals or on-demand <code>revalidateTag</code>/<code>revalidatePath</code>, called from the admin update (a webhook or server action).</li>
+<li><b>CDN:</b> CloudFront or a Vercel edge cache honouring <code>s-maxage</code>. Check response headers (<code>Age</code>, <code>x-cache</code>, <code>x-nextjs-cache</code>). Invalidate, or use shorter TTLs with stale-while-revalidate.</li>
+<li><b>Browser and client router cache:</b> the App Router's client-side router cache can show stale pages during navigation until refresh; <code>router.refresh()</code> after mutations helps.</li>
+</ol>
+<p>Defaults changed between Next.js 14 and 15 (fetch and route-handler caching moved toward uncached by default in 15), so check which version you run before assuming behaviour.</p>`,
+tools:["curl the API, the Next.js origin and the CDN URL separately; compare","Response headers: Cache-Control, Age, x-cache, x-nextjs-cache","Next.js build output (which routes are static ○ vs dynamic ƒ)","Admin update → revalidation call logs"],
+keys:["Layer-by-layer bisection from origin outward","Knows data cache vs full route cache","On-demand revalidation tied to the write","CDN header inspection","Version-dependent defaults"],
+trade:["On-demand revalidation keeps pages static and fast while staying fresh, but needs the write path to know which tags or paths to invalidate","Rendering dynamically on every request is always fresh but costs server time and latency"],
+fu:[{q:"How do you design invalidation so it doesn't get forgotten?",a:"Tag fetches by entity (product:123), and have the update path emit an event that a single revalidation handler consumes and maps to tags. That way new pages using the same data are invalidated automatically, without each feature remembering to do it."}],
+rf:["\"Clear all caches and redeploy\" as the routine fix","Doesn't know static vs dynamic rendering","Only looks at the database"],
+verify:"Next.js caching defaults and APIs continue to change across releases; confirm against the version in use."},
+
+{id:"D022",skill:"Debugging Walkthrough",level:"Advanced",type:"Scenario",
+q:"A Lambda in a VPC calls an internal API. Occasionally it hangs until the Lambda's 30-second timeout, yet the internal API's logs show either fast responses or no request at all. How do you debug it?",
+a:`<p>"No request in the API logs" plus a long hang points to the connection never reaching the app, or a dead connection being reused. Candidates:</p>
+<ul>
+<li><b>Stale keep-alive connections after freeze.</b> Lambda freezes the execution environment between invocations. A pooled connection created earlier may have been closed by the load balancer or server (idle timeout) while frozen. The next invocation writes to a dead socket and waits for a timeout. That's the classic intermittent hang.</li>
+<li><b>No client timeout:</b> the HTTP client has no timeout, or a default longer than the Lambda timeout, so a hang lasts the full 30 seconds.</li>
+<li><b>DNS or network:</b> intermittent resolution delays, security group or NACL rules affecting only some subnets or AZs, or an NLB in front with its own idle timeout.</li>
+<li><b>Connection limits</b> on the target, or concurrency spikes exhausting the API's capacity, so requests queue before the app logs them.</li>
+</ul>
+<p><b>Approach:</b></p>
+<ol>
+<li>Add timing logs around connect, send and receive, or use X-Ray subsegments.</li>
+<li>Set explicit connect and request timeouts well under the Lambda timeout, with one retry.</li>
+<li>Set the client's pooled connection lifetime and idle timeout shorter than the server or LB idle timeout.</li>
+<li>Check whether failures correlate with the time since the last invocation, which would confirm stale connections after a freeze.</li>
+</ol>`,
+tools:["X-Ray traces with subsegments for the HTTP call","Logs with timestamps for connect/send/receive","Correlation of failures with time since last invocation","Load balancer idle timeout settings, target metrics","VPC Flow Logs for rejected traffic"],
+keys:["Understands Lambda freeze and stale pooled sockets","Explicit client timeouts below function timeout","Connection lifetime shorter than LB idle timeout","Considers network/DNS/SG per subnet","Proves hypothesis with correlation data"],
+trade:["Disabling keep-alive avoids stale sockets but adds connection set-up cost to every call","Short timeouts with retry fix hangs but need the call to be idempotent"],
+fu:[{q:"How do you set this up in .NET?",a:"Use a SocketsHttpHandler with PooledConnectionIdleTimeout and PooledConnectionLifetime set below the server or LB idle timeout, an explicit HttpClient timeout (or a resilience pipeline with attempt timeouts) well under the function timeout, and reuse the client across invocations as a static field."}],
+rf:["Raises the Lambda timeout to 5 minutes","Creates a new HttpClient per invocation","Blames 'cold starts' without evidence"]},
+
+{id:"D023",skill:"Debugging Walkthrough",level:"Advanced",type:"Scenario",
+q:"A NestJS service produces events to Kafka. The .NET consumer gets some fields as null, IDs that are slightly wrong, and occasional deserialization failures. Debug the cross-language contract.",
+a:`<p><b>Start with the raw bytes.</b> Read a few records with <code>kcat</code> and inspect them. If the first byte is <code>0x00</code> followed by a 4-byte schema ID, the producer is using the Confluent schema-registry wire format and the consumer needs the matching deserializer. Plain JSON parsing will fail on those.</p>
+<p>Then check each common mismatch:</p>
+<ul>
+<li><b>Property casing:</b> Node produces <code>camelCase</code>. <code>System.Text.Json</code> is case-sensitive by default outside ASP.NET's web defaults, so <code>orderId</code> doesn't bind to <code>OrderId</code> and becomes null. Use <code>JsonSerializerDefaults.Web</code> or explicit naming.</li>
+<li><b>Large integers:</b> JavaScript numbers are doubles, safe only up to 2^53−1. 64-bit IDs (snowflake IDs, DB bigints) lose precision when produced from JS, which explains "slightly wrong" IDs. Send them as strings.</li>
+<li><b>Decimals:</b> money as a JS number loses precision. Send it as a string or integer minor units.</li>
+<li><b>Dates:</b> different formats or missing offsets. Standardise on ISO 8601 with offset.</li>
+<li><b>Enums:</b> strings on one side, integers on the other.</li>
+<li><b>Null vs missing:</b> optional fields omitted vs sent as null, and the handling of required fields.</li>
+</ul>
+<p><b>Fix structurally:</b> define the event in a shared schema (JSON Schema, Avro or Protobuf) in a registry, generate types for both languages, and add a contract test in CI that round-trips sample events through both serializers.</p>`,
+tools:["kcat to dump raw records (bytes, headers, key)","Schema registry subject/versions","Serializer settings on both sides","Contract tests with sample payloads"],
+keys:["Inspects raw bytes and wire format first","JSON casing default in System.Text.Json","JS 2^53 integer precision","Money and date representation","Schema-first contract with codegen and tests"],
+trade:["Avro/Protobuf with a registry gives strict contracts and compact payloads, but you lose human-readable messages and add tooling","JSON with JSON Schema stays readable but needs discipline and validation"],
+fu:[{q:"Why send 64-bit IDs as strings when both sides are 'just JSON'?",a:"Any JavaScript JSON parser converts numbers to doubles, so precision is lost the moment the value is parsed or produced in Node, before it reaches Kafka. Strings preserve the exact value across every language."}],
+rf:["Patches each field in the consumer one at a time","Unaware of JS integer precision limits","No shared schema"]},
+
+{id:"D024",skill:"Debugging Walkthrough",level:"Advanced",type:"Scenario",
+q:"A .NET API plateaus at about 400 requests per second. CPU and memory are low, and doubling the instance count doesn't raise throughput. How do you find the bottleneck?",
+a:`<p>If adding instances doesn't help, the bottleneck is a <b>shared resource</b> outside the instances. Use the USE method (utilisation, saturation, errors) on each shared resource, and Little's law (concurrency = throughput × latency) to sanity-check limits.</p>
+<p>Candidates:</p>
+<ul>
+<li><b>Database connections:</b> if the effective concurrency at the DB is capped at 100 (pool size or the DB's max connections) and each request holds a connection for 250 ms, the ceiling is 100 ÷ 0.25 s = 400 rps, regardless of app instances. Check pool wait time and DB active sessions. More instances add pool contention without raising the DB's capacity.</li>
+<li><b>Lock contention:</b> a hot row everyone updates (a counter, a sequence table, an inventory row for a popular item). Check DB lock waits.</li>
+<li><b>A downstream dependency</b> with a rate limit or a fixed worker count, or a single Redis key that's hot.</li>
+<li><b>NAT gateway port exhaustion</b> if many connections go to one external destination (each NAT IP supports a limited number of simultaneous connections per destination).</li>
+<li><b>The load generator itself</b> saturating. Verify the test client isn't the limit.</li>
+</ul>
+<p><b>Approach:</b></p>
+<ol>
+<li>Look at a trace of a slow request under load. Where is the waiting?</li>
+<li>Check DB wait statistics (lock waits, connection waits).</li>
+<li>Remove the bottleneck: shorter DB time per request, caching, batching, sharding the hot row (counter buckets), or async processing.</li>
+<li>Load test again to find the next bottleneck.</li>
+</ol>`,
+tools:["Traces under load (where time is spent waiting)","DB wait stats, active sessions, lock waits","Connection pool metrics (wait time, in use)","Downstream rate limit headers / 429 counts","Load generator CPU and network"],
+keys:["Infers a shared bottleneck from non-scaling","Little's law calculation","DB connections, hot rows, downstream limits, NAT","Verifies the load generator","Iterative bottleneck removal"],
+trade:["Bigger pools only help if the DB can actually do more work concurrently; otherwise they increase contention","Sharded counters remove the hot row but complicate reads"],
+fu:[{q:"Throughput is fine, but p99 latency jumps from 80 ms to 2 s at 380 rps. What does that tell you?",a:"You're near saturation of some resource: queueing delay grows steeply as utilisation approaches 100%. Find which queue is building (pool waits, thread pool queue, DB lock waits) and keep operating utilisation below that knee."}],
+rf:["Keeps adding instances","Increases connection pool size to 1,000","Doesn't check the load generator"]},
+
+{id:"D025",skill:"Debugging Walkthrough",level:"Lead",type:"Scenario",
+q:"A capable senior engineer has spent three days on an intermittent bug with no progress. How do you help without taking it over?",
+a:`<ol>
+<li><b>Ask them to explain where they are,</b> as a working session rather than a status check. Ask for the hypotheses they've had, what evidence ruled each out, and what they haven't been able to observe. Explaining out loud often surfaces the gap.</li>
+<li><b>Change the method if it's stuck:</b>
+  <ul>
+  <li>Instrument rather than read code: add logging or tracing around the suspected area and wait for the next occurrence.</li>
+  <li>Bisect: when did it start? <code>git bisect</code> on releases, or compare with infrastructure changes.</li>
+  <li>Reproduce under stress: load, randomised timing, fault injection.</li>
+  <li>Narrow scope: which users, which instance, which time of day?</li>
+  </ul></li>
+<li><b>Bring a fresh pair of eyes</b> for an hour of pairing, ideally someone with expertise in the suspected layer (DB, networking).</li>
+<li><b>Make the business call explicit:</b> how much does the bug cost, and how much more time is it worth? Agree a timebox and a fallback, such as a mitigation (retry, guard, workaround) while the investigation continues.</li>
+<li><b>Afterwards:</b> they present the root cause and what helped. Long investigations often reveal an observability gap worth fixing for everyone.</li>
+</ol>`,
+tools:["Hypothesis log (what's been tried, evidence)","Added instrumentation / traces at the suspect boundary","git bisect over releases","Error frequency and impact metrics"],
+keys:["Coaches through questions, keeps ownership with them","Changes method (instrument, bisect, reproduce, narrow)","Brings targeted expertise","Explicit timebox and business-cost decision","Turns lessons into observability improvements"],
+trade:["Taking over may solve it faster once, but removes learning and signals distrust","Unlimited time on a low-impact bug costs roadmap work; a timebox with mitigation balances both"],
+fu:[{q:"What if they resist help and say they're close?",a:"Respect it with a short, explicit timebox: 'Let's check in tomorrow at noon; if it's not solved, we'll pair or switch approach.' That keeps ownership with them while protecting the team from an open-ended sink."}],
+rf:["Takes over the bug","Leaves them alone for another week","No discussion of impact or timebox"]},
+
+/* ================= SYSTEM DESIGN (part 2) ================= */
+{id:"S026",skill:"System Design",level:"Intermediate",type:"Architecture",
+q:"Design media uploads (photos and short videos) for a social app: upload from mobile, processing, storage and delivery.",
+a:`<p><b>Clarify:</b> file sizes (photos up to about 20 MB, videos up to about 500 MB?), formats, private vs public visibility, moderation requirements, expected uploads per day.</p>
+<p><b>Upload path:</b></p>
+<ol>
+<li>The client asks the API for upload permission. The API checks auth and quotas, creates a <code>media</code> record (<code>PENDING</code>), and returns a <b>pre-signed S3 URL</b> (multipart upload for large videos). File bytes never pass through the API servers.</li>
+<li>The client uploads directly to S3, with resumable multipart upload for video on mobile networks.</li>
+<li>The S3 event goes to SQS, which triggers processing. Images go to Lambda (resize to standard sizes, strip EXIF location data, convert to WebP/AVIF). Videos go to MediaConvert (transcode to HLS at several bitrates, thumbnails).</li>
+<li>A moderation step (automated, plus human review for flagged items) runs before the media is shown to others.</li>
+<li>The status updates to <code>READY</code>, and the client is notified by push or polling.</li>
+</ol>
+<p><b>Delivery:</b> CloudFront in front of S3. Private group media uses <b>signed URLs or signed cookies</b> with short expiry, checked against group membership when issued.</p>
+<p><b>Lifecycle:</b> delete originals or move them to cheaper storage after processing, clean up abandoned multipart uploads with lifecycle rules, and handle user deletion (GDPR) across all derived files.</p>`,
+tools:["Upload success rate and time by network type","Processing queue age and failure rate (DLQ)","CloudFront cache hit ratio, egress cost","Moderation backlog"],
+keys:["Pre-signed direct-to-S3 uploads","Async processing via events + queue","EXIF/location stripping for privacy","Signed URLs for private media","Moderation and lifecycle/deletion"],
+trade:["Direct-to-S3 offloads the API but needs a state machine to track uploads that never complete","Processing before showing adds latency; showing the original immediately is faster but risks unmoderated content","HLS transcoding costs money but is necessary for smooth mobile playback"],
+fu:[{q:"How do you stop users uploading 5 GB files or non-image content?",a:"Use pre-signed POST policies with content-length-range and content-type conditions, validate the actual file type during processing (magic bytes, not extension), and enforce per-user quotas when issuing the upload URL."}],
+rf:["Streams uploads through the API servers","Public S3 URLs for private content","Forgets location metadata in photos"]},
+
+{id:"S027",skill:"System Design",level:"Advanced",type:"Architecture",
+q:"Design the home feed for a social app built around private groups: posts from all of a user's groups, newest first, with reactions and comment counts.",
+a:`<p><b>Clarify:</b> users per group (median 20? max 5,000?), groups per user (around 10?), daily active users, ranking (chronological to start), freshness requirement (seconds), and whether visibility changes on leaving a group.</p>
+<p><b>Core choice: fan-out on write vs on read.</b></p>
+<ul>
+<li><b>On read:</b> for a user's groups, query recent posts and merge. Simple and always respects membership. It's cheap when users belong to few groups, using an index on <code>(group_id, created_at DESC)</code>.</li>
+<li><b>On write:</b> when a post is created, insert its ID into each member's feed list (a Redis sorted set or a feed table). Reads are fast, but large groups multiply writes, and leaving a group requires cleanup.</li>
+<li><b>Hybrid:</b> fan-out on write for small and medium groups, merge-on-read for very large groups.</li>
+</ul>
+<p>With private groups of modest size, I'd start with <b>fan-out on read with caching</b> and move to a hybrid when measurements justify it.</p>
+<p><b>Read path:</b></p>
+<ol>
+<li>Get the user's group IDs (cached).</li>
+<li>Fetch the newest N post IDs per group using keyset pagination.</li>
+<li>Merge-sort them.</li>
+<li>Hydrate posts, authors and counts from caches.</li>
+<li>Return an opaque cursor.</li>
+</ol>
+<p><b>Counts:</b> keep reaction and comment counters denormalised on the post. Update them asynchronously or with atomic increments, and allow them to be slightly stale.</p>
+<p><b>Real-time:</b> new-post events push a "new posts available" signal over WebSocket rather than inserting into the visible list.</p>`,
+tools:["Feed p95/p99 latency and cache hit ratio","DB queries per feed request","Fan-out write volume and lag (if used)","Freshness: time from post to visible in feed"],
+keys:["Clarifies group sizes and membership semantics","Explains fan-out on write vs read and chooses with reasons","Keyset/cursor pagination and merge","Denormalised, eventually consistent counters","Real-time signal vs list mutation"],
+trade:["Fan-out on write: fast reads, write amplification and membership cleanup","Fan-out on read: simple and correct permissions, more read work per request","Ranking adds relevance but needs a feature pipeline and makes caching harder","It depends on: group size distribution, read/write ratio, ranking needs"],
+fu:[{q:"A user leaves a group. What must happen to their feed?",a:"With fan-out on read, nothing extra: the next read excludes that group because membership is checked at read time. With fan-out on write, you must remove that group's entries from their feed (async cleanup) and still filter by membership at read time as a safety check."}],
+rf:["Designs Twitter-scale celebrity fan-out without asking group sizes","Offset pagination for a feed","No membership check at read time"]},
+
+{id:"S028",skill:"System Design",level:"Advanced",type:"Architecture",
+q:"A product's marketing says 'encrypted group chat'. Design group messaging where the server can't read message contents (end-to-end encryption), including multiple devices per user.",
+a:`<p>First be precise about the claim: <b>TLS in transit plus encryption at rest</b> means the server can read messages. <b>End-to-end encryption (E2EE)</b> means only member devices hold the keys. Interviewers will probe which one you built.</p>
+<p><b>E2EE design (Signal-style):</b></p>
+<ul>
+<li><b>Identity and key distribution:</b> each device generates an identity key pair and uploads public prekeys to a key server. Senders fetch these to set up pairwise sessions (X3DH key agreement plus the Double Ratchet, as in the Signal protocol).</li>
+<li><b>Groups:</b> pairwise encryption per member doesn't scale. Use <b>Sender Keys</b> (each sender distributes a symmetric sender key to members over pairwise sessions, then encrypts each message once), or the newer standard <b>MLS (RFC 9420)</b>, which handles large groups and membership changes more efficiently.</li>
+<li><b>Membership changes:</b> when someone leaves, keys must rotate so they can't read future messages.</li>
+<li><b>Multiple devices:</b> each device is a separate recipient with its own keys. Adding a new device needs verification (a QR code or a confirmation from an existing device). History on a new device needs explicit, encrypted backup or a transfer design.</li>
+<li><b>Server role:</b> a relay and store for <b>encrypted blobs</b>, plus metadata (who sent, to which group, when) and push notifications without content.</li>
+</ul>
+<p><b>Consequences to state:</b></p>
+<ul>
+<li>No server-side search or content moderation. Moderation must rely on user reports, which include decrypted content from the reporter's device.</li>
+<li>Lost devices without backup mean lost history.</li>
+<li>Metadata is still visible to the server and must be protected.</li>
+<li>Use an audited library (libsignal, or an MLS implementation). Never roll your own cryptography.</li>
+</ul>`,
+tools:["Message delivery latency and success per device","Key server availability; prekey replenishment","Decryption failure rate on clients (session mismatches)","Push delivery (content-free)"],
+keys:["Distinguishes TLS + at-rest from E2EE honestly","Key distribution and per-device keys","Sender Keys or MLS for groups","Key rotation on membership change","Implications: no server search/moderation, backups, metadata"],
+trade:["E2EE maximises privacy but removes server-side search, moderation and easy multi-device history","Server-readable encryption allows features and compliance access but is a weaker privacy promise; be honest in product claims","Sender Keys are simpler; MLS scales better for large groups but is newer to implement"],
+fu:[{q:"How do you handle abuse reports if the server can't read messages?",a:"The reporting user's device decrypts the reported messages and sends them with the report. Some designs add 'message franking' so the server can verify that reported content really came from the claimed sender without reading other messages."}],
+rf:["Calls TLS + database encryption 'end-to-end'","Designs custom crypto","Ignores multiple devices and membership changes"],
+verify:"Protocol details (X3DH vs newer PQXDH in Signal, MLS library maturity) evolve; confirm current recommendations before naming specifics."},
+
+{id:"S029",skill:"System Design",level:"Lead",type:"Architecture",
+q:"Plan the migration of a 10-year-old .NET Framework monolith (SQL Server, about 400 tables, 25 developers) to a modern architecture without stopping feature delivery.",
+a:`<p><b>Start with goals and constraints:</b> why migrate? Is it delivery speed, hosting cost, unsupported runtime, scaling, or hiring? Agree measurable outcomes and how much capacity goes to migration versus features (for example 30%).</p>
+<p><b>Phase 0, foundations (1–3 months):</b></p>
+<ul>
+<li>CI/CD for the monolith, automated tests around critical flows (characterisation tests), and observability.</li>
+<li>Upgrade path analysis: .NET Upgrade Assistant to find blockers (WCF, Web Forms, System.Web dependencies).</li>
+<li>Map modules and data ownership: which tables belong to which domain.</li>
+</ul>
+<p><b>Phase 1, runtime modernisation where feasible:</b> move libraries to .NET Standard or modern .NET incrementally, and if the web layer allows it, put the app behind <b>YARP</b> as a strangler proxy. Microsoft's System.Web adapters support side-by-side incremental migration of ASP.NET apps to ASP.NET Core.</p>
+<p><b>Phase 2, strangle by domain:</b> choose the first slice by value and risk: a domain with clear boundaries, frequent changes and modest data coupling. Build it as a module or service, route its endpoints through the proxy, move its data (sync with CDC, shadow reads, then switch writes), and retire the old code. Repeat.</p>
+<p><b>Throughout:</b></p>
+<ul>
+<li>Run a <b>modular monolith</b> target first, extracting services only where scaling or ownership justifies it.</li>
+<li>Keep a single routing layer, so users never see the seams.</li>
+<li>Report progress in business terms: percentage of traffic on new code, lead time, incidents.</li>
+</ul>`,
+tools:["% of requests served by new code (proxy metrics)","DORA metrics before/after","Error rates per migrated slice; shadow-read mismatch rates","Migration capacity vs feature delivery tracking"],
+keys:["Starts from goals and capacity allocation","Safety net first (tests, CI/CD, observability)","Strangler proxy (YARP) and incremental slices","Data ownership migration with CDC and shadow reads","Modular monolith as target; business-visible progress"],
+trade:["Big-bang rewrite looks faster on paper but historically fails or stalls; the strangler is slower but keeps value flowing","Extracting microservices early adds distributed-systems cost before the benefit is proven","It depends on: blockers in the old framework, team skill, business tolerance for parallel running"],
+fu:[{q:"Leadership asks when it'll be 'done'. How do you answer?",a:"Give a phased plan with milestones and the outcome each delivers (for example 'checkout on new platform by Q2, 40% of traffic'), a range rather than a single date, and a reforecast cadence. Make clear that each phase delivers value on its own, so stopping halfway is still a win."}],
+rf:["Proposes a full rewrite and freeze","Splits into microservices first","No data migration strategy","Ignores the team's capacity for features"],
+verify:"Check current status of System.Web adapters and .NET Upgrade Assistant tooling for your source framework version."},
+
+{id:"S030",skill:"System Design",level:"Lead",type:"Architecture",
+q:"Design an enterprise RAG assistant used by several business units, each with its own documents and access rules, on AWS Bedrock.",
+a:`<p><b>Clarify:</b> document types and volume (PDFs, wikis, tickets?), update frequency, user counts, latency target, accuracy expectations, compliance (PII, data residency), and whether answers must cite sources.</p>
+<p><b>Ingestion pipeline:</b></p>
+<ol>
+<li>Connectors pull from sources (S3, SharePoint, Confluence) on change events or schedule.</li>
+<li>Extraction: text, tables and OCR for scans.</li>
+<li>Chunking by structure (headings, sections) with overlap.</li>
+<li>Embeddings via a Bedrock embedding model.</li>
+<li>Index into OpenSearch with <b>metadata</b>: source, business unit, document ACL groups, version and timestamp.</li>
+</ol>
+<p>Re-index on document change and delete on removal. Stale or deleted content in answers is a real failure.</p>
+<p><b>Query path:</b></p>
+<ol>
+<li>Authenticate the user and resolve their groups.</li>
+<li>Run hybrid retrieval (BM25 plus vector), <b>filtered by the user's ACL groups at query time</b>. Never retrieve and then filter in the prompt.</li>
+<li>Optionally rerank.</li>
+<li>Build the prompt with retrieved chunks and instructions to answer only from context and cite sources.</li>
+<li>Generate with streaming.</li>
+<li>Apply Bedrock Guardrails for PII and harmful content.</li>
+<li>Return the answer with citations.</li>
+</ol>
+<p><b>Quality:</b> an offline evaluation set per business unit (questions with expected sources and answers), with retrieval metrics (recall@k) and answer metrics (faithfulness, relevance), run in CI on every prompt, chunking or model change. Collect user feedback in production.</p>
+<p><b>Operations:</b> per-business-unit cost and token budgets, model routing (small model for simple queries), caching, prompt-injection defences (treat retrieved text as data), and full tracing of retrieval and generation.</p>`,
+tools:["Retrieval recall@k and answer faithfulness on eval sets","Citations clicked / thumbs feedback","Latency: retrieval vs generation, time to first token","Tokens and cost per query per business unit","Index freshness lag; ACL filter test coverage"],
+keys:["Document-level ACLs enforced at retrieval","Ingestion lifecycle incl. updates and deletes","Hybrid retrieval + rerank with citations","Evaluation as a CI gate","Cost, guardrails, prompt injection and observability"],
+trade:["Bedrock Knowledge Bases speed delivery (managed ingestion and retrieval) but give less control over chunking, ACL filtering and evaluation; a custom pipeline is more work but more control","One shared index with ACL metadata is efficient; separate indexes per business unit isolate better but cost more","Larger models improve quality at higher cost and latency; measure before choosing"],
+fu:[{q:"How do you prove to a business unit that another unit's documents can't leak into their answers?",a:"Enforce filtering in the retrieval query using groups from the authenticated identity, not from the prompt. Add automated tests that query as users without access and assert no restricted chunks are returned. Log retrieved document IDs per answer for audit."}],
+rf:["Filters documents after retrieval or in the prompt","No evaluation process","Ignores document updates and deletions","No cost control"],
+verify:"Bedrock Knowledge Bases features (metadata filtering, supported vector stores, rerankers) evolve; check current capabilities."},
+/* ================= SYSTEM DESIGN (part 3) ================= */
+{id:"S031",skill:"System Design",level:"Basic",type:"Architecture",
+q:"Design a URL shortener: create short links and redirect them, with click analytics.",
+a:`<p><b>Clarify and estimate:</b> say 10M new links per month and 1B redirects per month. Reads dominate by about 100:1. Links never expire unless deleted. Analytics can lag by minutes.</p>
+<p><b>Key generation:</b> 7 base62 characters give 62^7 ≈ 3.5 trillion codes. Options:</p>
+<ul>
+<li>Encode a unique ID from a DB sequence or an ID service. No collisions, but codes are predictable unless shuffled.</li>
+<li>Random codes with a uniqueness check on insert. Unpredictable, with rare collision retries.</li>
+<li>Pre-generated key pools.</li>
+</ul>
+<p>I'd use random codes with a unique constraint and retry, since predictable codes let people enumerate links.</p>
+<p><b>Storage:</b> a key-value table <code>code → long URL, owner, created_at</code>. DynamoDB or PostgreSQL both work at this scale.</p>
+<p><b>Redirect path:</b> CDN or edge, then a cache (Redis), then the DB. Return <code>302</code> (or <code>307</code>) if you need every click counted, because <code>301</code> is cached by browsers and later clicks never reach you. Emit a click event (code, time, referrer, coarse geo) to a queue or stream asynchronously, so analytics never slows the redirect.</p>
+<p><b>Abuse:</b> scan destination URLs against malware and phishing lists, rate-limit creation, and have a takedown flow.</p>`,
+tools:["Redirect p99 latency, cache hit ratio","Click event pipeline lag","Creation rate per user (abuse)","Collision retry rate"],
+keys:["Estimates and read/write ratio","Key generation trade-offs, avoids predictability","Cache-first redirect path","301 vs 302 and analytics","Async click events; abuse handling"],
+trade:["301 reduces load but loses click tracking; 302 keeps analytics at higher traffic","Sequential IDs are simple but enumerable; random needs a collision check","It depends on: analytics needs, privacy, expected scale"],
+fu:[{q:"How would you support custom aliases like /summer-sale?",a:"Same table with a unique constraint, a reserved-words list, and validation of allowed characters. Check availability on create and return 409 when it's taken."}],
+rf:["Uses a hash of the URL truncated without collision handling","Synchronous analytics write in the redirect path","Doesn't consider abuse"]},
+
+{id:"S032",skill:"System Design",level:"Intermediate",type:"Architecture",
+q:"Design appointment booking for online medical consultations. Two patients must never book the same doctor slot, even under heavy concurrency.",
+a:`<p><b>Model:</b> doctors publish availability. The system derives bookable slots (for example 15-minute slots), or stores free-form time ranges.</p>
+<p><b>Preventing double-booking</b> must be enforced by the database, not by a check-then-insert in code:</p>
+<ul>
+<li><b>Discrete slots:</b> a <code>bookings</code> table with a unique constraint on <code>(doctor_id, slot_start)</code> for active bookings (a filtered or partial unique index excluding cancelled ones). Two concurrent inserts: one wins, the other gets a unique violation, which you turn into "slot just taken".</li>
+<li><b>Free-form ranges:</b> PostgreSQL exclusion constraints, <code>EXCLUDE USING gist (doctor_id WITH =, tstzrange(start, end) WITH &amp;&amp;)</code> (needs <code>btree_gist</code>), reject overlapping ranges.</li>
+</ul>
+<p><b>Hold then confirm:</b> selecting a slot creates a <b>hold</b> with a short expiry (for example 10 minutes) while the patient pays. Expired holds free the slot automatically, by filtering on expiry or via a cleanup job. Payment success confirms the booking. Payment timeout or failure releases it.</p>
+<p><b>Around it:</b> store times as instants plus the doctor's IANA time zone. Send idempotent notifications (confirmation, reminders) through a queue. Handle cancellation and rescheduling policies, doctor-side blocking, and calendar sync.</p>`,
+tools:["Booking conflict rate (unique violations)","Hold-to-confirm conversion and expiry rate","Payment latency vs hold duration","Reminder delivery success"],
+keys:["DB-enforced uniqueness, not app checks","Unique index or exclusion constraint chosen by model","Holds with expiry tied to payment","Time zone handling","Idempotent notifications"],
+trade:["Holds improve UX but can lock out others if too long; tune by payment time","Exclusion constraints handle flexible ranges but are PostgreSQL-specific; SQL Server needs discrete slots or serializable checks","It depends on: slot model (fixed vs flexible), payment step, peak contention"],
+fu:[{q:"How would you do this in SQL Server without exclusion constraints?",a:"Use discrete slots with a filtered unique index (WHERE status <> 'Cancelled'), or for ranges, a transaction at SERIALIZABLE (or with UPDLOCK, HOLDLOCK on the overlapping-range query) so the check and insert are atomic. Discrete slots are simpler and faster."}],
+rf:["SELECT to check availability, then INSERT, with no constraint","Locks the whole doctor schedule table","Ignores payment timing"]},
+
+{id:"S033",skill:"System Design",level:"Intermediate",type:"Architecture",
+q:"Design search-as-you-type (typeahead) for medicines and products: suggestions within about 100 ms as the user types.",
+a:`<p><b>Clarify:</b> catalogue size (100k items?), whether it must tolerate misspellings (medicine names are hard to spell), ranking by popularity, availability or relevance, languages, and personalisation.</p>
+<p><b>Index:</b> OpenSearch with a field designed for prefix matching. Options:</p>
+<ul>
+<li>The <b>completion suggester</b>: very fast, in-memory structure, prefix only.</li>
+<li><code>search_as_you_type</code> or <b>edge n-gram</b> analysed fields: more flexible, can combine with filters and fuzzy matching.</li>
+</ul>
+<p>Add synonyms (brand and generic names) and fuzziness for typos, limited by prefix length.</p>
+<p><b>Ranking:</b> text match boosted by popularity and in-stock status, with business rules such as prescription-only flags shown clearly.</p>
+<p><b>Client:</b> debounce keystrokes (about 150–250 ms), cancel in-flight requests when a new key arrives, require a minimum of 2–3 characters, and cache recent prefixes.</p>
+<p><b>Server:</b> cache popular prefixes in Redis or at the CDN (results are the same for everyone if not personalised). Keep the query light: return IDs, names and a few fields.</p>
+<p><b>Freshness:</b> index updates flow from catalogue change events (outbox → indexer). Typeahead tolerates seconds of lag.</p>`,
+tools:["p95 latency per keystroke request","Zero-result rate and misspelling rate","Suggestion click-through rate","Index freshness lag"],
+keys:["Clarifies typo tolerance and ranking","Prefix-capable index choice with trade-offs","Synonyms for brand/generic","Client debounce + cancellation","Prefix caching and event-driven indexing"],
+trade:["Completion suggester is fastest but rigid; n-gram fields are flexible but larger and slower","Fuzzy matching helps misspellings but can surface wrong medicines; rank exact matches first and limit fuzziness","It depends on: catalogue size, typo frequency, personalisation"],
+fu:[{q:"Why is fuzziness riskier for medicines than for, say, clothing?",a:"Similar-looking drug names can be entirely different medicines. Suggestions should prefer exact and prefix matches, clearly label results, and never auto-select a fuzzy match. That's a patient-safety concern, not just a UX one."}],
+rf:["SQL LIKE '%term%' on every keystroke","No debounce","No consideration of misspellings"]},
+
+{id:"S034",skill:"System Design",level:"Intermediate",type:"Architecture",
+q:"Design like counts and view counts for posts. Some posts go viral and get thousands of likes per second.",
+a:`<p><b>Separate the two needs:</b> the record of <i>who</i> liked (must be exact, so users can't like twice and can unlike) and the <i>count</i> displayed (can be slightly stale).</p>
+<p><b>Likes:</b> a <code>post_likes(post_id, user_id)</code> table with a unique key, which makes like and unlike idempotent per user. The count is <i>not</i> updated synchronously on the post row, because that row would be a hot spot for viral posts.</p>
+<p><b>Counting options:</b></p>
+<ul>
+<li><b>Redis counters:</b> <code>INCR</code> or <code>DECR</code> per like event, flushed periodically to the DB.</li>
+<li><b>Sharded counters:</b> N counter rows per post. Writes go to a random shard, and reads sum them.</li>
+<li><b>Event aggregation:</b> like events go to a stream, and a consumer aggregates per post per few seconds, then updates the stored count.</li>
+</ul>
+<p><b>Views:</b> exact per-user view records are expensive. For total views, use batched counters. For <b>unique viewers</b>, a HyperLogLog (Redis <code>PFADD</code>/<code>PFCOUNT</code>) gives about 0.8% error in roughly 12 KB per counter.</p>
+<p><b>Read path:</b> show the cached count, and update it optimistically in the UI for the user's own like.</p>`,
+tools:["Hot key detection (Redis, DB row lock waits)","Counter drift vs source of truth (reconciliation)","Event lag for aggregated counts"],
+keys:["Separates exact membership from approximate count","Unique key for idempotent likes","Avoids hot-row synchronous updates","Redis / sharded / aggregated counters","HyperLogLog for unique views"],
+trade:["Exact real-time counts cost contention; approximate counts scale","Redis counters can lose recent increments on failure without persistence; reconcile periodically from the likes table","It depends on: how exact counts must be (likes vs ad-billing impressions)"],
+fu:[{q:"View counts are used for creator payouts. Does that change the design?",a:"Yes. Billing-grade counts need an auditable record: durable view events with deduplication rules (per user per time window) and bot filtering, aggregated in a pipeline you can recompute. HyperLogLog estimates aren't acceptable for money."}],
+rf:["UPDATE posts SET likes = likes + 1 on every like","No uniqueness per user","Uses approximate counts for billing"]},
+
+{id:"S035",skill:"System Design",level:"Advanced",type:"Architecture",
+q:"Design a laboratory information system for a network of clinics: test ordering, sample tracking, analyser results and result delivery to doctors and patients.",
+a:`<p><b>Clarify:</b> number of labs and clinics, tests per day, integration with clinic systems (EHR) and analysers, turnaround-time targets, regulatory requirements (audit, retention, data residency), and critical-value rules.</p>
+<p><b>Core flow and domain:</b></p>
+<ol>
+<li><b>Order:</b> a doctor orders tests via the clinic EHR (integration by HL7 v2 or FHIR <code>ServiceRequest</code>) or the LIS UI. An accession number is assigned.</li>
+<li><b>Sample:</b> collection generates barcoded specimen labels. A chain of custody is tracked as events: collected, received, rejected (haemolysed, insufficient), aliquoted, on the analyser.</li>
+<li><b>Results:</b> analyser interfaces (often through middleware) deliver results, matched by accession or barcode. Auto-verification rules release normal results, and technologists review abnormal ones.</li>
+<li><b>Release:</b> a verified <code>DiagnosticReport</code> and <code>Observation</code>s go to the EHR, plus a patient portal or app with appropriate delays and explanations.</li>
+</ol>
+<p><b>Key design points:</b></p>
+<ul>
+<li><b>Critical values</b> trigger an immediate escalation workflow (call or notify the ordering doctor, with acknowledgement tracked and escalation on timeout).</li>
+<li><b>Corrections</b> are new versions, never overwrites, with the reason and the notification of corrected results recorded.</li>
+<li><b>Full audit trail</b> of who viewed or changed what.</li>
+<li><b>Integration resilience:</b> queues per interface, retries, a dead-letter queue with an operator UI, and idempotent message handling by message control ID.</li>
+<li><b>Reliability:</b> the lab must keep working during cloud or network outages, so have local buffering at the lab or a downtime procedure.</li>
+</ul>`,
+tools:["Turnaround time by test and stage","Interface queue depth and error rate per integration","Critical value acknowledgement time","Specimen rejection rate","Audit log completeness checks"],
+keys:["Clarifies regulatory and TAT requirements","Domain flow with accession and specimen events","HL7/FHIR integration with idempotency and DLQ","Critical value workflow with acknowledgement","Versioned corrections and audit; downtime handling"],
+trade:["Auto-verification improves turnaround but needs carefully validated rules and override audit","Event-sourced specimen tracking gives full chain of custody at the cost of more modelling","It depends on: lab volume, regulatory regime, integration standards available at clinics"],
+fu:[{q:"An analyser sends a result for a barcode that doesn't match any open order. What happens?",a:"It must never be discarded or auto-attached to a guess. Put it in an unmatched-results queue with alerting, for a technologist to resolve (relabelled sample, order not yet entered). Log the resolution for audit."}],
+rf:["Overwrites results on correction","No critical value workflow","Treats integrations as simple REST calls without retries or reconciliation"]},
+
+{id:"S036",skill:"System Design",level:"Advanced",type:"Architecture",
+q:"Design a job scheduler for a multi-tenant SaaS: millions of one-off delayed jobs (reminders in 3 days) and recurring jobs (daily reports), run reliably exactly when due.",
+a:`<p><b>Requirements:</b> durability (jobs survive restarts), timing precision (to the minute?), at-least-once execution with idempotent jobs, per-tenant fairness, cancellation and rescheduling, and visibility (history, failures).</p>
+<p><b>Option A, managed:</b> AWS EventBridge Scheduler supports one-time and recurring schedules at large scale, with retries and DLQs, targeting SQS, Lambda or others. It is the least code. Check quotas, cost per schedule and invocation, and how you list or query schedules per tenant.</p>
+<p><b>Option B, DB-backed scheduler (common in .NET):</b></p>
+<ul>
+<li>A <code>jobs(id, tenant_id, due_at, status, payload, attempts, lease_until)</code> table with an index on <code>(status, due_at)</code>.</li>
+<li>Worker instances poll for due jobs and claim batches atomically with <code>FOR UPDATE SKIP LOCKED</code> (PostgreSQL) or <code>READPAST, UPDLOCK</code> (SQL Server), setting a lease.</li>
+<li>Expired leases make the job claimable again, so a crashed worker's job retries.</li>
+<li>Recurring jobs compute their next run after each run, from a cron expression and time zone.</li>
+<li>Libraries such as Hangfire and Quartz.NET implement this pattern.</li>
+</ul>
+<p><b>Scaling:</b> partition by due time or tenant, and hand claimed jobs to a work queue (SQS) so execution scales separately from scheduling. Apply per-tenant concurrency limits so one tenant's 1M reminders don't starve others.</p>`,
+tools:["Schedule lag (actual run time − due time)","Job failure and retry rates, DLQ depth","Due-job backlog","Per-tenant throughput and fairness"],
+keys:["Durability + leases + at-least-once with idempotent jobs","Managed vs DB-backed trade-off","SKIP LOCKED/READPAST claiming","Recurring jobs with time zones","Separate scheduling from execution; tenant fairness"],
+trade:["Managed scheduler: little code, but vendor limits and less querying flexibility","DB-backed: full control and transactional with app data, but you own scaling and correctness","It depends on: job volume, timing precision, need to query or edit jobs per tenant"],
+fu:[{q:"A daily report must run at 9 am in each tenant's local time. What are the traps?",a:"Store the tenant's IANA time zone and compute each next run in that zone, because DST shifts change the UTC time. Decide what happens on DST gaps and overlaps (a 2:30 am job on a spring-forward day). Make reports idempotent per date so a duplicate run doesn't send twice."}],
+rf:["In-memory timers in the web process","No leases, so crashed jobs are lost","Assumes exactly-once execution"],
+verify:"EventBridge Scheduler quotas and pricing change; check current limits for your volume."},
+
+{id:"S037",skill:"System Design",level:"Advanced",type:"Architecture",
+q:"Design a GDPR erasure pipeline: when a user requests deletion, remove or anonymise their personal data across about 15 services, search indexes, caches, logs, files and backups, and prove it was done.",
+a:`<p><b>Foundations:</b> a <b>data map</b> of which services and stores hold which personal data, owned and kept current per service. Without it, erasure is guesswork.</p>
+<p><b>Flow:</b></p>
+<ol>
+<li>The request is verified (identity confirmed) and recorded in an <b>erasure ledger</b> with a deadline. GDPR expects action without undue delay, generally within one month.</li>
+<li>An orchestrator publishes <code>UserErasureRequested(userId, requestId)</code>.</li>
+<li>Each service deletes or anonymises its data, keeping what a legal obligation requires (invoices for tax, for example) with minimised fields. It replies <code>ErasureCompleted(service, requestId)</code> with counts.</li>
+<li>The orchestrator tracks completion per service. It retries, escalates on timeout, and marks the request complete when every service confirms.</li>
+</ol>
+<p><b>Hard parts:</b></p>
+<ul>
+<li><b>Search indexes and caches:</b> delete documents and keys explicitly.</li>
+<li><b>Files:</b> media in S3 and every derived version.</li>
+<li><b>Analytics and the data lake:</b> pseudonymised IDs or a deletion pass.</li>
+<li><b>Event logs and Kafka:</b> crypto-shredding (per-user keys deleted), or keep PII out of events.</li>
+<li><b>Application logs:</b> keep PII out by policy and enforce short retention.</li>
+<li><b>Backups:</b> usually not rewritten. Document the retention, restrict access, and <b>re-apply the erasure ledger after any restore</b>.</li>
+</ul>
+<p><b>Proof:</b> the ledger records request, timestamps and per-service confirmations, without storing the deleted data itself.</p>`,
+tools:["Erasure requests by state, age vs deadline","Per-service completion time and failure rate","Data map coverage (services without registered handlers)","Restore runbook test results"],
+keys:["Data map as prerequisite","Orchestrated, tracked per-service completion","Legal retention exceptions handled explicitly","Search, caches, files, events, logs, backups covered","Ledger as proof; re-apply after restore"],
+trade:["Hard delete is simplest to prove; anonymisation keeps aggregate analytics but must be truly irreversible","Crypto-shredding handles immutable stores, but key management becomes critical","It depends on: legal obligations per data type, architecture of event stores"],
+fu:[{q:"A new service is launched and nobody wires it into erasure. How do you prevent that?",a:"Make registration part of the service template and launch checklist, have the orchestrator fail loudly when it doesn't know every service that declares PII, and audit the data map quarterly against actual stores."}],
+rf:["Deletes from the main DB only","Rewrites backups by hand","No proof or tracking per request"]},
+
+{id:"S038",skill:"System Design",level:"Advanced",type:"Architecture",
+q:"Several product teams call LLMs directly with their own keys and prompts. Costs are opaque and there's no control. Design an internal LLM gateway.",
+a:`<p><b>Goals:</b> one entry point for model access with cost attribution, budgets, routing, fallbacks, safety and observability, without slowing teams down.</p>
+<p><b>Components:</b></p>
+<ul>
+<li><b>API:</b> one provider-neutral chat and completions API (often OpenAI-compatible, so existing SDKs work) that maps to Bedrock and other providers. Streaming must be supported end to end.</li>
+<li><b>Identity and attribution:</b> each caller has a team or app key. Every request is tagged by team, feature and environment for cost reporting.</li>
+<li><b>Budgets and limits:</b> per-team token and cost budgets, rate limits, and alerts as budgets approach.</li>
+<li><b>Routing:</b> by policy (task type, prompt size) to a cheaper or more capable model, with fallback to another model or region on throttling or outage. Optional cost-aware routing uses a classifier or heuristics on prompt complexity, validated against eval sets.</li>
+<li><b>Caching:</b> exact-match caching for deterministic prompts, and provider prompt caching for long shared prefixes. Semantic caching only where wrong-hit risk is acceptable.</li>
+<li><b>Safety:</b> PII detection and redaction policies, guardrails, and prompt and response logging with retention and access controls.</li>
+<li><b>Observability:</b> latency (time to first token, total), tokens, cost, errors and fallbacks per team and model.</li>
+</ul>
+<p>Build vs buy: open-source gateways (LiteLLM, for example) or cloud features cover much of this. Build only the parts specific to your organisation.</p>`,
+tools:["Cost and tokens per team/feature/model","Time to first token, total latency, error/throttle/fallback rates","Cache hit rate","Budget utilisation alerts","Eval scores per routing policy"],
+keys:["Attribution and budgets per team","Provider-neutral API with streaming","Routing and fallback with eval validation","Caching strategies and their risks","Safety/logging policy; build vs buy"],
+trade:["A central gateway adds a hop and a single point of failure; run it highly available and keep it thin","Logging prompts helps debugging and audit but creates a sensitive data store","Aggressive routing to cheap models saves money but can quietly reduce quality without evals","It depends on: number of teams, compliance needs, provider mix"],
+fu:[{q:"How do you know cost-aware routing isn't hurting quality?",a:"Run each routing policy against task-specific eval sets before rollout, then A/B in production with quality signals (user feedback, task success, escalation rate). Cost savings only count if the quality metrics hold."}],
+rf:["Just shares one API key","No streaming support","Semantic caching everywhere without considering wrong answers"]},
+
+{id:"S039",skill:"System Design",level:"Advanced",type:"Architecture",
+q:"Design order fulfilment for an online pharmacy: prescription verification, stock across partner pharmacies, payment and delivery, with external APIs at each step.",
+a:`<p><b>Order lifecycle as a state machine</b> (orchestrated saga):</p>
+<p><code>Placed → PrescriptionPending → PharmacistVerified → PaymentCaptured → Allocated → Dispatched → Delivered</code>, plus rejection, cancellation and refund branches.</p>
+<ol>
+<li><b>Order placed:</b> authorise payment (hold, don't capture) and validate the basket. Prescription-only items need a valid prescription: an electronic prescription from an integrated provider, or an uploaded image.</li>
+<li><b>Prescription verification:</b> a <b>human pharmacist</b> reviews, with a queue, SLAs and a full audit of who approved and why. This step is regulated and can't be skipped or automated away.</li>
+<li><b>Allocation:</b> choose a partner pharmacy by stock, distance and SLA. Reserve stock via their API with idempotency keys. On failure or timeout, query and fall back to another pharmacy.</li>
+<li><b>Capture payment</b> only after verification and allocation succeed. Rejection voids the authorisation.</li>
+<li><b>Dispatch:</b> courier booking and tracking via webhooks, with signature verification.</li>
+</ol>
+<p><b>Cross-cutting:</b></p>
+<ul>
+<li>Every external call is retried with idempotency, with reconciliation jobs for stock and payments.</li>
+<li>Patient health data is encrypted and access-logged.</li>
+<li>Notifications are sent at each state.</li>
+<li>An operator console handles stuck orders.</li>
+</ul>`,
+tools:["Order state ageing (stuck orders per state)","Pharmacist queue length and verification time","Partner API error/timeout rates","Payment auth-to-capture success, void rate","Delivery SLA"],
+keys:["Explicit state machine with compensations","Regulated human verification step with audit","Authorise then capture","Partner integration with idempotency, fallback and reconciliation","Operator console for exceptions"],
+trade:["Orchestration gives visibility of every order's state at the cost of a central coordinator","Reserving stock early avoids disappointment but locks inventory for orders that may be rejected","It depends on: regulation, partner API quality, authorisation expiry windows"],
+fu:[{q:"Payment authorisations expire after about 7 days, but verification sometimes takes longer. What do you do?",a:"Track authorisation expiry in the saga. Before expiry, either re-authorise (which may fail or need customer action) or escalate verification priority. Tell the customer if re-authorisation is needed. Model it as an explicit timeout state rather than discovering it at capture."}],
+rf:["Captures payment at order time","Automates prescription approval","No reconciliation with partners"]},
+
+{id:"S040",skill:"System Design",level:"Advanced",type:"Architecture",
+q:"Business users want dashboards and ad-hoc reports across orders, patients and clinics. Their queries are slowing the production SQL Server. Design the reporting architecture.",
+a:`<p><b>Step 1, stop the immediate harm:</b> route reporting to a <b>read replica</b> or readable secondary (an Always On secondary in SQL Server, a read replica on RDS) with its own resource limits. It is quick, but the replica still uses the OLTP schema, which suits transactions, not analytics. Heavy queries can still lag replication.</p>
+<p><b>Step 2, a proper analytics path:</b></p>
+<ol>
+<li><b>Capture changes</b> from OLTP with CDC (SQL Server CDC, AWS DMS, or Debezium), or with events from the outbox for business-level facts.</li>
+<li><b>Land</b> raw data in object storage (S3) or directly in a warehouse.</li>
+<li><b>Model</b> it into analytics-friendly star schemas: fact tables (orders, tests) and dimensions (clinic, product, date), with transformations versioned and tested (for example with dbt).</li>
+<li><b>Serve</b> via a warehouse or query engine (Redshift, or Athena over Parquet) and a BI tool with row-level security per clinic or role.</li>
+</ol>
+<p><b>Governance:</b> mask or pseudonymise patient identifiers in analytics, define metrics once (what counts as a "completed order"), and document data freshness (for example "updated every 15 minutes").</p>`,
+tools:["OLTP CPU and blocking from reporting (before/after)","Pipeline freshness lag","Query performance in warehouse; cost per query","Data quality test results","Dashboard usage"],
+keys:["Immediate mitigation via replica, with its limits","CDC/events into a separate analytics store","Dimensional modelling, tested transformations","Row-level security and PII masking","Freshness SLAs and metric definitions"],
+trade:["Replica is cheap and quick but limited for analytics","A warehouse pipeline costs build and running effort but scales and isolates OLTP fully","Near-real-time pipelines cost more than hourly or daily batches; match freshness to the decisions being made","It depends on: data volume, freshness needs, team analytics skills"],
+fu:[{q:"A manager wants a real-time count of today's orders on the dashboard. Do you build streaming?",a:"Ask what decision depends on second-level freshness. Often a 5-minute refresh is fine. If it truly matters, a small real-time counter fed by order events (or a direct, cheap indexed query) serves that one metric without making the whole pipeline real-time."}],
+rf:["Adds indexes to OLTP for every report","Gives BI tools direct production access","No PII handling in analytics"]},
+
+{id:"S041",skill:"System Design",level:"Advanced",type:"Architecture",
+q:"Design a tamper-evident audit log for a healthcare system: every access and change to patient records must be recorded, and tampering must be detectable, even by admins.",
+a:`<p><b>What to record:</b> who (user and service identity), what (action, resource, fields changed or viewed), when, from where (IP, device), why (break-glass reason, if any), and the outcome. It is not the full record content: reference it and avoid copying PII into the log beyond what's needed.</p>
+<p><b>Capture:</b> emit audit events from the service layer for every read and write of protected resources (reads matter in healthcare), through a reliable path: the outbox in the same transaction for writes, and an asynchronous durable queue for reads.</p>
+<p><b>Tamper evidence:</b></p>
+<ul>
+<li><b>Hash chaining:</b> each entry includes the hash of the previous entry, per partition, so altering or removing an entry breaks the chain. Periodically publish or anchor the latest hash somewhere separate (another account, a signed digest).</li>
+<li><b>Immutable storage:</b> write batches to S3 with <b>Object Lock in compliance mode</b> (WORM). Not even the root account can delete before retention expires. Use a separate AWS account with restricted access for the audit store.</li>
+<li><b>Verification job:</b> periodically recompute the chains and alert on mismatch.</li>
+</ul>
+<p>Don't build on Amazon QLDB: AWS ended support for it in 2025.</p>
+<p><b>Query:</b> index a copy (OpenSearch, or Athena over S3) for investigations, with access itself audited.</p>`,
+tools:["Audit event emission coverage (endpoints without audit)","Pipeline lag and dropped events","Chain verification job results","Access to the audit store itself"],
+keys:["Records reads as well as writes","Reliable capture (outbox/durable queue)","Hash chaining + external anchoring","WORM storage in a separate account","Verification job; QLDB end-of-support awareness"],
+trade:["Synchronous audit writes guarantee capture but add latency; outbox/async with durability balances both","Logging reads produces large volumes; plan storage tiers and retention","It depends on: regulatory retention periods, investigation query needs"],
+fu:[{q:"How do you handle 'break-glass' emergency access?",a:"Allow it with a mandatory reason, flag it prominently in the audit log, alert compliance in real time, and review every use. The control is detection and accountability rather than prevention, since blocking access in an emergency could harm a patient."}],
+rf:["Audit table in the same DB that admins can modify","Only logs writes","No integrity verification"]},
+
+{id:"S042",skill:"System Design",level:"Lead",type:"Architecture",
+q:"The company wants to move a large SQL Server database (2 TB, heavy use of stored procedures) to PostgreSQL to cut licensing costs, with no extended downtime. Plan it, and say whether you'd recommend it.",
+a:`<p><b>First, test the business case.</b> Licensing savings vs migration cost: engineer-months to convert T-SQL procedures, re-test everything, retrain the team, and the risk during cutover. Get a real estimate before committing. Sometimes the right first step is reducing SQL Server edition or core count.</p>
+<p><b>If it's worth it, the plan:</b></p>
+<ol>
+<li><b>Assess:</b> AWS Schema Conversion Tool (or similar) to inventory objects and flag what can't convert automatically: stored procedures, T-SQL specifics, data types, collation and case-sensitivity differences (SQL Server is usually case-insensitive, PostgreSQL is case-sensitive), identity vs sequences, datetime types. Babelfish for Aurora PostgreSQL can run some T-SQL as-is, which may shorten the path. Assess its compatibility for your workload.</li>
+<li><b>Reduce surface:</b> move business logic out of procedures into application code where reasonable, and convert the rest.</li>
+<li><b>Data movement:</b> full load plus ongoing CDC (AWS DMS) keeps PostgreSQL in sync while the app still runs on SQL Server.</li>
+<li><b>Validation:</b> row counts and checksums per table, and shadow reads (compare query results from both). Run the test suite and load tests against PostgreSQL.</li>
+<li><b>Cutover:</b> a short write freeze, final sync, switch the connection strings, with a <b>rollback plan</b> (reverse replication, or keeping SQL Server current for a period).</li>
+<li><b>Incremental option:</b> migrate service by service, or module by module, rather than one big switch, if the application is modular.</li>
+</ol>`,
+tools:["Conversion assessment report (auto vs manual objects)","DMS replication lag and validation results","Shadow-read mismatch rate","Performance comparison of top queries","Licensing cost before/after"],
+keys:["Challenges the business case with real numbers","Assessment of procedures, types, collation, case sensitivity","Full load + CDC; validation and shadow reads","Rollback plan","Mentions Babelfish as an option to evaluate"],
+trade:["Licence savings are recurring; migration cost and risk are up front, so compute the payback period","Babelfish lowers rewrite effort but adds a compatibility layer you depend on","Big-bang cutover is simpler to coordinate; incremental is safer but runs both databases longer","It depends on: procedure count, team skills, licence spend, appetite for risk"],
+fu:[{q:"Which query behaviours tend to break after such a migration?",a:"Case-sensitive string comparisons and LIKE, different NULL and empty-string handling in some functions, implicit conversions SQL Server allowed, date and time precision, TOP vs LIMIT and paging, and different query plans: an index that sufficed in SQL Server may not be used the same way in PostgreSQL, so load test the top queries."}],
+rf:["Agrees without a cost model","Assumes automated conversion handles procedures","No rollback plan"],
+verify:"Babelfish feature coverage and AWS DMS/SCT capabilities change; validate against your workload."},
+
+{id:"S043",skill:"System Design",level:"Lead",type:"Architecture",
+q:"The board asks: 'What happens if our AWS region goes down?' Design a disaster recovery strategy for a consumer app, and justify its cost.",
+a:`<p><b>Set targets per capability, not one number for everything:</b> RTO (how long until restored) and RPO (how much data loss is acceptable). Login, feed and chat may justify an RTO of an hour. Analytics can wait a day.</p>
+<p><b>The standard strategies</b>, in increasing cost:</p>
+<ul>
+<li><b>Backup and restore:</b> cross-region copies of backups (RDS snapshots, S3 replication), with infrastructure as code to rebuild. RTO in hours, RPO up to the backup interval. Cheapest.</li>
+<li><b>Pilot light:</b> data continuously replicated (Aurora Global Database, DynamoDB global tables, S3 CRR), with core infrastructure defined but scaled to zero. RTO tens of minutes.</li>
+<li><b>Warm standby:</b> a scaled-down copy running in the second region. Faster failover, higher cost.</li>
+<li><b>Active-active:</b> both regions serve traffic. Near-zero RTO, but writes need conflict handling or region-partitioned ownership. Expensive and complex.</li>
+</ul>
+<p>For most consumer apps I'd recommend <b>pilot light for core data and services</b>, and backup and restore for the rest. Third-party dependencies (identity provider, push, payments) need their own checks.</p>
+<p><b>Make it real:</b> a written runbook, DNS failover (Route 53 health checks or manual switch), secrets and configuration replicated, and a <b>failover drill</b> at least yearly with the measured RTO and RPO reported to the board.</p>`,
+tools:["Replication lag (Aurora Global, DynamoDB global tables, S3 CRR)","Backup success and restore test results","Drill-measured RTO/RPO","Cost of standby resources"],
+keys:["Per-capability RTO/RPO","Knows the four strategies and their costs","Data replication choices per store","Third-party dependency check","Drills with measured results"],
+trade:["Every step up in readiness roughly multiplies cost; match it to the business impact per hour of downtime","Active-active removes failover delay but adds data conflict complexity","It depends on: revenue per hour of downtime, regulatory expectations, user tolerance"],
+fu:[{q:"How do you justify the cost to the board?",a:"Estimate the cost of an outage per hour (revenue, refunds, reputation, regulatory) times a realistic probability, and compare the DR options' annual cost against the reduction in expected loss. Present two or three options with the trade-off, not one answer."}],
+rf:["\"We're multi-AZ, so we're covered\"","Active-active by default","No drills"]},
+
+{id:"S044",skill:"System Design",level:"Lead",type:"Architecture",
+q:"The business expects 10× users within 12 months. You're asked to review the architecture and produce a plan. How do you approach it?",
+a:`<ol>
+<li><b>Understand the growth shape:</b> 10× users doesn't mean 10× every workload. Model the traffic mix (reads vs writes, peaks vs average, new features coming) with product and marketing. Separate certain growth from speculative.</li>
+<li><b>Find the limits, with evidence:</b>
+  <ul>
+  <li>Load test the critical journeys to find the first bottlenecks.</li>
+  <li>List the hard ceilings: DB instance size and connections, partition counts, third-party rate limits, AWS service quotas, single-writer tables, synchronous dependencies.</li>
+  <li>Review cost scaling: what grows linearly or worse?</li>
+  </ul></li>
+<li><b>Classify findings:</b>
+  <ul>
+  <li><b>Scale by config:</b> instance sizes, quotas, autoscaling settings.</li>
+  <li><b>Moderate changes:</b> caching, read replicas, async processing, query optimisation.</li>
+  <li><b>Structural changes:</b> data partitioning or sharding, splitting a hot service, changing a dependency.</li>
+  </ul></li>
+<li><b>Sequence by when each limit will be hit,</b> using growth projections. That sets the order and creates a roadmap with triggers ("when DB CPU at peak exceeds 60%, start the read-replica work").</li>
+<li><b>Include the non-technical side:</b> on-call load, observability gaps, team capacity, and the cost forecast at 3×, 5× and 10×.</li>
+</ol>
+<p>Present it as a living plan with milestones and leading indicators, not a single big re-architecture.</p>`,
+tools:["Load test results per journey","Capacity headroom per resource at current peak","Growth projections vs measured limits","Cost per user/request trend"],
+keys:["Models growth shape instead of assuming uniform 10×","Evidence-based bottleneck discovery","Categorises by effort","Sequenced roadmap with triggers","Includes cost, people and observability"],
+trade:["Building for 10× now wastes effort if growth is slower; triggers let you invest just in time","Leaving structural work too late risks emergency re-architecture under load","It depends on: confidence in projections, lead time of each fix"],
+fu:[{q:"The CEO wants a yes/no: 'Will we handle 10×?'",a:"Give a direct answer with conditions: 'Yes for the web tier and most services with config changes; the database needs read replicas within about 6 months and a partitioning decision before 5×. Here's the plan and cost.' Precise conditions are more useful than a confident yes."}],
+rf:["Proposes a rewrite or microservices immediately","No load testing","Ignores cost growth"]},
+
+{id:"S045",skill:"System Design",level:"Lead",type:"Architecture",
+q:"Finance asks you to cut cloud spend by 40% this year without hurting reliability. How do you plan and deliver it?",
+a:`<ol>
+<li><b>Get visibility:</b> tag coverage and cost allocation per team and service, and the cost breakdown by service and usage type. You can't cut what you can't attribute. Find the top 10 line items, which usually make up most of the bill.</li>
+<li><b>Quick wins (weeks):</b>
+  <ul>
+  <li>Delete unused resources: idle environments, unattached volumes, old snapshots, forgotten load balancers.</li>
+  <li>Schedule non-production environments to shut down out of hours.</li>
+  <li>Right-size over-provisioned instances and tasks using utilisation data.</li>
+  <li>Set log retention, and move S3 data to the right storage classes (lifecycle rules, Intelligent-Tiering).</li>
+  <li>Migrate gp2 volumes to gp3.</li>
+  </ul></li>
+<li><b>Commitments:</b> Savings Plans or Reserved Instances for the stable baseline, after right-sizing so you don't commit to waste.</li>
+<li><b>Architecture changes (months):</b>
+  <ul>
+  <li>Graviton (ARM) instances or Fargate tasks. Modern .NET and Node run well on ARM, but test first.</li>
+  <li>Fargate Spot or Spot instances for interruptible workers.</li>
+  <li>VPC endpoints instead of NAT for AWS traffic.</li>
+  <li>Caching to cut DB and AI calls, and model routing for LLM usage.</li>
+  </ul></li>
+<li><b>Guard reliability:</b> every change goes through the normal deploy and rollback process, with SLOs watched. Don't remove redundancy (multi-AZ) to hit the number.</li>
+<li><b>Make it stick:</b> per-team cost dashboards, budgets with alerts, and cost as an explicit criterion in design reviews.</li>
+</ol>
+<p>Report progress monthly against the target, with the remaining gap and next actions.</p>`,
+tools:["Cost by service/team/usage type (Cost Explorer, CUR)","Utilisation per resource (CPU/memory p95)","Savings Plans coverage and utilisation","SLO dashboards during changes"],
+keys:["Attribution and top line items first","Quick wins before commitments","Right-size before committing","Architecture levers (ARM, Spot, NAT, caching, AI routing)","Reliability guardrails and lasting ownership"],
+trade:["Commitments save significantly but lock in spend for 1–3 years; commit only to the proven baseline","Spot saves heavily but tasks can be interrupted; only for interruption-tolerant work","Removing redundancy saves money but trades away reliability; say so explicitly if finance pushes for it","It depends on: workload stability, how much is idle or over-provisioned today"],
+fu:[{q:"You've found 25%, and the last 15% would require reducing redundancy. What do you tell finance?",a:"Present the options plainly: the remaining savings, the reliability risk each carries (expected downtime, data loss exposure), and the business cost of that risk. It's a business trade-off for leadership to decide with clear information, not something engineering should quietly absorb."}],
+rf:["Buys 3-year commitments before right-sizing","Cuts redundancy silently","No attribution or ownership after the exercise"]}
+
+
+
+];
+
+/* ---------- state ---------- */
+const KEY="sd-bank-reviewed-v1";
+let reviewed={};
+try{reviewed=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){reviewed={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(reviewed))}catch(e){}}
+
+const state={text:"",skill:"all",status:"all",levels:new Set(),types:new Set()};
+const $=s=>document.querySelector(s);
+
+/* ---------- controls ---------- */
+const skills=[...new Set(QS.map(x=>x.skill))];
+$("#skill").innerHTML=`<option value="all">All skills</option>`+skills.map(s=>`<option value="${s}">${s}</option>`).join("");
+function chipRow(el,items,set){
+  el.innerHTML=items.map(i=>`<button type="button" class="chip" aria-pressed="false" data-v="${i}">${i}</button>`).join("");
+  el.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+    if(set.has(v)){set.delete(v);b.setAttribute("aria-pressed","false")}else{set.add(v);b.setAttribute("aria-pressed","true")}render()});
+}
+chipRow($("#levels"),LEVELS,state.levels);
+chipRow($("#types"),TYPES,state.types);
+$("#q").addEventListener("input",e=>{state.text=e.target.value.trim().toLowerCase();render()});
+$("#skill").addEventListener("change",e=>{state.skill=e.target.value;render()});
+$("#status").addEventListener("change",e=>{state.status=e.target.value;render()});
+let allOpen=false;
+$("#toggleAll").addEventListener("click",()=>{allOpen=!allOpen;
+  document.querySelectorAll("details.ans").forEach(d=>d.open=allOpen);
+  $("#toggleAll").textContent=allOpen?"Close all answers":"Open all answers"});
+
+/* ---------- stats ---------- */
+function count(key,vals){return vals.map(v=>`${v} <b>${QS.filter(x=>x[key]===v).length}</b>`).join(" · ")}
+$("#stats").innerHTML=`<span><b>${QS.length}</b> questions loaded</span><span>${count("level",LEVELS)}</span><span>${count("type",TYPES.filter(t=>t!=="Behavioral"))}</span><span>${PARTS}</span>`;
+
+/* ---------- render ---------- */
+const strip=h=>h.replace(/<[^>]+>/g," ");
+function matches(x){
+  if(state.skill!=="all"&&x.skill!==state.skill)return false;
+  if(state.levels.size&&!state.levels.has(x.level))return false;
+  if(state.types.size&&!state.types.has(x.type))return false;
+  if(state.status==="done"&&!reviewed[x.id])return false;
+  if(state.status==="todo"&&reviewed[x.id])return false;
+  if(state.text){const hay=(x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
+    if(!hay.includes(state.text))return false}
+  return true;
+}
+const ul=arr=>`<ul>${arr.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+function item(x,i){
+  const done=!!reviewed[x.id];
+  return `<li class="q${done?" done":""}" id="${x.id}">
+    <div class="qhead"><span class="num">${x.id}</span><div>
+      <p class="qtext">${x.q}</p>
+      <div class="tags"><span class="tag">${x.skill}</span><span class="tag lv lv-${x.level}">${x.level}</span><span class="tag">${x.type}</span>${x.verify?`<span class="tag verify">VERIFY</span>`:""}
+        <label class="check"><input type="checkbox" data-id="${x.id}" ${done?"checked":""}> Reviewed</label></div>
+    </div></div>
+    <div class="body">
+      <details class="ans"><summary>Approach, tools, key points and red flags</summary><div class="dbody">
+        ${x.a}
+        ${x.tools?`<h4>Tools and metrics to check</h4>${ul(x.tools)}`:""}
+        <h4>What the interviewer listens for</h4>${ul(x.keys)}
+        ${x.trade?`<h4>Trade-offs and "it depends on"</h4>${ul(x.trade)}`:""}
+        <h4 class="rf">Red flags</h4>${ul(x.rf)}
+        ${x.verify?`<p class="note">[VERIFY] ${x.verify}</p>`:""}
+      </div></details>
+      ${(x.fu||[]).map(f=>`<details class="fu ans"><summary><span class="fl">FOLLOW-UP</span><span>${f.q}</span></summary><div class="dbody"><p>${f.a}</p></div></details>`).join("")}
+    </div></li>`;
+}
+function render(){
+  const list=QS.filter(matches);
+  $("#list").innerHTML=list.length?list.map(item).join(""):`<li class="empty">No questions match these filters.</li>`;
+  if(allOpen)document.querySelectorAll("details.ans").forEach(d=>d.open=true);
+  const n=QS.filter(x=>reviewed[x.id]).length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${list.length} shown`;
+  $("#pfill").style.width=(QS.length?n/QS.length*100:0)+"%";
+}
+$("#list").addEventListener("change",e=>{const c=e.target.closest("input[data-id]");if(!c)return;
+  const id=c.dataset.id;if(c.checked)reviewed[id]=1;else delete reviewed[id];save();
+  c.closest("li.q").classList.toggle("done",c.checked);
+  const n=QS.filter(x=>reviewed[x.id]).length;const shown=document.querySelectorAll("li.q").length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${shown} shown`;$("#pfill").style.width=(n/QS.length*100)+"%";});
+render();
+</script>
+
+</html>

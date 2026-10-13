@@ -1,0 +1,968 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Frontend Question Bank</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: single reading column, sticky filter bar, questions as divided rows (not cards), answers in disclosure blocks */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --accent-ink:#FFFFFF; --code:#EEF1F7;
+  --basic:#2B7A57; --inter:#2A4BD7; --adv:#7438BF; --lead:#B05E08;
+  --good:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, "Cascadia Code", Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --accent-ink:#0E1117; --code:#1C212B;
+  --basic:#5FC79A; --inter:#8099FF; --adv:#B98EF5; --lead:#F2A650;
+  --good:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+
+*{box-sizing:border-box}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15px;line-height:1.6;padding-inline:16px;padding-block:0 48px}
+.wrap{max-width:860px;margin:0 auto}
+header.top{padding-block:28px 18px;display:grid;gap:10px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(26px,5vw,36px);line-height:1.1;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:62ch}
+.stats{display:flex;flex-wrap:wrap;gap:8px 18px;font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums}
+.stats b{color:var(--ink);font-weight:600}
+
+.bar{position:sticky;top:env(safe-area-inset-top,0px);z-index:5;background:var(--bg);padding-block:12px;border-bottom:1px solid var(--line);display:grid;gap:10px}
+.row{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+input[type=search],select{font:inherit;font-size:14px;color:var(--ink);background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:8px 10px;min-width:0}
+input[type=search]{flex:1 1 220px}
+select{flex:0 1 220px}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font:inherit;font-size:12.5px;padding:4px 10px;border-radius:999px;border:1px solid var(--line);background:var(--surface);color:var(--muted);cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink)}
+.chip:focus-visible,.btn:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+.btn{font:inherit;font-size:13px;padding:6px 12px;border-radius:8px;border:1px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer}
+.progress{display:flex;align-items:center;gap:10px;font-size:13px;font-variant-numeric:tabular-nums;color:var(--muted)}
+.track{flex:1;height:6px;background:var(--soft);border-radius:999px;overflow:hidden;min-width:80px}
+.fill{height:100%;background:var(--good);width:0;transition:width .3s}
+.sep{width:1px;height:18px;background:var(--line)}
+
+ol.qs{list-style:none;margin:0;padding:0}
+li.q{padding-block:22px;border-bottom:1px solid var(--line);display:grid;gap:12px}
+li.q.done .qtext{color:var(--muted)}
+.qhead{display:grid;grid-template-columns:auto 1fr;gap:12px;align-items:start}
+.num{font-family:var(--f-mono);font-size:12px;color:var(--muted);padding-top:4px;min-width:34px}
+.qtext{font-weight:600;font-size:16.5px;line-height:1.45;margin:0;text-wrap:pretty}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;align-items:center}
+.tag{font-family:var(--f-mono);font-size:11.5px;padding:2px 8px;border-radius:4px;background:var(--soft);color:var(--muted)}
+.tag.lv{color:var(--surface);font-weight:500}
+.lv-Basic{background:var(--basic)} .lv-Intermediate{background:var(--inter)} .lv-Advanced{background:var(--adv)} .lv-Lead{background:var(--lead)}
+.tag.verify{background:transparent;border:1px solid var(--verify);color:var(--verify)}
+.check{display:inline-flex;gap:6px;align-items:center;font-size:12.5px;color:var(--muted);cursor:pointer;margin-left:auto}
+.check input{width:16px;height:16px;accent-color:var(--good)}
+.body{padding-left:46px;display:grid;gap:8px;min-width:0}
+details{border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+details>summary{cursor:pointer;padding:9px 12px;font-size:14px;font-weight:500;list-style:none;display:flex;gap:8px;align-items:baseline}
+details>summary::-webkit-details-marker{display:none}
+details>summary::before{content:"+";font-family:var(--f-mono);color:var(--accent);width:12px;flex:none}
+details[open]>summary::before{content:"−"}
+.dbody{padding:2px 14px 14px;display:grid;gap:10px;min-width:0}
+.dbody p,.dbody ul,.dbody ol{margin:0}
+.dbody ul,.dbody ol{padding-left:20px}
+.dbody li+li{margin-top:3px}
+h4{font-family:var(--f-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted);margin:6px 0 0;font-weight:500}
+h4.rf{color:var(--warn)}
+.fu summary{font-weight:400}
+.fu summary .fl{font-family:var(--f-mono);font-size:11px;color:var(--muted);flex:none}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:3px}
+pre{margin:0;background:var(--code);padding:12px;border-radius:6px;overflow-x:auto;font-size:13px;line-height:1.5}
+pre code{background:none;padding:0;font-size:inherit}
+.star dt{font-weight:600}
+.empty{padding:40px 0;color:var(--muted);text-align:center}
+.note{font-size:13px;color:var(--muted);border-left:3px solid var(--verify);padding-left:10px}
+@media (max-width:560px){ .body{padding-left:0} .num{min-width:28px} }
+@media (prefers-reduced-motion:reduce){ .fill{transition:none} }
+</style>
+
+<p style="margin:0 auto;max-width:860px;padding:16px 0 0;font-size:14px"><a href="index.html">&larr; All banks</a></p>
+<div class="wrap">
+<header class="top">
+  <div class="eyebrow">Senior TL / EM interview prep</div>
+  <h1>Frontend: React, Next.js, Web Performance</h1>
+  <p class="lede">React 18 and 19, Next.js Pages and App Router, TypeScript for UI code, Core Web Vitals and accessibility. Sized for a backend-leaning tech lead who owns full-stack delivery. Answer out loud before opening.</p>
+  <div class="stats" id="stats"></div>
+</header>
+
+<div class="bar">
+  <div class="row">
+    <input type="search" id="q" placeholder="Search questions and answers" aria-label="Search">
+    <select id="skill" aria-label="Filter by skill"></select>
+    <select id="status" aria-label="Filter by review status">
+      <option value="all">All questions</option>
+      <option value="todo">Not reviewed</option>
+      <option value="done">Reviewed</option>
+    </select>
+  </div>
+  <div class="row">
+    <div class="chips" id="levels" aria-label="Level"></div>
+    <span class="sep" aria-hidden="true"></span>
+    <div class="chips" id="types" aria-label="Type"></div>
+  </div>
+  <div class="row">
+    <div class="progress" style="flex:1"><span id="ptext">0 / 0 reviewed</span><div class="track"><div class="fill" id="pfill"></div></div></div>
+    <button class="btn" id="toggleAll" type="button">Open all answers</button>
+  </div>
+</div>
+
+<ol class="qs" id="list"></ol>
+</div>
+
+<script>
+const LEVELS=["Basic","Intermediate","Advanced","Lead"];
+const TYPES=["Concept","Scenario","Architecture","Behavioral"];
+const PARTS="Complete: both parts loaded.";
+
+const QS=[
+
+/* ================= BASIC ================= */
+{id:"F001",skill:"React",level:"Basic",type:"Concept",
+q:"How does React rendering work? When does a component re-render, and what are the render and commit phases?",
+a:`<p>A component <b>re-renders</b> when:</p>
+<ul>
+<li>Its own state changes (<code>setState</code> with a new value).</li>
+<li>Its <b>parent re-renders</b>, by default even if its props didn't change.</li>
+<li>A <b>context</b> it consumes changes value.</li>
+</ul>
+<p>Props changing isn't a separate trigger. Props only change because a parent re-rendered.</p>
+<p><b>Render phase:</b> React calls component functions to produce a new element tree, then <b>reconciles</b> it with the previous one: same type at the same position means update, different type means remount, and <b>keys</b> identify list items. This phase must be pure. It can run more than once, or be interrupted in concurrent rendering.</p>
+<p><b>Commit phase:</b> React applies the minimal DOM changes, then runs layout effects (<code>useLayoutEffect</code>) synchronously, and passive effects (<code>useEffect</code>) after paint.</p>
+<p>Re-rendering isn't the same as DOM updating: re-renders are often cheap. Performance problems come from expensive renders of large trees or frequent updates, and they should be measured with the Profiler before optimising.</p>`,
+keys:["Triggers: state, parent render, context","Props aren't an independent trigger","Render (pure, reconciliation, keys) vs commit","Effects timing","Re-render ≠ DOM update; measure first"],
+fu:[{q:"Why must render be pure?",a:"React may call it multiple times (StrictMode in development, concurrent rendering, retries), or discard results. Side effects in render (subscriptions, mutations, network calls) would run unpredictably. Side effects belong in effects or event handlers."}],
+rf:["\"Components re-render only when props change\"","Side effects in render","Optimises with memo everywhere without measuring"]},
+
+{id:"F002",skill:"React",level:"Basic",type:"Concept",
+q:"What is useEffect for, how do dependencies and cleanup work, and what are the most common mistakes with it?",
+a:`<p><code>useEffect</code> <b>synchronises a component with something outside React</b>: subscriptions, timers, browser APIs, non-React widgets, and (without a data library) network requests. It runs after commit. With dependencies, it re-runs when any dependency changes (compared with <code>Object.is</code>). The <b>cleanup</b> function runs before the next run and on unmount.</p>
+<pre><code>useEffect(() =&gt; {
+  const controller = new AbortController();
+  fetch(\`/api/groups/\${id}\`, { signal: controller.signal })
+    .then(r =&gt; r.json()).then(setGroup)
+    .catch(e =&gt; { if (e.name !== 'AbortError') setError(e); });
+  return () =&gt; controller.abort();          // cancel stale request
+}, [id]);</code></pre>
+<p><b>Common mistakes:</b></p>
+<ul>
+<li><b>Deriving state in an effect</b> (<code>useEffect(() =&gt; setFullName(first + last))</code>). Compute it during render instead.</li>
+<li>Reacting to events in effects instead of in the event handler.</li>
+<li><b>Missing dependencies</b> (stale closures), or silencing the lint rule.</li>
+<li>Objects or functions recreated each render as dependencies, causing infinite loops.</li>
+<li>No cleanup, so leaked subscriptions and race conditions.</li>
+</ul>
+<p>In development, React 18+ StrictMode deliberately <b>mounts, unmounts and remounts</b> components so missing cleanups show up. Effects running twice in development is a feature, not a bug.</p>`,
+keys:["Effects for external synchronisation","Dependencies and cleanup semantics","Don't derive state or handle events in effects","Stale closures, unstable deps","StrictMode double-invoke in dev"],
+fu:[{q:"Would you fetch data with useEffect in a production app?",a:"Usually not directly. Use a data library (TanStack Query, SWR) or the framework's data loading (React Server Components, route loaders). They handle caching, deduplication, cancellation, retries and race conditions that raw effects don't."}],
+rf:["Disables the exhaustive-deps lint rule","Thinks double effects in dev are a bug to work around","Uses effects to sync state with state"]},
+
+{id:"F003",skill:"React",level:"Basic",type:"Scenario",
+q:"In a list of editable comment rows, deleting the second row makes the third row show the deleted row's typed text. What's wrong?",
+a:`<p>The list uses the <b>array index as the <code>key</code></b> (or no key). Keys tell React which element is which between renders. After deleting item 2, the old item 3 now has index 2, so React thinks it's the <i>same component</i> as the old index-2 row. It keeps that component's internal state (the uncontrolled input's text, focus, local <code>useState</code>) and just gives it new props.</p>
+<p><b>Fix:</b> use a <b>stable, unique ID</b> from the data (<code>key={comment.id}</code>). For items created on the client before they have a server ID, generate one at creation time (<code>crypto.randomUUID()</code>), never during render.</p>
+<p>Index keys are only safe for static lists that are never reordered, filtered or edited. Keys can also be used deliberately: changing a component's <code>key</code> forces a remount, which is a clean way to reset its state (for example <code>&lt;ProfileForm key={userId} /&gt;</code>).</p>`,
+keys:["Index keys mismatch identity after removal/reorder","State stays with the position","Stable unique IDs; generate for new client items","Key change to reset state intentionally"],
+fu:[{q:"Why not use Math.random() as a key?",a:"A new key every render means React sees a new component each time: all list items remount on every render, losing state and focus, and performance suffers."}],
+rf:["Uses index keys for editable lists","Random keys generated in render","Doesn't understand what keys do"]},
+
+{id:"F004",skill:"Next.js",level:"Basic",type:"Concept",
+q:"Explain CSR, SSR, SSG and ISR. How do they map to Next.js's Pages Router and App Router?",
+a:`<ul>
+<li><b>CSR (client-side rendering):</b> the server sends a mostly empty shell, and JavaScript fetches data and renders in the browser. Simple hosting, but slower first content and weaker SEO.</li>
+<li><b>SSR (server-side rendering):</b> HTML is rendered per request on the server with fresh data, then hydrated. Good for personalised or frequently changing pages, at a cost in server work per request.</li>
+<li><b>SSG (static generation):</b> HTML is built at build time and served from a CDN. Fastest and cheapest, but data is only as fresh as the last build.</li>
+<li><b>ISR (incremental static regeneration):</b> static pages regenerated in the background after a revalidation period or on demand. Static speed with periodic freshness.</li>
+</ul>
+<p><b>Pages Router:</b> <code>getServerSideProps</code> (SSR), <code>getStaticProps</code> plus <code>getStaticPaths</code> (SSG), <code>revalidate</code> in <code>getStaticProps</code> (ISR), and client-side fetching for CSR.</p>
+<p><b>App Router:</b> it's decided by <b>how server components fetch data</b> and by route segment config. Static by default when nothing dynamic is used. Dynamic when you use request-time APIs (<code>cookies()</code>, <code>headers()</code>, <code>searchParams</code>) or uncached fetches. <code>revalidate</code> options and on-demand <code>revalidatePath</code>/<code>revalidateTag</code> give ISR. <code>generateStaticParams</code> replaces <code>getStaticPaths</code>. Caching defaults changed between Next.js 14 and 15, so check which version you run.</p>`,
+keys:["Four rendering strategies with trade-offs","Pages Router functions","App Router: static by default, dynamic via request APIs","revalidate and on-demand revalidation","Version-dependent caching defaults"],
+fu:[{q:"Which would you use for a product detail page with prices that change a few times a day?",a:"Static generation with ISR: revalidate on a timer, or on demand when a price changes in the admin. You get CDN-speed pages with fresh-enough data. Show anything user-specific (cart, personal price) with client-side or dynamic components."}],
+rf:["SSR for everything","Can't map to App Router concepts","Unaware of version differences"]},
+
+{id:"F005",skill:"Next.js",level:"Basic",type:"Concept",
+q:"What are React Server Components and Client Components in the Next.js App Router? What can each do, and how do you decide where the boundary goes?",
+a:`<p>In the App Router, components are <b>Server Components by default</b>. They run only on the server: they can be <code>async</code>, read databases or secrets directly, and their code is <b>not sent to the browser</b>, which reduces bundle size. They can't use state, effects, event handlers or browser APIs.</p>
+<p><b>Client Components</b> (a file starting with <code>'use client'</code>) are rendered on the server for the initial HTML <i>and</i> hydrated in the browser. They can use hooks, events and browser APIs, and their code ships to the client. <code>'use client'</code> marks a <b>boundary</b>: everything imported into that file becomes client code too.</p>
+<p><b>Placing the boundary:</b></p>
+<ul>
+<li>Keep pages and layouts as server components that fetch data.</li>
+<li>Push <code>'use client'</code> down to the <b>smallest interactive leaves</b> (a like button, a dropdown, a form), passing serialisable props.</li>
+<li>Server components can be passed as <code>children</code> to client components, so a client wrapper (a modal, tabs) can still contain server-rendered content.</li>
+<li>Props crossing the boundary must be serialisable: no functions (except Server Actions), no class instances.</li>
+</ul>
+<p>Mark server-only modules with <code>import 'server-only'</code>, so database code can't accidentally end up in a client bundle.</p>`,
+keys:["Server by default; async, direct data access, zero client JS","Client: hooks/events, hydrated, shipped","'use client' boundary pulls imports to client","Push boundary to leaves; children composition","Serialisable props; server-only guard"],
+fu:[{q:"Is a Server Component the same as server-side rendering?",a:"No. SSR renders HTML on the server for any component, including client components, which then hydrate. Server Components never run in the browser at all, and are rendered into a special payload (RSC payload) that the client merges. A page usually uses both."}],
+rf:["Puts 'use client' at the top of every page","Imports DB code into client components","Thinks server components re-render on the client"]},
+
+{id:"F006",skill:"Next.js",level:"Basic",type:"Scenario",
+q:"A Next.js page throws 'window is not defined' on the server in one place, and shows 'Hydration failed because the server rendered HTML didn't match the client' in another. Explain both and fix them.",
+a:`<p><b>'window is not defined':</b> code that touches browser-only APIs (<code>window</code>, <code>localStorage</code>, <code>document</code>) runs during server rendering, where those don't exist. Even client components render on the server for the initial HTML. Fixes:</p>
+<ul>
+<li>Access browser APIs inside <code>useEffect</code> or event handlers, which only run in the browser.</li>
+<li>For libraries that touch <code>window</code> on import (charts, maps), load them with <code>next/dynamic</code> and <code>{ ssr: false }</code>, from a client component.</li>
+<li>Guard with <code>typeof window !== 'undefined'</code> only where rendering output doesn't depend on it, otherwise you create the second problem.</li>
+</ul>
+<p><b>Hydration mismatch:</b> the HTML generated on the server differs from what the client renders on its first pass. Causes:</p>
+<ul>
+<li>Values that differ by environment: <code>Date.now()</code>, <code>Math.random()</code>, time zone or locale formatting (server in UTC, user in IST).</li>
+<li>Rendering based on <code>window</code> or <code>localStorage</code> during render.</li>
+<li>Invalid HTML nesting (a <code>&lt;div&gt;</code> inside a <code>&lt;p&gt;</code>), which the browser silently fixes.</li>
+<li>Browser extensions modifying the DOM.</li>
+</ul>
+<p>Fixes: render environment-dependent values after mount (state set in an effect), format dates in a fixed time zone or on the client only, fix the HTML structure, and use <code>suppressHydrationWarning</code> only for unavoidable single elements such as a timestamp.</p>`,
+keys:["Client components also render on server","useEffect/dynamic(ssr:false) for browser-only code","Mismatch causes: time, random, locale, window, invalid HTML","Render env-dependent content after mount","suppressHydrationWarning sparingly"],
+fu:[{q:"Why do time zones cause hydration errors so often?",a:"The server formats a date in its own time zone (often UTC) and the browser in the user's. For users in India the formatted strings differ, so hydration fails. Format on the client after mount, or format both sides with the user's time zone explicitly."}],
+rf:["Wraps everything in ssr:false","Silences hydration warnings globally","Uses typeof window checks in render output"]},
+
+{id:"F007",skill:"TypeScript (Frontend)",level:"Basic",type:"Concept",
+q:"How do you type React components well in TypeScript: props, children, events, state and component variants?",
+a:`<ul>
+<li><b>Props:</b> a type or interface per component. Plain function components (<code>function Button(props: ButtonProps)</code>) are the common style; <code>React.FC</code> is optional, and it no longer adds implicit <code>children</code> since React 18's types.</li>
+<li><b>Children:</b> <code>children: React.ReactNode</code> for anything renderable, or a narrower type when you require specific content.</li>
+<li><b>Extending native elements:</b> <code>type ButtonProps = React.ComponentProps&lt;'button'&gt; &amp; { variant: 'primary' | 'ghost' }</code>, so consumers get every native attribute, typed.</li>
+<li><b>Events:</b> <code>React.ChangeEvent&lt;HTMLInputElement&gt;</code>, <code>React.FormEvent&lt;HTMLFormElement&gt;</code>, <code>React.MouseEvent&lt;HTMLButtonElement&gt;</code>.</li>
+<li><b>State:</b> <code>useState&lt;User | null&gt;(null)</code> when the initial value doesn't show the full type.</li>
+<li><b>Variants as discriminated unions,</b> so invalid combinations don't compile:</li>
+</ul>
+<pre><code>type AlertProps =
+  | { kind: 'info'; message: string }
+  | { kind: 'action'; message: string; actionLabel: string; onAction: () =&gt; void };</code></pre>
+<p>An "action" alert without <code>onAction</code> is now a compile error. Optional props everywhere would allow it.</p>`,
+keys:["Props types, React.FC optional and no implicit children","ReactNode for children","ComponentProps<'button'> for native extension","Typed events and useState generics","Discriminated-union props for variants"],
+fu:[{q:"How do you type a ref to a DOM element in React 19?",a:"useRef<HTMLInputElement>(null), and in React 19 function components can accept ref as a regular prop (typed via React.ComponentProps or explicitly), so forwardRef is no longer needed for new code."}],
+rf:["any for props","All props optional","Re-declares native attributes manually"]},
+
+{id:"F008",skill:"Web Performance & Accessibility",level:"Basic",type:"Concept",
+q:"What are the Core Web Vitals, what are their thresholds, and how do you measure them?",
+a:`<ul>
+<li><b>LCP (Largest Contentful Paint):</b> when the largest visible content element (hero image, headline) has rendered. Good is ≤ <b>2.5 s</b>.</li>
+<li><b>INP (Interaction to Next Paint):</b> responsiveness across the page's interactions, measured from input to the next frame painted. Good is ≤ <b>200 ms</b>. INP replaced FID as a Core Web Vital in March 2024. It catches slow event handlers and long main-thread tasks throughout the visit, not just the first input.</li>
+<li><b>CLS (Cumulative Layout Shift):</b> unexpected layout movement, such as images without dimensions or late-loading banners. Good is ≤ <b>0.1</b>.</li>
+</ul>
+<p>Each is assessed at the <b>75th percentile</b> of real page loads.</p>
+<p><b>Measurement:</b></p>
+<ul>
+<li><b>Field data (real users):</b> the Chrome UX Report (feeds Search Console and PageSpeed Insights), plus your own RUM with the <code>web-vitals</code> library sending metrics to analytics. Field data is what matters for users and search ranking.</li>
+<li><b>Lab data:</b> Lighthouse and Chrome DevTools Performance panel. Reproducible and good for debugging, but a single synthetic device and network.</li>
+</ul>
+<p>Segment field data by device and connection: mobile on mid-range Android usually tells the real story.</p>`,
+keys:["LCP/INP/CLS definitions","Thresholds and p75","INP replaced FID (2024)","Field vs lab measurement","Segment by device/network"],
+fu:[{q:"Lighthouse scores 95, but field LCP is poor. How?",a:"Lighthouse runs one simulated device on a fast machine with a cold cache and no real backend variability. Real users have slower devices and networks, cache misses on the CDN, slower API responses, and personalised content. Trust field data for priorities, and use the lab to debug."}],
+rf:["Still cites FID as current","Optimises only for Lighthouse score","Doesn't know p75"]},
+
+/* ================= INTERMEDIATE (part 1) ================= */
+{id:"F009",skill:"React",level:"Intermediate",type:"Architecture",
+q:"How do you decide where state lives in a React app: local state, context, a global store, or a server-state library?",
+a:`<p>Classify the state first:</p>
+<ul>
+<li><b>Server state</b> (data owned by the backend: groups, posts, profiles): use <b>TanStack Query</b> (or SWR, RTK Query, or RSC data fetching in Next.js). It handles caching, deduplication, refetching, invalidation after mutations, and optimistic updates. Copying server data into Redux or context by hand was the root of a lot of past complexity.</li>
+<li><b>Local UI state</b> (open/closed, input values, hover): <code>useState</code>/<code>useReducer</code> in the component that owns it, lifted only as far as needed.</li>
+<li><b>URL state</b> (filters, tabs, pagination): in the URL (search params), so it's shareable and survives refresh.</li>
+<li><b>Cross-cutting client state</b> (theme, auth session, feature flags): <b>context</b>, for values that change rarely.</li>
+<li><b>Complex, frequently updated shared client state</b> (a multi-step editor, a canvas): a small store, Zustand or Redux Toolkit, with selector-based subscriptions.</li>
+</ul>
+<p><b>The context pitfall:</b> every consumer re-renders when the context value changes. Putting frequently changing state (or a new object each render) into one big context re-renders large parts of the app. Split contexts, memoise the value, or use a store with selectors.</p>`,
+keys:["Classify: server, local, URL, global client","Server-state library instead of hand-rolled caches","URL for shareable state","Context for rarely changing values; re-render pitfall","Store with selectors for complex shared state"],
+trade:["A global store centralises logic but adds boilerplate and indirection","Context is built in but can cause broad re-renders","It depends on: app complexity, update frequency, team familiarity"],
+fu:[{q:"After a mutation (creating a post), how do you update the lists that show posts?",a:"With TanStack Query, invalidate the relevant query keys (['posts', groupId]) so they refetch, or update the cache directly with setQueryData for an instant result. Optimistic updates with rollback on error give the best UX for likes and reactions."}],
+rf:["Puts all server data in Redux manually","One giant context for everything","Filters stored only in component state, lost on refresh"]},
+
+{id:"F010",skill:"React",level:"Intermediate",type:"Scenario",
+q:"Typing into a search box above a 2,000-row table lags badly. How do you diagnose and fix it?",
+a:`<ol>
+<li><b>Measure:</b> React DevTools Profiler, recording a few keystrokes. Which components render on each keystroke, and how long does each take? Usually the whole table re-renders on every key because the search state lives in a common parent.</li>
+<li><b>Fixes, roughly in order:</b>
+  <ul>
+  <li><b>State colocation:</b> keep the input's raw state inside the search component, and pass a debounced value up, so typing re-renders only the input.</li>
+  <li><b><code>useDeferredValue</code></b> (React 18+) for the filter value: the input stays responsive while the table re-renders with lower priority. Or <code>startTransition</code> around the filter update.</li>
+  <li><b>Virtualisation</b> (TanStack Virtual, react-window): render only the visible rows (around 30) instead of 2,000. Often the biggest single win.</li>
+  <li><b>Memoisation:</b> <code>React.memo</code> on row components with stable props (<code>useCallback</code> for handlers, <code>useMemo</code> for derived arrays), so unchanged rows skip rendering.</li>
+  <li><b>Cheaper filtering:</b> precompute lowercase search fields once rather than on every keystroke.</li>
+  </ul></li>
+</ol>
+<p>Re-profile after each change. Memoisation without fixing state placement or row count often barely helps. The React Compiler (where adopted) automates much of the memoisation, but not virtualisation or state placement.</p>`,
+keys:["Profiler first","State colocation and debouncing","useDeferredValue/startTransition","Virtualisation for long lists","Targeted memoisation with stable props"],
+trade:["Virtualisation adds complexity (scroll restoration, variable row heights, find-in-page) but scales","Memoisation everywhere adds noise and memory; target measured hot spots"],
+fu:[{q:"Why might React.memo on rows do nothing?",a:"If the parent passes new object, array or function props each render (inline callbacks, freshly filtered arrays per row), shallow comparison sees changes and every row re-renders anyway. Stabilise props with useCallback/useMemo, or restructure."}],
+rf:["Wraps everything in useMemo without profiling","Debounces by delaying the input value itself (laggy typing)","Doesn't consider virtualisation"]},
+
+{id:"F011",skill:"React",level:"Intermediate",type:"Scenario",
+q:"In a search-as-you-type UI, results sometimes show matches for an older query: you type 'kar' and see results for 'ka'. Why, and how do you fix it?",
+a:`<p>A <b>race condition</b>: requests for "ka" and "kar" are in flight together, and responses arrive out of order. The slower "ka" response comes back last and overwrites the "kar" results, because the code sets state whenever any response arrives.</p>
+<p><b>Fixes:</b></p>
+<ul>
+<li><b>Cancel stale requests</b> with an <code>AbortController</code> in the effect cleanup. When the query changes, the previous request is aborted and its result never applied.</li>
+<li><b>Ignore stale responses:</b> an <code>ignore</code> flag set in cleanup, or compare the response's query with the current one before setting state.</li>
+<li><b>Use a server-state library:</b> TanStack Query keys the cache by <code>['search', query]</code>. Each query's result is stored separately and the UI shows the result for the <i>current</i> key, so ordering doesn't matter. Add <code>placeholderData: keepPreviousData</code> to avoid flicker.</li>
+<li><b>Debounce</b> input (about 200–300 ms) to reduce requests. That reduces how often the race happens but doesn't fix it on its own.</li>
+</ul>`,
+keys:["Out-of-order responses explained","AbortController cleanup","Ignore stale results","Query keyed by input (TanStack Query)","Debounce as load reduction, not correctness fix"],
+fu:[{q:"Does aborting the request on the client stop work on the server?",a:"The browser closes the connection, and the server sees a disconnect only if it checks for one. In ASP.NET Core the RequestAborted token fires, and in Node the request emits 'close'. Pass that signal into the database query to actually stop the work."}],
+rf:["Only adds debounce","Sets state from every response","No cancellation"]},
+
+{id:"F012",skill:"React",level:"Intermediate",type:"Concept",
+q:"What changed in React 18? Explain automatic batching, transitions, Suspense and the StrictMode changes, and what they mean for existing code.",
+a:`<ul>
+<li><b>Concurrent rendering</b> (opt-in through <code>createRoot</code> and the new APIs): React can prepare updates in the background, interrupt them for urgent ones, and avoid blocking the main thread for long renders.</li>
+<li><b>Automatic batching:</b> multiple state updates are batched into one render <i>everywhere</i>, including inside promises, timeouts and native event handlers. Before 18, only React event handlers batched. Code that relied on immediate intermediate renders may behave differently. <code>flushSync</code> forces a synchronous update where truly needed.</li>
+<li><b>Transitions</b> (<code>startTransition</code>, <code>useTransition</code>, <code>useDeferredValue</code>): mark updates as non-urgent, so typing and clicks stay responsive while expensive UI updates render later or get interrupted.</li>
+<li><b>Suspense</b> on the server: streaming SSR and selective hydration, so parts of the page stream and hydrate independently. Suspense for data fetching through frameworks and libraries.</li>
+<li><b>StrictMode</b> in development double-mounts components (mount, unmount, remount) to surface effects without proper cleanup, preparing for features that preserve state across unmounts.</li>
+<li>New hooks: <code>useId</code> (stable IDs across server and client), <code>useSyncExternalStore</code> (for store libraries).</li>
+</ul>`,
+keys:["createRoot and concurrent rendering","Automatic batching everywhere; flushSync","Transitions for non-urgent updates","Streaming SSR and selective hydration","StrictMode double-mount; useId, useSyncExternalStore"],
+fu:[{q:"Why did useSyncExternalStore appear?",a:"With concurrent rendering, reading from an external mutable store during render could show different values in different parts of the same render (tearing). useSyncExternalStore gives libraries a safe way to subscribe so all components see a consistent snapshot."}],
+rf:["Thinks batching only applies to event handlers","Unaware of StrictMode double effects","Confuses transitions with animations"]},
+
+{id:"F013",skill:"React",level:"Intermediate",type:"Concept",
+q:"What does React 19 add, and which changes affect how you write forms, refs and data loading?",
+a:`<ul>
+<li><b>Actions:</b> functions (including async) passed to <code>&lt;form action={…}&gt;</code> or used with transitions. React tracks pending state, errors and resets for you. With frameworks, they can be <b>Server Actions</b>.</li>
+<li><b><code>useActionState</code>:</b> manages the result and pending state of an action (replacing the earlier <code>useFormState</code>). <b><code>useFormStatus</code></b> (react-dom) gives child components the pending state of the parent form, for submit buttons.</li>
+<li><b><code>useOptimistic</code>:</b> shows an optimistic value while an action is in flight, and reverts automatically if it fails. Useful for likes, reactions and sending messages.</li>
+<li><b><code>use()</code>:</b> reads a promise (suspending until resolved) or a context, and can be called conditionally, unlike other hooks.</li>
+<li><b><code>ref</code> as a regular prop</b> for function components, so <code>forwardRef</code> is no longer needed. Ref callbacks can return cleanup functions.</li>
+<li><code>&lt;Context&gt;</code> works directly as a provider. Document metadata (<code>&lt;title&gt;</code>, <code>&lt;meta&gt;</code>) can be rendered from components. Better stylesheet and preload support, and clearer hydration error messages.</li>
+</ul>
+<p>Separately, the <b>React Compiler</b> automatically memoises components and hooks at build time, reducing the need for manual <code>useMemo</code>, <code>useCallback</code> and <code>memo</code>. It requires code that follows the Rules of React.</p>`,
+keys:["Actions and form action prop","useActionState / useFormStatus","useOptimistic","use() for promises/context","ref as prop; Context provider; metadata; React Compiler relationship"],
+fu:[{q:"Should a team immediately remove all useMemo/useCallback after adopting the React Compiler?",a:"No rush. The compiler works alongside existing memoisation. Adopt it gradually (it can be enabled per directory), fix Rules-of-React violations its lint rules flag, measure, and remove manual memoisation where it becomes redundant."}],
+rf:["Unaware of React 19 changes while claiming current React experience","Thinks use() is just another useEffect","Confuses Actions with Redux actions"],
+verify:"React 19 API details and React Compiler release status; confirm against current React docs."},
+
+{id:"F014",skill:"Next.js",level:"Intermediate",type:"Concept",
+q:"In the Next.js App Router, where should data fetching and mutations happen: server components, route handlers, server actions or the client? How do you choose?",
+a:`<ul>
+<li><b>Server Components fetching directly</b> (from the database or internal APIs) for the initial page data. No client JavaScript, no extra API layer, secrets stay on the server, and you can stream parts with Suspense. Pass data down as props.</li>
+<li><b>Server Actions</b> for <b>mutations triggered from your own UI</b> (forms, buttons). They're typed end to end, can call <code>revalidatePath</code>/<code>revalidateTag</code> after changes, and work with progressive enhancement. They're still public HTTP endpoints, so authorise and validate inside each one.</li>
+<li><b>Route Handlers</b> (<code>app/api/…/route.ts</code>) for <b>HTTP APIs consumed by others</b>: mobile apps, webhooks, third parties, or client-side polling. Stable URLs, any HTTP method, explicit caching behaviour.</li>
+<li><b>Client-side fetching</b> (TanStack Query against route handlers or your backend API) for highly interactive or frequently refreshing data after the page loads: infinite scroll, live counts, search-as-you-type.</li>
+</ul>
+<p>If a separate backend already exists (a NestJS API used by mobile too), the Next app often acts as a BFF. Server components call the backend server-to-server (forwarding auth), and the client calls it for interactive parts. Avoid duplicating business logic in Next.</p>`,
+keys:["Server components for initial data","Server actions for UI mutations, with auth/validation","Route handlers for external consumers","Client fetching for interactive/live data","BFF role with existing backend; no duplicated logic"],
+trade:["Server actions simplify mutations but couple UI to Next.js specifics","Route handlers add an API layer but serve any client","It depends on: whether other clients exist, interactivity, team boundaries"],
+fu:[{q:"A mobile app needs the same mutation as a web form. Server action or route handler?",a:"Put the logic in a shared server module (or the backend API), expose it via a route handler or the backend for mobile, and call the same module from the server action for the web. Don't make mobile depend on server action internals, which aren't designed as a public API contract."}],
+rf:["Calls its own route handlers from server components (extra hop)","Puts business logic in client components","No auth in server actions"]},
+
+{id:"F015",skill:"Next.js",level:"Intermediate",type:"Scenario",
+q:"A security review finds that a server action deleteGroupPost(postId) can be called by any logged-in user for any post, even though the button only appears for owners. Explain the issue and fix it.",
+a:`<p>A Server Action compiles to a <b>public HTTP POST endpoint</b> identified by an action ID. Hiding the button in the UI is <b>not authorisation</b>: anyone who obtains the action ID (it's in the client bundle or page) can call it directly with any arguments. The action must treat its inputs as untrusted, exactly like an API endpoint.</p>
+<p><b>Fix inside the action:</b></p>
+<pre><code>'use server';
+export async function deleteGroupPost(input: unknown) {
+  const { postId } = DeletePostSchema.parse(input);       // validate shape
+  const user = await requireUser();                        // authenticate (session/cookie)
+  const post = await db.query.posts.findFirst({ where: eq(posts.id, postId) });
+  if (!post) throw new NotFound();
+  if (post.authorId !== user.id &amp;&amp; !(await isGroupAdmin(user.id, post.groupId)))
+    throw new Forbidden();                                 // authorise per resource
+  await softDeletePost(postId);
+  revalidateTag(\`group:\${post.groupId}:posts\`);
+}</code></pre>
+<p><b>Also:</b></p>
+<ul>
+<li>Keep authorisation in a shared data-access layer, so every action and route reuses it.</li>
+<li>Don't rely on middleware alone for auth.</li>
+<li>Next.js checks the <code>Origin</code> header for actions as CSRF protection; keep that intact behind proxies.</li>
+<li>Rate-limit sensitive actions.</li>
+<li>Avoid returning more data than the client needs.</li>
+</ul>`,
+keys:["Server actions are public endpoints","UI hiding ≠ authorisation","Validate input, authenticate, authorise per resource inside action","Shared data-access/auth layer","CSRF Origin check, rate limiting, minimal returns"],
+fu:[{q:"Are closed-over variables in server actions safe to put secrets in?",a:"Next.js encrypts closure values sent to the client, but the safest rule is to never close over secrets or sensitive data in actions defined inside components. Read secrets and look up data on the server inside the action itself."}],
+rf:["\"The button isn't shown, so it's safe\"","Trusts postId and userId from client","Auth only in middleware"]},
+
+{id:"F016",skill:"Next.js",level:"Intermediate",type:"Scenario",
+q:"A large Next.js app on the Pages Router needs to move to the App Router. How do you migrate incrementally, and what usually goes wrong?",
+a:`<p>Both routers can <b>coexist</b> in one app (<code>pages/</code> and <code>app/</code>), so migrate route by route. A route must exist in only one router.</p>
+<ol>
+<li><b>Prepare:</b> upgrade Next.js and React to supported versions first. Move shared layout logic (<code>_app</code>, <code>_document</code>) into a root <code>app/layout.tsx</code> for new routes, and keep the old ones working.</li>
+<li><b>Start with simple, low-risk pages</b> (static or marketing pages), then data-heavy pages, then the most complex interactive flows.</li>
+<li><b>Per page:</b>
+  <ul>
+  <li><code>getServerSideProps</code>/<code>getStaticProps</code> become async server components with fetch or DB calls, plus <code>revalidate</code> settings.</li>
+  <li><code>next/router</code> becomes <code>next/navigation</code> (<code>useRouter</code>, <code>usePathname</code>, <code>useSearchParams</code>).</li>
+  <li>Head tags move to the Metadata API.</li>
+  <li>Interactive parts become <code>'use client'</code> components.</li>
+  </ul></li>
+</ol>
+<p><b>What goes wrong:</b></p>
+<ul>
+<li>Third-party libraries that use hooks or context without <code>'use client'</code> need wrapper client components.</li>
+<li>Global CSS and CSS-in-JS libraries need App Router-compatible setups (some runtime CSS-in-JS doesn't work well with server components).</li>
+<li>Caching surprises: data cached when it shouldn't be, or the reverse, varying by version.</li>
+<li>Navigating between Pages and App routes does full page loads.</li>
+<li>Auth patterns built on <code>getServerSideProps</code> need rethinking (server components, middleware, server-only helpers).</li>
+<li>Test and monitoring setups need updating.</li>
+</ul>`,
+keys:["Coexistence and route-by-route migration","Prepare root layout and versions","API mapping per page","Library/CSS-in-JS compatibility, caching, cross-router navigation","Auth pattern changes"],
+trade:["Incremental migration reduces risk but means maintaining two patterns for months","Big-bang rewrite is faster to finish in theory, but much riskier"],
+fu:[{q:"Is migrating to the App Router mandatory?",a:"No. The Pages Router is still supported. Migrate when the benefits (server components, streaming, layouts, smaller bundles) matter for your app, or when new framework features you need are App Router-only, not just because it's new."}],
+rf:["Big-bang rewrite","Marks every component 'use client' to make it compile","Ignores caching differences"]},
+
+{id:"F017",skill:"Next.js",level:"Intermediate",type:"Concept",
+q:"What is Next.js middleware good for, what are its limitations, and why shouldn't it be your only authorization check?",
+a:`<p>Middleware runs <b>before a request is routed</b>, for matching paths, typically on a lightweight runtime close to the edge (newer versions added a Node.js runtime option). Good uses:</p>
+<ul>
+<li>Redirects and rewrites: locale detection, A/B test bucketing, legacy URL mapping.</li>
+<li>Coarse auth gating: redirect unauthenticated users to <code>/login</code> based on a session cookie.</li>
+<li>Setting headers such as security headers or a request ID.</li>
+</ul>
+<p><b>Limitations:</b></p>
+<ul>
+<li>It should be fast and light: no heavy database queries on every request.</li>
+<li>Edge runtime API restrictions (not every Node API or library works there).</li>
+<li>It runs for many requests, including assets, unless the matcher is configured carefully.</li>
+<li>It doesn't know about the specific resource being accessed.</li>
+</ul>
+<p><b>Why not rely on it alone for authorisation:</b> it can't do resource-level checks (is this user a member of <i>this</i> group?), and it's a single layer that can be bypassed by misconfiguration, matcher gaps, or framework bugs. In 2025 a Next.js vulnerability (CVE-2025-29927) let attackers <b>bypass middleware entirely</b> with a crafted internal header on unpatched versions. Apps relying only on middleware for auth were exposed. Authorisation belongs where data is accessed: server components, server actions, route handlers and the backend API, with middleware as an extra convenience layer.</p>`,
+keys:["Pre-routing redirects, rewrites, headers, coarse gating","Runtime limits and matcher scope","No resource-level authorisation","CVE-2025-29927 bypass lesson","Defence in depth at data access"],
+fu:[{q:"What did CVE-2025-29927 teach about framework security?",a:"Keep frameworks patched quickly (subscribe to security advisories), and design so a single bypassed layer doesn't expose data. Checks at the data-access layer kept apps safe even when middleware was skipped."}],
+rf:["Auth only in middleware","Heavy DB calls in middleware","Unaware of the 2025 bypass"],
+verify:"Next.js middleware runtime options and naming have changed in recent versions (Node runtime support; newer releases renamed middleware); check docs for your version."},
+
+{id:"F018",skill:"TypeScript (Frontend)",level:"Intermediate",type:"Concept",
+q:"Design a reusable, type-safe DataTable component whose columns are checked against the row type. How do generics help, and what are the pitfalls?",
+a:`<pre><code>type Column&lt;T&gt; = {
+  [K in keyof T]: {
+    key: K;
+    header: string;
+    render?: (value: T[K], row: T) =&gt; React.ReactNode;   // value typed per key
+    sortable?: boolean;
+  }
+}[keyof T];
+
+type DataTableProps&lt;T&gt; = {
+  rows: T[];
+  columns: Column&lt;T&gt;[];
+  getRowId: (row: T) =&gt; string;
+};
+
+export function DataTable&lt;T&gt;({ rows, columns, getRowId }: DataTableProps&lt;T&gt;) { /* … */ }
+
+&lt;DataTable rows={groups} getRowId={g =&gt; g.id}
+  columns={[{ key: 'memberCount', header: 'Members', render: n =&gt; n.toLocaleString() }]} /&gt;
+// 'memberCount' must exist on Group; n is inferred as number</code></pre>
+<p>The mapped type over <code>keyof T</code> produces a union where each column's <code>render</code> receives the correct value type for its key. Typos in keys and wrong render signatures become compile errors. <code>T</code> is inferred from <code>rows</code>.</p>
+<p><b>Pitfalls:</b></p>
+<ul>
+<li>Over-generic APIs that are hard to use or read (keep the public surface simple).</li>
+<li>Computed columns that don't map to a key need a separate variant (<code>{ id: string; render: (row: T) =&gt; ReactNode }</code>).</li>
+<li>Generic components with <code>forwardRef</code> historically lost generics (simpler with ref-as-prop in React 19).</li>
+<li>Very large unions can slow the type checker.</li>
+</ul>
+<p>For full-featured tables, TanStack Table provides this typing already.</p>`,
+keys:["Generic T inferred from rows","Mapped type over keyof T for per-key typing","Variant for computed columns","Pitfalls: complexity, forwardRef generics, perf","Consider TanStack Table"],
+fu:[{q:"Why use a union of per-key column types instead of render?: (value: T[keyof T]) => ReactNode?",a:"T[keyof T] is the union of all property types, so the render function wouldn't know which type it receives and would need checks or casts. The mapped union ties each key to its own value type."}],
+rf:["Columns typed as any","Requires explicit generic arguments everywhere","No escape hatch for computed columns"]},
+
+{id:"F019",skill:"Web Performance & Accessibility",level:"Intermediate",type:"Scenario",
+q:"Field data shows a product page's LCP at 4.8 s on mobile. The LCP element is the hero image. How do you find the cause and fix it?",
+a:`<p>Break LCP into its parts (DevTools Performance panel, or the web-vitals attribution build):</p>
+<ul>
+<li><b>Time to first byte (TTFB):</b> slow server rendering or uncached HTML. Cache the HTML at the CDN (static or ISR), stream it, and speed up data fetching on the server.</li>
+<li><b>Resource load delay:</b> the browser discovers the image late, because it's set by client-side JavaScript after hydration, lazy-loaded, or behind a CSS background. Make it a real <code>&lt;img&gt;</code> in the server-rendered HTML, with <b>no lazy loading</b> for the LCP image, and give it high priority (<code>fetchpriority="high"</code>, or <code>next/image</code>'s priority option, which adds a preload).</li>
+<li><b>Resource load time:</b> a huge image. Use responsive sizes (<code>srcset</code>/<code>sizes</code>), modern formats (AVIF/WebP), and a CDN or image optimiser close to users.</li>
+<li><b>Render delay:</b> render-blocking CSS or JS, web fonts hiding text (use <code>font-display: swap</code> or <code>next/font</code>), or the image waiting for hydration or a client-side data fetch before it's shown.</li>
+</ul>
+<p>Also check third-party scripts competing for bandwidth early (defer them). Verify with field data after release, since lab improvements don't always translate.</p>`,
+keys:["LCP sub-parts: TTFB, load delay, load time, render delay","Server-rendered img, no lazy-load, high priority/preload","Responsive, modern formats, image CDN","Render-blocking resources and fonts","Validate in field data"],
+fu:[{q:"Why is lazy-loading the hero image harmful?",a:"loading=\"lazy\" defers the request until layout determines the image is near the viewport, which happens after HTML and CSS processing. For the above-the-fold LCP image that adds delay. Lazy-load only below-the-fold images."}],
+rf:["Lazy-loads every image including the hero","Only compresses the image","Renders the hero after client-side fetch"]},
+
+{id:"F020",skill:"Web Performance & Accessibility",level:"Intermediate",type:"Scenario",
+q:"An accessibility audit of your web app fails: custom dropdowns can't be used with a keyboard, icon buttons have no labels, modals trap screen-reader users, and contrast is low. How do you fix the issues and keep the app accessible?",
+a:`<p><b>Fixes:</b></p>
+<ul>
+<li><b>Semantic HTML first:</b> real <code>&lt;button&gt;</code>, <code>&lt;a&gt;</code>, <code>&lt;label&gt;</code>, <code>&lt;select&gt;</code> and headings give keyboard support and screen-reader semantics for free. A clickable <code>&lt;div&gt;</code> has none.</li>
+<li><b>Custom widgets</b> (comboboxes, menus, dialogs) follow the WAI-ARIA Authoring Practices patterns: roles, states (<code>aria-expanded</code>, <code>aria-selected</code>), keyboard interaction (arrows, Escape, Enter) and focus management. Better still, use a well-tested headless library (Radix, React Aria, Headless UI) instead of hand-rolling.</li>
+<li><b>Icon buttons</b> need an accessible name: <code>aria-label="Delete post"</code> or visually hidden text.</li>
+<li><b>Modals:</b> move focus into the dialog on open, keep focus inside while open, close on Escape, return focus to the trigger on close, and hide background content from assistive technology. The native <code>&lt;dialog&gt;</code> element with <code>showModal()</code> handles much of this.</li>
+<li><b>Contrast:</b> meet WCAG AA (4.5:1 for normal text) through design tokens, so it's fixed in one place.</li>
+</ul>
+<p><b>Keeping it accessible:</b></p>
+<ul>
+<li>Automated checks with <b>axe</b> (jest-axe in component tests, Playwright with axe in end-to-end tests, lint rules such as jsx-a11y). These catch roughly a third to a half of issues.</li>
+<li>Manual keyboard-only and screen-reader testing (VoiceOver, NVDA) of key flows each release.</li>
+<li>Accessibility criteria in the definition of done and in design reviews.</li>
+</ul>`,
+keys:["Semantic HTML first","ARIA patterns or headless accessible libraries","Accessible names for icon buttons","Modal focus management; native dialog","Contrast via tokens; automated + manual testing; process"],
+fu:[{q:"Why can adding ARIA make things worse?",a:"Wrong roles or states announce misleading information, and ARIA doesn't add behaviour: role=\"button\" on a div doesn't make it keyboard-operable. The first rule of ARIA is to use native elements when they exist."}],
+rf:["Adds role attributes everywhere without behaviour","Relies only on automated tools","Treats accessibility as a one-off project"]},
+/* ================= INTERMEDIATE (part 2) ================= */
+{id:"F021",skill:"React",level:"Intermediate",type:"Concept",
+q:"How do error boundaries work in React, what don't they catch, and how does Next.js's App Router build on them?",
+a:`<p>An <b>error boundary</b> catches errors thrown <b>during rendering, in lifecycle methods, and in constructors</b> of its child tree, and renders a fallback instead of unmounting the whole app. Error boundaries are still class components (<code>getDerivedStateFromError</code> plus <code>componentDidCatch</code>); in practice teams use the <code>react-error-boundary</code> package for a function-friendly API with reset support.</p>
+<p><b>They don't catch:</b></p>
+<ul>
+<li>Errors in <b>event handlers</b>. Use try/catch and show error state.</li>
+<li>Async code (promises, timeouts) outside rendering.</li>
+<li>Errors in the boundary itself, and server-side rendering errors (handled by the framework).</li>
+</ul>
+<p>Data libraries (TanStack Query with <code>throwOnError</code>) and Suspense-based fetching can surface async errors <i>into</i> rendering, so boundaries catch them.</p>
+<p><b>Placement:</b> boundaries around independent regions (a feed widget, a chart) so one failure doesn't blank the page, plus a top-level one. Report errors to monitoring (Sentry) from <code>componentDidCatch</code>/<code>onError</code>.</p>
+<p><b>Next.js App Router:</b> an <code>error.tsx</code> file in a route segment becomes an error boundary for that segment (it must be a client component, and receives <code>error</code> and <code>reset</code>). <code>global-error.tsx</code> covers the root layout. <code>not-found.tsx</code> handles <code>notFound()</code>. In production, server errors reach the client only as a digest, without sensitive details.</p>`,
+keys:["Catches render/lifecycle errors in subtree","Doesn't catch event handler/async errors","react-error-boundary, placement strategy","Report to monitoring","Next error.tsx/global-error/not-found"],
+fu:[{q:"How should a 'Retry' button in an error fallback work?",a:"Call the boundary's reset (react-error-boundary's resetErrorBoundary, or Next's reset()). It re-renders the subtree, and should also reset the failing data source (invalidate the query) so the retry actually refetches rather than rethrowing a cached error."}],
+rf:["Expects boundaries to catch onClick errors","One boundary at the root only","Shows raw error messages to users"]},
+
+{id:"F022",skill:"Next.js",level:"Intermediate",type:"Scenario",
+q:"A security scan finds an internal API key in the Next.js client JavaScript bundle. The developer says it's in an environment variable, so it must be safe. Explain how it leaked and how to prevent it.",
+a:`<p>Likely causes:</p>
+<ul>
+<li>The variable was named <b><code>NEXT_PUBLIC_…</code></b>. Next.js <b>inlines</b> <code>NEXT_PUBLIC_</code> variables into the client bundle <b>at build time</b>, as literal strings. That prefix means "this is public", by design.</li>
+<li>A non-prefixed secret was read in a <b>server component and passed as a prop</b> to a client component. Props crossing the server/client boundary are serialised into the page payload and visible to anyone.</li>
+<li>A shared module that reads the secret was imported into client code.</li>
+</ul>
+<p><b>Fix now:</b> <b>rotate the key immediately</b>. It's been public in every cached copy of the bundle and in CDN caches. Then remove the exposure and redeploy.</p>
+<p><b>Prevent:</b></p>
+<ul>
+<li>Secrets never use <code>NEXT_PUBLIC_</code>. Only truly public values do (analytics IDs, a publishable key).</li>
+<li>Read secrets only in server-only modules marked with <code>import 'server-only'</code>, so importing them into client code fails the build.</li>
+<li>Call third-party APIs that need secrets from the server (route handlers, server actions, or the backend), never from the browser.</li>
+<li>Add a CI check that scans built client bundles for secret patterns (gitleaks or trufflehog on the <code>.next/static</code> output).</li>
+</ul>`,
+keys:["NEXT_PUBLIC_ inlined at build time","Props from server to client components are exposed","Rotate immediately","server-only guard; call APIs server-side","Bundle secret scanning in CI"],
+fu:[{q:"Because NEXT_PUBLIC_ values are inlined at build time, what operational issue does that cause?",a:"Changing them requires a rebuild; the same image can't be promoted across environments with different public values. Teams solve it by building per environment, or by serving runtime config from the server (an endpoint or a server-rendered script) for values that differ per environment."}],
+rf:["Doesn't rotate the key","Thinks minification hides secrets","Calls secret-requiring APIs from the browser"]},
+
+/* ================= ADVANCED ================= */
+{id:"F023",skill:"React",level:"Advanced",type:"Scenario",
+q:"Users keep a dashboard SPA open all day. After a few hours the tab uses 2 GB of memory and becomes sluggish. How do you find and fix the leak?",
+a:`<ol>
+<li><b>Reproduce and measure:</b> Chrome DevTools, Memory panel. Take a heap snapshot, perform the suspected action repeatedly (navigate between pages, open and close panels, receive many socket events), force GC, take another snapshot, and compare. Look for growing counts of objects, <b>detached DOM nodes</b>, and their retainer paths. The Performance monitor shows JS heap and DOM node counts over time.</li>
+<li><b>Usual React and SPA leaks:</b>
+  <ul>
+  <li><b>Effects without cleanup:</b> <code>setInterval</code>, <code>addEventListener</code> on window or document, WebSocket subscriptions and observers (ResizeObserver, IntersectionObserver) never removed.</li>
+  <li><b>Unbounded client caches:</b> stores or arrays that append every socket message or every visited page's data forever.</li>
+  <li>Third-party chart or map instances not destroyed on unmount.</li>
+  <li>Closures in long-lived subscriptions capturing large objects or old component state.</li>
+  <li>Data libraries configured with infinite <code>gcTime</code> for many unique query keys.</li>
+  </ul></li>
+<li><b>Fix:</b> cleanup in every effect that subscribes, cap in-memory collections (keep the last N messages; virtualise or window long histories), destroy third-party instances, and set reasonable cache GC times.</li>
+<li><b>Prevent:</b> a long-running soak test (automated with Playwright repeating flows, tracking <code>performance.memory</code> or heap snapshots), plus a code review checklist for subscriptions.</li>
+</ol>`,
+keys:["Heap snapshot comparison and detached DOM","Effect cleanup for timers/listeners/sockets/observers","Unbounded client-side collections","Third-party instance disposal; cache GC settings","Soak tests"],
+fu:[{q:"What is a detached DOM node and why does it leak?",a:"A DOM element removed from the document but still referenced from JavaScript (an event handler closure, a cached ref, an array). The GC can't free it, or its subtree. Snapshots list 'Detached' elements and show what's retaining them."}],
+rf:["Tells users to refresh the page","Doesn't use heap snapshots","Keeps every message ever received in state"]},
+
+{id:"F024",skill:"React",level:"Advanced",type:"Architecture",
+q:"Three web products (admin portal, customer web app, marketing site) look inconsistent and duplicate components. Design a shared design system and component library.",
+a:`<ul>
+<li><b>Foundations as design tokens:</b> colour, typography, spacing, radius and elevation in a token source (JSON or Style Dictionary), generated into CSS variables (and React Native values if mobile shares it). Themes (light, dark, brand) swap token values.</li>
+<li><b>Accessible behaviour from headless primitives:</b> build on Radix, React Aria or similar for dialogs, menus, comboboxes and tabs, so keyboard and screen-reader behaviour is correct by default. Style them with the tokens.</li>
+<li><b>Component API discipline:</b> small, composable components with typed props, variants as unions, and ref forwarding. Avoid prop explosion; prefer composition (slots and children) over dozens of boolean flags.</li>
+<li><b>Docs and testing:</b> Storybook as living documentation, with interaction tests, axe accessibility checks per story, and <b>visual regression tests</b> (Chromatic or Playwright screenshots).</li>
+<li><b>Distribution and versioning:</b> a package in the monorepo, or published privately, with <b>semantic versioning</b> and changelogs. Breaking prop or type changes are major versions. Provide codemods for big changes.</li>
+<li><b>Governance:</b> a small owning team or guild, a contribution process, and design and engineering in the same review. Adoption is incremental: new screens use the system, and old screens migrate when touched.</li>
+</ul>`,
+keys:["Tokens as single source, theming","Headless accessible primitives","Composable, typed component APIs","Storybook, a11y checks, visual regression","Semver, codemods, ownership and incremental adoption"],
+trade:["A dedicated design-system team gives quality and consistency, at the cost of headcount and potential bottleneck","Building on headless libraries saves effort but adds a dependency and some constraints","It depends on: number of products, team count, brand variation"],
+fu:[{q:"How do you stop each product team from forking components locally?",a:"Make contribution easy (clear guidelines, fast reviews), give the system real escape hatches (className, composition, slots), and track divergence with linting or usage analytics. Forks usually signal a missing feature, which you fix centrally."}],
+rf:["Copies components between repos","No accessibility built in","Breaking changes in minor versions"]},
+
+{id:"F025",skill:"React",level:"Advanced",type:"Concept",
+q:"Explain React Fiber and why component identity matters. Why does defining a component inside another component cause bugs and slowness?",
+a:`<p><b>Fiber</b> is React's internal representation of the component tree. Each fiber holds the component type, props, state, hooks list and links to its parent, child and sibling. It makes rendering <b>incremental and interruptible</b>: React can split work into units, pause, prioritise urgent updates (input) over less urgent ones (transitions) using lanes, and resume or discard work. That's the foundation for concurrent rendering.</p>
+<p><b>Identity:</b> during reconciliation React decides whether a fiber is the "same component" by <b>type and position</b> (plus key). Same type at the same position means keep the state and update props. A different type means unmount the old one (losing state and DOM) and mount a new one.</p>
+<p><b>Defining a component inside another</b> (<code>function Parent() { function Row() {…}; return &lt;Row /&gt; }</code>) creates a <b>new function, so a new type</b>, every render. React sees a different type each time, so it <b>unmounts and remounts</b> <code>Row</code> on every parent render. State resets, inputs lose focus, effects re-run, and DOM nodes are recreated, which is slow. Define components at module level and pass data via props.</p>
+<p>The same principle explains why conditionally rendering different components at the same position resets state, and why keys can deliberately force a remount.</p>`,
+keys:["Fiber: unit of work, interruptible, priorities/lanes","Identity = type + position + key","Inner component definitions = new type each render","Consequences: remounts, lost state/focus, slowness","Module-level components"],
+fu:[{q:"Two tabs render <Form /> conditionally at the same place. Switching tabs keeps the old tab's input text. Why, and how do you fix it?",a:"Same component type at the same position, so React keeps the instance and its state. Give each a different key (key={tabId}) so React treats them as different instances and resets state on switch."}],
+rf:["Defines components inside render routinely","Thinks keys only matter for performance","Can't explain why state resets"]},
+
+{id:"F026",skill:"React",level:"Advanced",type:"Scenario",
+q:"Likes and comments should feel instant on a social feed, but users sometimes see a like 'jump back' or a duplicated comment. Implement optimistic updates properly.",
+a:`<p><b>Pattern</b> (TanStack Query mutation lifecycle):</p>
+<pre><code>useMutation({
+  mutationFn: (postId: string) =&gt; api.like(postId, { idempotencyKey }),
+  onMutate: async (postId) =&gt; {
+    await qc.cancelQueries({ queryKey: ['feed'] });          // stop in-flight refetch from overwriting
+    const prev = qc.getQueryData(['feed']);
+    qc.setQueryData(['feed'], (f) =&gt; toggleLike(f, postId)); // optimistic change
+    return { prev };
+  },
+  onError: (_e, _id, ctx) =&gt; qc.setQueryData(['feed'], ctx?.prev), // roll back
+  onSettled: () =&gt; qc.invalidateQueries({ queryKey: ['feed'] }),   // reconcile with server
+});</code></pre>
+<p><b>Why the bugs happen and how to avoid them:</b></p>
+<ul>
+<li><b>Jump-back:</b> a refetch already in flight returns pre-like data and overwrites the optimistic state. Cancel queries in <code>onMutate</code>. Rapid toggling also races, so serialise mutations per post, or debounce toggles and send the final state.</li>
+<li><b>Duplicate comments:</b> the optimistic comment has a temporary ID, and the server's version arrives (via refetch or a socket event) as a separate item. Use a <b>client-generated ID</b> sent to the server (also the idempotency key), so the server echoes the same ID and the cache merges by ID.</li>
+<li><b>Server truth:</b> counts come from the server after settle, so don't compute them purely client-side.</li>
+<li>React 19's <code>useOptimistic</code> covers the simple per-component case with automatic revert.</li>
+</ul>`,
+keys:["onMutate snapshot + optimistic update + rollback","Cancel in-flight queries","Client-generated IDs for merge and idempotency","Serialise rapid toggles","Reconcile with server; useOptimistic for simple cases"],
+fu:[{q:"Socket events and optimistic updates both modify the same cached list. How do you avoid double-application?",a:"Make cache updates idempotent by ID: upsert by entity ID rather than append. Include a version or updatedAt so stale events don't overwrite newer state, and ignore echoes of the user's own mutation that the cache already reflects."}],
+rf:["No rollback on error","Appends server items without dedup","Computes counts only on client"]},
+
+{id:"F027",skill:"React",level:"Advanced",type:"Architecture",
+q:"Design how a React web client integrates WebSocket events (new posts, reactions, messages) with server-state caching, without re-render storms or inconsistencies.",
+a:`<ul>
+<li><b>One connection per app</b> (a provider or singleton client), not per component. Subscribe and unsubscribe to channels or rooms based on what's on screen (the open group, the active conversation).</li>
+<li><b>The server-state cache is the single source of truth</b> for UI data (TanStack Query or a normalised store). Socket handlers <b>update the cache</b>, and components re-render from it. Components don't keep their own copies from events.
+  <ul>
+  <li>Small, self-contained events ("reaction count 12 on post X"): <code>setQueryData</code> to patch the specific entity, upserting by ID with a version check.</li>
+  <li>Complex or ambiguous events: <b>invalidate</b> the relevant query and let it refetch. Simpler and always correct, at some network cost.</li>
+  </ul></li>
+<li><b>Batch high-frequency events:</b> buffer events for 100–250 ms and apply them in one cache update, so 50 reactions per second don't cause 50 renders. Use selectors (<code>select</code>) so components subscribe only to the data they render.</li>
+<li><b>Ordering and gaps:</b> apply events only if their version or sequence is newer than the cached one. On reconnect, refetch or request the gap since the last sequence, since events missed while disconnected won't replay.</li>
+<li><b>UI behaviour:</b> for feeds, show a "3 new posts" banner instead of shifting content under the user's scroll.</li>
+</ul>`,
+keys:["Single connection; subscribe by visible context","Cache as single source of truth; patch or invalidate","Batch events; selectors to limit renders","Version/sequence checks; refetch on reconnect","UX: new-items banner instead of layout shifts"],
+trade:["Patching gives instant updates but duplicates server logic in the client","Invalidation is always correct but costs refetches","It depends on: event frequency, payload completeness, consistency needs"],
+fu:[{q:"The user has the app open in two tabs. How do you avoid two socket connections and duplicated notifications?",a:"Optionally share one connection across tabs via a SharedWorker or BroadcastChannel leader election, or accept two connections but dedupe notifications by event ID across tabs using BroadcastChannel. For many apps, two connections are acceptable; dedupe user-visible notifications at least."}],
+rf:["Socket per component","Each component keeps its own event-derived state","No reconnect gap handling"]},
+
+{id:"F028",skill:"Next.js",level:"Advanced",type:"Concept",
+q:"How do streaming and Suspense work in the Next.js App Router? What do loading.tsx and partial prerendering change about page performance?",
+a:`<p>Without streaming, an SSR page waits for <b>all</b> its data before sending any HTML, so the slowest query sets TTFB. With the App Router, React <b>streams</b> HTML. The server sends the shell (layout, navigation, the content that's ready) immediately, and sections wrapped in <code>&lt;Suspense fallback={…}&gt;</code> stream in as their data resolves, each replacing its fallback. Hydration is also <b>selective</b>: interactive parts hydrate as they arrive, prioritising what the user interacts with.</p>
+<ul>
+<li><b><code>loading.tsx</code></b> in a route segment automatically wraps the segment's page in a Suspense boundary with that UI. It gives instant navigation feedback, and the shell renders while data loads.</li>
+<li><b>Granular Suspense boundaries</b> around slow, independent parts (recommendations, comments) keep the critical content fast. Start their fetches in parallel; don't await one before starting another.</li>
+<li><b>Partial prerendering</b> (introduced experimentally, then moving toward the default caching model in newer versions): the static shell of a route is prerendered at build time and served from the CDN instantly, and dynamic holes (per-user content inside Suspense) stream in from the server in the same response. It combines static TTFB with dynamic content.</li>
+</ul>
+<p>Watch out for <b>layout shift</b> from fallbacks of a different size (size skeletons to match), and for SEO-critical content hidden behind slow boundaries.</p>`,
+keys:["Non-streaming SSR blocked by slowest data","Shell first, Suspense sections stream","Selective hydration","loading.tsx; parallel fetches; granular boundaries","PPR concept; CLS and SEO caveats"],
+fu:[{q:"Two server components each await a fetch, one nested inside the other. Why might the page be slower than necessary?",a:"It's a request waterfall: the child's fetch starts only after the parent's completes. Start both fetches at the parent level in parallel (Promise.all, or initiate promises and pass them down), or restructure so independent data loads in sibling Suspense boundaries."}],
+rf:["Awaits everything in the page component sequentially","No loading UI","Skeletons that shift layout"],
+verify:"Partial prerendering's status and API (experimental flag vs newer 'cache components' model) depends on the Next.js version."},
+
+{id:"F029",skill:"Next.js",level:"Advanced",type:"Scenario",
+q:"You self-host a Next.js app on ECS with 4 containers instead of Vercel. ISR pages show different versions depending on which container serves the request, on-demand revalidation only works sometimes, and image optimisation is slow. Explain and fix.",
+a:`<p>By default, Next.js keeps the <b>ISR and data cache on each instance's local filesystem or memory</b>. With 4 containers there are 4 independent caches:</p>
+<ul>
+<li>Each regenerates pages on its own schedule, so users see different versions.</li>
+<li><code>revalidatePath</code>/<code>revalidateTag</code> called on one instance clears only <i>that</i> instance's cache, so it works "sometimes".</li>
+<li>New deploys start with empty caches.</li>
+</ul>
+<p><b>Fixes:</b></p>
+<ul>
+<li>Configure a <b>shared cache handler</b> (the <code>cacheHandler</code> option, with a Redis or S3-based implementation from the community or your own), so all instances read and write one cache and revalidation applies everywhere.</li>
+<li>Use <code>output: 'standalone'</code> for small images, and make sure the build ID is consistent across instances (all containers from the same build).</li>
+<li>Put a <b>CDN</b> (CloudFront) in front. Cache static assets (<code>/_next/static</code>, which are immutable and hashed) for a long time, and let HTML follow Next's cache headers. Purge CDN paths on revalidation if you also cache HTML there.</li>
+<li><b>Image optimisation:</b> the built-in optimiser runs inside the Node containers and is CPU-heavy (it uses sharp). Cache optimised images at the CDN, or offload to an image service or CDN-based optimisation through a custom loader.</li>
+<li>Alternatives: OpenNext, which deploys to AWS serverless with these concerns handled, or a managed host.</li>
+</ul>`,
+keys:["Per-instance cache by default","Revalidation only affects one instance","Shared cacheHandler (Redis/S3)","Standalone output, consistent build, CDN for static assets","Image optimisation offload; OpenNext/managed alternatives"],
+trade:["Self-hosting gives control and possibly lower cost at scale, at the cost of operating caching, images and CDN yourself","Managed platforms handle these concerns but add vendor lock-in and per-request pricing"],
+fu:[{q:"Why must all containers come from the same build?",a:"Each build has a build ID and hashed asset names. Mixing builds during a rolling deploy means HTML from a new container can reference assets only that build has, causing 404s for chunks. Keep old assets available (on the CDN or S3) during rollouts, or use skew protection."}],
+rf:["Sticky sessions to 'fix' inconsistent ISR","Disables ISR entirely","No CDN for static assets"]},
+
+{id:"F030",skill:"Next.js",level:"Advanced",type:"Scenario",
+q:"The app's first-load JavaScript is 900 KB, and mobile INP and LCP suffer. How do you analyse and shrink the bundle?",
+a:`<ol>
+<li><b>Measure:</b> <code>@next/bundle-analyzer</code> (or the build output's per-route sizes) to see which packages and modules dominate each route's client bundle.</li>
+<li><b>Typical causes and fixes:</b>
+  <ul>
+  <li><b>Client boundaries too high:</b> <code>'use client'</code> on a page or layout pulls everything it imports into the client bundle. Push it down to interactive leaves, and keep data-heavy rendering in server components (which ship no JS).</li>
+  <li><b>Heavy libraries used for small features:</b> charting, rich-text editors, date libraries (moment with all locales), lodash as a whole. Replace them with lighter alternatives (date-fns, native <code>Intl</code>), import specific functions, or <b>lazy-load</b> them with <code>next/dynamic</code> only when the feature is opened.</li>
+  <li><b>Barrel files</b> (<code>index.ts</code> re-exporting everything) defeating tree-shaking, especially for icon libraries. Use direct imports, or Next's <code>optimizePackageImports</code>.</li>
+  <li>Duplicate package versions in the dependency tree.</li>
+  <li>Polyfills for browsers you don't support (check the browserslist).</li>
+  <li><b>Third-party scripts</b> (analytics, chat widgets) loaded eagerly. Use <code>next/script</code> with <code>lazyOnload</code> or <code>afterInteractive</code>.</li>
+  </ul></li>
+<li><b>Guard it:</b> a bundle-size budget per route in CI (size-limit, or a build-output check) so regressions fail the PR.</li>
+</ol>`,
+keys:["Bundle analyzer per route","Client boundary placement; server components ship no JS","Heavy libs → lighter/lazy","Barrel files and optimizePackageImports; duplicates; polyfills","Third-party script strategy; CI budget"],
+fu:[{q:"Why do server components reduce bundle size even for content that renders the same HTML?",a:"The component code and its dependencies (markdown parsers, date formatting, data libraries) never ship to the browser. Only the rendered result is sent. With client components, the code ships too, to render and hydrate."}],
+rf:["Only enables compression","'use client' at the layout level","No budget enforcement"]},
+
+{id:"F031",skill:"Next.js",level:"Advanced",type:"Architecture",
+q:"Design authentication for a Next.js App Router web app that uses an external identity provider (for example Cognito) and calls a separate backend API.",
+a:`<p><b>Flow:</b> OIDC Authorization Code with PKCE, handled on the <b>server side</b> of the Next app (Auth.js or the provider's SDK, in route handlers). After login, the server holds the tokens and sets an <b><code>HttpOnly</code>, <code>Secure</code>, <code>SameSite=Lax</code> session cookie</b>. That's either an encrypted session containing the tokens, or a session ID referencing tokens stored server-side (Redis).</p>
+<p><b>Why not localStorage tokens:</b> any XSS can read them and exfiltrate long-lived access. HttpOnly cookies aren't readable by JavaScript.</p>
+<p><b>Calling the backend:</b></p>
+<ul>
+<li>Server components, server actions and route handlers read the session, refresh the access token if it's near expiry (using the refresh token server-side), and call the backend with <code>Authorization: Bearer</code> server-to-server.</li>
+<li>For client-side calls, either proxy through Next route handlers (the BFF pattern: the browser sends only the cookie, and Next attaches the token), or have the backend accept the session cookie on the same site. Avoid giving the browser the raw access token where possible.</li>
+</ul>
+<p><b>Authorisation:</b> the backend validates tokens and enforces permissions. Next checks are for UX and early rejection, not the security boundary. Middleware can redirect unauthenticated users, but data access must check too.</p>
+<p><b>Also cover:</b> logout (clear the session, revoke the refresh token, end the IdP session), CSRF on cookie-authenticated mutations (SameSite plus Origin checks; server actions check Origin), and session expiry UX.</p>`,
+keys:["Server-side OIDC code flow with PKCE","HttpOnly secure session cookie, not localStorage","Server-side token refresh and backend calls","BFF proxy for client calls","Backend enforces authz; logout, CSRF, expiry"],
+trade:["BFF keeps tokens off the browser but routes client API calls through Next (extra hop, more Next load)","Direct browser-to-API with tokens is simpler but increases XSS exposure","It depends on: threat model, API topology, existing backend auth"],
+fu:[{q:"The mobile app uses the same backend. Does it use cookies too?",a:"No. Native apps use the OIDC code flow with PKCE via the system browser, store tokens in the platform's secure storage (Keychain, Keystore), and send bearer tokens. The backend accepts bearer tokens for both, with the web BFF attaching them on the server."}],
+rf:["Access tokens in localStorage","Auth only in middleware","No refresh-token handling"]},
+
+{id:"F032",skill:"TypeScript (Frontend)",level:"Advanced",type:"Concept",
+q:"How do you get end-to-end type safety for forms, from the input fields to validation messages to the server action or API, without defining the shape three times?",
+a:`<p><b>One schema as the source of truth</b>, usually zod (or valibot), shared by client and server:</p>
+<pre><code>// schema.ts (shared)
+export const CreatePostSchema = z.object({
+  groupId: z.string().uuid(),
+  body: z.string().trim().min(1, 'Write something').max(5000),
+  visibility: z.enum(['members', 'admins']),
+});
+export type CreatePostInput = z.infer&lt;typeof CreatePostSchema&gt;;
+
+// client: react-hook-form with zodResolver → typed fields + same messages
+const form = useForm&lt;CreatePostInput&gt;({ resolver: zodResolver(CreatePostSchema) });
+
+// server action / route handler: never trust the client, parse again
+const input = CreatePostSchema.parse(raw);</code></pre>
+<ul>
+<li>The TypeScript type is <b>inferred</b> from the schema, so field names, the form state and the server input can't drift.</li>
+<li>The same rules produce the client-side messages (fast feedback) and the server-side validation (security). The server <b>always</b> re-validates.</li>
+<li>Server-only rules (uniqueness, permissions) return field errors in a typed result (<code>{ ok: false; fieldErrors }</code>) that the form maps back to fields.</li>
+<li>If the backend is a separate service (NestJS or .NET), generate the client schema or types from its OpenAPI spec, or share zod schemas through a package if the backend is TypeScript, so the backend remains the authority.</li>
+</ul>`,
+keys:["Single schema; inferred types","Same rules for client feedback and server validation","Server always re-validates","Typed server error results mapped to fields","Codegen/shared package when backend is separate"],
+fu:[{q:"What about transforms, like trimming or converting strings to numbers?",a:"Schemas can transform (z.coerce.number(), .trim()), but then the input and output types differ. Use z.input and z.output (or the resolver's generics) deliberately, so the form's field types are the raw input and the submit handler receives parsed output."}],
+rf:["Separate hand-written TS type, client validation and server validation","Trusts client validation","any in form handlers"]},
+
+{id:"F033",skill:"Web Performance & Accessibility",level:"Advanced",type:"Scenario",
+q:"Field data shows INP of 450 ms on the feed page, mostly on mid-range Android phones. How do you find and fix the slow interactions?",
+a:`<ol>
+<li><b>Find which interactions are slow:</b> the web-vitals attribution build reports the target element, interaction type and timing breakdown: input delay, processing time, and presentation delay. RUM aggregated by element shows the worst offenders (often "like" taps, opening comment drawers, typing in search).</li>
+<li><b>Reproduce</b> in DevTools with CPU throttling (4–6×) and the Performance panel. Look for <b>long tasks</b> (over 50 ms) around the interaction.</li>
+<li><b>Causes and fixes by phase:</b>
+  <ul>
+  <li><b>Input delay</b> (the main thread was busy when the user tapped): hydration of a big page, third-party scripts, or timers running heavy work. Reduce JavaScript (server components, code splitting), defer third parties, and split long tasks.</li>
+  <li><b>Processing time</b> (the handler itself is slow): expensive synchronous work or large re-renders after a state update. Make the immediate visual feedback cheap (toggle the like icon), and defer the rest with <code>startTransition</code> or after a yield (<code>await scheduler.yield()</code> where supported, or <code>setTimeout</code>). Move heavy computation to a Web Worker. Narrow re-renders with state colocation, memoisation and virtualisation.</li>
+  <li><b>Presentation delay:</b> large DOM updates, layout thrashing, or big style recalculations. Keep the DOM smaller (virtualise long feeds) and avoid forced synchronous layouts.</li>
+  </ul></li>
+<li><b>Verify</b> in field data over the following weeks, segmented by device class.</li>
+</ol>`,
+keys:["Attribution: element + input delay/processing/presentation","Reproduce with CPU throttling, long tasks","Reduce hydration/third-party JS","Yield/transition/worker for heavy handlers","Smaller DOM, virtualisation; verify in field"],
+fu:[{q:"Why does hydration hurt INP even after the page looks ready?",a:"The page is visible from server HTML, but React is still hydrating (attaching listeners, running component code) on the main thread. Taps during that window wait behind hydration tasks, so input delay is high. Less client JavaScript and selective hydration reduce the window."}],
+rf:["Optimises only Lighthouse in desktop mode","Adds useMemo everywhere without profiling","Ignores third-party scripts"]},
+
+{id:"F034",skill:"Web Performance & Accessibility",level:"Advanced",type:"Concept",
+q:"How should HTTP caching be configured for a web app's HTML, hashed JavaScript and CSS, images and API responses? What goes wrong with service workers?",
+a:`<ul>
+<li><b>Hashed static assets</b> (<code>app.3f9a1c.js</code>, Next's <code>/_next/static</code>): <code>Cache-Control: public, max-age=31536000, immutable</code>. The filename changes when the content changes, so caching forever is safe and gives instant repeat loads.</li>
+<li><b>HTML documents:</b> short or no caching at the browser (<code>no-cache</code>, which means revalidate with ETags, or a short <code>max-age</code>), so users pick up new deployments, which reference new asset hashes. At the CDN, cache only if the page is the same for everyone (static or ISR), with purge or revalidation on change. Never shared-cache personalised HTML.</li>
+<li><b>Images:</b> long caching if URLs are versioned or content-addressed; otherwise moderate caching with revalidation.</li>
+<li><b>API responses:</b> usually <code>private, no-store</code> or short <code>private</code> caching for user-specific data. <code>public, s-maxage</code> with <code>stale-while-revalidate</code> for public, shared data. <code>Vary</code> on headers that change the response.</li>
+</ul>
+<p><b>Service worker pitfalls:</b></p>
+<ul>
+<li>A cache-first service worker can keep serving <b>old HTML and assets after deploys</b>, so users run outdated versions for days.</li>
+<li>A buggy service worker is hard to remove, because it controls the page until it updates.</li>
+<li>Caching authenticated API responses in it risks data appearing for the wrong user on shared devices.</li>
+</ul>
+<p>Use a well-tested library (Workbox), network-first strategies for HTML, a clear update flow ("new version available, reload"), and a kill-switch plan.</p>`,
+keys:["Immutable long cache for hashed assets","HTML revalidate/short; CDN only for non-personalised","API caching private vs public, stale-while-revalidate, Vary","Service worker staleness and removal difficulty","Workbox, network-first HTML, update flow, kill switch"],
+fu:[{q:"After a deploy, some users get errors loading JavaScript chunks. Why?",a:"They have an old HTML page (cached, or a long-open tab) referencing chunk files that the new deployment removed. Keep previous builds' assets available for a while (on the CDN or S3), and handle chunk-load failures with a reload prompt."}],
+rf:["Long cache on HTML","No-cache on hashed assets","Cache-first service worker for HTML"]},
+
+/* ================= LEAD ================= */
+{id:"F035",skill:"React",level:"Lead",type:"Architecture",
+q:"Leadership hears about micro-frontends and asks whether you should split the web app into independently deployed micro-frontends owned by each team. How do you evaluate it?",
+a:`<p><b>What micro-frontends solve:</b> organisational scaling. Many teams (often 5 or more) working on one large frontend, blocked by a shared release train, wanting independent deployment and technology choices per area.</p>
+<p><b>Approaches:</b></p>
+<ul>
+<li><b>Route-based split:</b> separate apps per area (<code>/admin</code>, <code>/shop</code>) behind a router or proxy. Simplest and most robust.</li>
+<li><b>Runtime composition:</b> Module Federation or single-spa loading team bundles into a shell at runtime.</li>
+<li>Build-time packages, which aren't truly independent deploys.</li>
+<li>iframes, which isolate strongly but give poor UX integration.</li>
+</ul>
+<p><b>Costs:</b></p>
+<ul>
+<li>Duplicate dependencies and bigger bundles (or fragile shared-version negotiation).</li>
+<li>Inconsistent UX without a strong design system.</li>
+<li>Cross-app state, auth and routing complexity.</li>
+<li>Harder end-to-end testing and debugging.</li>
+<li>Platform work for the shell, deployment and versioning.</li>
+</ul>
+<p><b>Evaluation:</b> how many teams touch the frontend, and how often do they block each other? Could a well-structured monorepo with module boundaries, CODEOWNERS, independent CI per package and trunk-based deploys solve the coordination problem more cheaply? For a few teams, almost always yes.</p>
+<p>If micro-frontends are justified, start with route-based splits along clear domain boundaries, with a shared design system and auth, before considering runtime composition.</p>`,
+keys:["Organisational problem it solves","Approach spectrum (route-based → runtime federation)","Real costs: bundles, UX, state, testing, platform","Cheaper alternatives: modular monorepo","Start route-based if justified"],
+trade:["Micro-frontends: team autonomy and independent deploys, with performance and consistency costs","Modular monolith frontend: simpler and faster, needs discipline for boundaries","It depends on: team count, coupling, release friction evidence"],
+fu:[{q:"What evidence would convince you micro-frontends are needed?",a:"Measured release friction: frequent merge conflicts and blocked deploys across teams, long CI times despite optimisation, and teams with genuinely separate domains and users, persisting after trying a modular monorepo with independent pipelines."}],
+rf:["Adopts micro-frontends for a 2-team product","Runtime federation as first step","Ignores design system and auth integration"]},
+
+{id:"F036",skill:"React",level:"Lead",type:"Architecture",
+q:"Define the frontend testing strategy for your team's React/Next.js apps: what to test at which level, and how to keep end-to-end tests from becoming slow and flaky.",
+a:`<ul>
+<li><b>Static checks</b> (cheapest): TypeScript strict mode, ESLint (including hooks rules and jsx-a11y). They catch a large class of bugs before tests run.</li>
+<li><b>Unit tests</b> (Vitest or Jest): pure logic such as formatters, reducers, validation schemas and data transformations.</li>
+<li><b>Component and integration tests</b> (React Testing Library): render components with realistic providers, interact as a user (by role and label, not implementation details), and assert on visible outcomes. Mock the network at the HTTP layer (MSW), not individual hooks. This is the bulk of frontend tests, and they also check accessibility queries implicitly.</li>
+<li><b>End-to-end</b> (Playwright): a <b>small set of critical journeys</b> (login, create post, checkout) against a deployed environment with seeded data. Run on PRs (smoke subset) and fully before release.</li>
+<li><b>Visual regression</b> for the design system and key pages (Chromatic or Playwright screenshots).</li>
+<li><b>Accessibility checks</b> (axe) in component and end-to-end tests.</li>
+<li><b>Contract checks:</b> generated API types from the backend's OpenAPI spec, failing builds on breaking changes.</li>
+</ul>
+<p><b>Keeping end-to-end tests healthy:</b></p>
+<ul>
+<li>Stable selectors (roles and test IDs).</li>
+<li>No fixed waits (Playwright's auto-waiting).</li>
+<li>Isolated test data per run (API-seeded users).</li>
+<li>Parallel workers.</li>
+<li>Trace artifacts on failure.</li>
+<li>A <b>flaky-test quarantine</b> with owners and deadlines.</li>
+</ul>`,
+keys:["Static checks as first layer","RTL user-centric tests with MSW as the bulk","Few critical Playwright journeys","Visual regression, axe, API contract checks","E2E hygiene: selectors, no sleeps, isolated data, quarantine"],
+trade:["More E2E coverage gives realism but costs speed and stability","Component tests with mocked network are fast but can miss integration issues; contract checks bridge the gap"],
+fu:[{q:"Why test by role and label rather than CSS classes or component internals?",a:"Tests then resemble how users and assistive technology interact. They survive refactors that don't change behaviour, and they fail when accessibility breaks (a button without a name can't be found by role)."}],
+rf:["Snapshot tests of everything as the main strategy","Hundreds of E2E tests with sleeps","Mocks every hook"]},
+
+{id:"F037",skill:"Next.js",level:"Lead",type:"Architecture",
+q:"For a new web product, how do you choose between Next.js, a client-side React SPA (Vite), and React Router (formerly Remix) framework mode?",
+a:`<p><b>Key questions:</b></p>
+<ul>
+<li><b>SEO and first-load performance:</b> public, indexable pages (marketing, product catalogue, shared posts) benefit from server rendering and static generation, which favours Next.js or React Router framework mode. An app behind login with no SEO needs (an admin portal, internal tools) works perfectly as a <b>Vite SPA</b>.</li>
+<li><b>Backend topology:</b> if a separate API (NestJS or .NET) already does the business logic, the frontend framework's server features are mostly for rendering and BFF duties. A SPA plus API may be simplest.</li>
+<li><b>Hosting and operations:</b> a SPA is static files on S3 and CloudFront, with almost nothing to run. Next.js needs a Node runtime (or a managed host) for SSR, ISR and image optimisation, plus caching configuration when self-hosting.</li>
+<li><b>Team experience and framework churn:</b> the App Router and server components have a learning curve and have changed quickly across versions. React Router framework mode leans on web standards (loaders, actions, forms) with simpler mental models for some teams.</li>
+<li><b>Ecosystem needs:</b> image optimisation, i18n routing, edge rendering, and the hiring market (Next.js is the most common).</li>
+</ul>
+<p><b>Typical decisions:</b> a public consumer site plus app goes to Next.js. An internal or admin tool goes to a Vite SPA. Write an ADR covering hosting, rendering and auth decisions.</p>`,
+keys:["SEO/first-load needs drive SSR choice","Existing backend affects value of framework server features","Hosting/ops cost differences","Team experience and churn","ADR with typical outcomes"],
+trade:["Next.js: rich rendering options, more complexity and operational surface","SPA: simplest hosting, weaker SEO and first load","React Router framework: standards-based, smaller ecosystem than Next","It depends on: audience, SEO, team, hosting"],
+fu:[{q:"Your AI assistant product is login-only, with a separate backend. Was Next.js the right call?",a:"Defensible if streaming responses, server-side token handling (BFF), or future public pages mattered, or if the team's familiarity sped up delivery. A Vite SPA with a BFF in the backend would also have worked with simpler hosting. Explain the actual reasons and what you'd revisit."}],
+rf:["Next.js for everything by default","Ignores operational cost of SSR","Can't explain trade-offs of their own past choice"]},
+
+{id:"F038",skill:"Next.js",level:"Lead",type:"Scenario",
+q:"Four Next.js apps are two major versions behind. The upgrade brings breaking changes (asynchronous request APIs, changed caching defaults, React 19). How do you plan and run the upgrade across teams?",
+a:`<ol>
+<li><b>Inventory and read:</b> list each app's versions, key dependencies and features in use, and read the official upgrade guides for each major version. Note behaviour changes that won't show as compile errors, especially <b>caching defaults</b> (what was cached before may now be dynamic, or the reverse).</li>
+<li><b>Use the codemods:</b> Next.js and React provide codemods (for example converting <code>cookies()</code>, <code>headers()</code> and <code>params</code> to async usage), which handle most mechanical changes. Review the diffs.</li>
+<li><b>Upgrade dependencies first</b> in a branch: React 19 compatibility of UI libraries, auth libraries and data libraries. Some may need upgrades or replacements.</li>
+<li><b>Pilot on the simplest app,</b> then document the findings and gotchas in a shared upgrade guide for the other teams.</li>
+<li><b>Verify behaviour, not just compilation:</b> run the full test suite, run end-to-end tests on critical journeys, compare caching behaviour (response headers, build output's static vs dynamic route list), check bundle size and Web Vitals before and after, and canary release with monitoring.</li>
+<li><b>Schedule</b> the upgrades in team plans with explicit capacity, and set a deadline tied to support windows and security patches.</li>
+</ol>`,
+keys:["Inventory + official guides; non-compile behaviour changes","Codemods for mechanical changes","Dependency compatibility first","Pilot then shared guide","Behaviour verification (caching, bundle, vitals) and canary; planned capacity"],
+fu:[{q:"How do you detect caching behaviour changes after an upgrade?",a:"Compare the build output's route table (static vs dynamic markers) before and after, inspect response headers (Cache-Control, x-nextjs-cache) on key pages, and add tests for pages whose freshness matters (for example, an updated price appears within N seconds)."}],
+rf:["Upgrades all apps at once without a pilot","Relies only on compilation success","Ignores dependency compatibility"]},
+
+{id:"F039",skill:"Web Performance & Accessibility",level:"Lead",type:"Scenario",
+q:"Your team is mostly backend engineers who also own the web frontend. Quality is slipping: inconsistent UI, accessibility issues, and slow pages. Hiring a frontend specialist will take months. What do you do now?",
+a:`<ul>
+<li><b>Make quality visible first:</b> a dashboard of Core Web Vitals from field data, axe violation counts, bundle sizes, and frontend error rates (Sentry). Agree on 2–3 targets with product, so improvements are prioritised work, not "extra".</li>
+<li><b>Move judgment into tools,</b> since the team lacks deep frontend instinct:
+  <ul>
+  <li>Strict TypeScript, ESLint with jsx-a11y and hooks rules.</li>
+  <li>Bundle-size budgets and Lighthouse CI or axe checks in PRs.</li>
+  <li>A design-system or headless component library (Radix-based, for example), so accessible behaviour is built in, not hand-written.</li>
+  </ul></li>
+<li><b>Grow skills deliberately:</b> pick one or two engineers interested in frontend as champions, with time for training (React docs, web.dev courses, accessibility basics). They pair on frontend work and run short internal sessions. Use review checklists for frontend PRs.</li>
+<li><b>Bring in expertise in a targeted way:</b> a short contractor or consultant engagement for an accessibility audit and a performance review, with the explicit goal of teaching the team and leaving playbooks, not just fixing.</li>
+<li><b>Reduce surface area:</b> choose simpler rendering patterns, and avoid bespoke components where library ones work.</li>
+<li>Keep the hire in progress, and define the role around what's still missing.</li>
+</ul>`,
+keys:["Measure and agree targets with product","Tooling and accessible component libraries to encode expertise","Champions with dedicated learning time","Targeted external audit with knowledge transfer","Reduce bespoke surface; continue hiring"],
+trade:["Training existing engineers is slower to show results but builds lasting capability","Contractors fix issues quickly but leave little behind unless knowledge transfer is explicit"],
+fu:[{q:"How do you convince product to give time to frontend quality?",a:"Connect metrics to outcomes they care about: conversion or engagement differences by Core Web Vitals bucket, support tickets from accessibility or UI bugs, legal accessibility requirements in target markets, and app-store or SEO impact. Propose a time-boxed improvement with measurable targets."}],
+rf:["Waits for the hire","Adds more manual QA only","Rewrites the frontend from scratch"]},
+
+{id:"F040",skill:"Web Performance & Accessibility",level:"Lead",type:"Architecture",
+q:"How do you set up performance budgets and monitoring so frontend performance doesn't regress as several teams ship features?",
+a:`<p><b>Budgets</b> (agreed with product and design, per key page type):</p>
+<ul>
+<li><b>Outcome budgets:</b> Core Web Vitals at p75 from field data (LCP ≤ 2.5 s, INP ≤ 200 ms, CLS ≤ 0.1), segmented by mobile and desktop.</li>
+<li><b>Input budgets</b> that predict those outcomes and can be checked in CI: JavaScript per route (for example ≤ 200 KB compressed first load), image weight, number of third-party scripts, server response time for HTML.</li>
+</ul>
+<p><b>Enforcement:</b></p>
+<ul>
+<li><b>In PRs:</b> bundle-size checks (size-limit or build-output diffs) and Lighthouse CI against preview deployments, with thresholds that fail or warn. Lab numbers are noisy, so use multiple runs and tolerances.</li>
+<li><b>In production:</b> RUM with the web-vitals library sent to analytics or an observability tool, dashboards per route and release, and alerts when p75 crosses budgets. Tag metrics with the release version to pinpoint regressions.</li>
+<li><b>Third-party governance:</b> new tags or scripts need review against the budget (marketing tags are a common regression source).</li>
+</ul>
+<p><b>Ownership:</b> each route or feature has an owning team responsible for its budget. Hold a monthly review of the worst pages, and allocate fixes like other bugs.</p>`,
+keys:["Outcome (CWV p75) and input budgets","CI enforcement with tolerance for lab noise","RUM with release tagging and alerts","Third-party script governance","Route ownership and regular review"],
+trade:["Strict CI gates prevent regressions but can block urgent work on noisy measurements; allow documented overrides","Field data is truthful but slow to react; combine with lab checks for fast feedback"],
+fu:[{q:"Marketing wants to add a new tracking tag that costs 80 KB and 150 ms of main-thread time. How do you respond?",a:"Quantify the impact against the budget and on conversion. Offer alternatives: server-side tagging, loading the tag after interaction or idle, or a lighter vendor setup. Let the business decide with numbers, then monitor the actual impact after release."}],
+rf:["Budget only on Lighthouse score","No production monitoring","No owner for third-party additions"]}
+
+
+];
+
+/* ---------- state ---------- */
+const KEY="fe-bank-reviewed-v1";
+let reviewed={};
+try{reviewed=JSON.parse(localStorage.getItem(KEY)||"{}")||{}}catch(e){reviewed={}}
+function save(){try{localStorage.setItem(KEY,JSON.stringify(reviewed))}catch(e){}}
+
+const state={text:"",skill:"all",status:"all",levels:new Set(),types:new Set()};
+const $=s=>document.querySelector(s);
+
+/* ---------- controls ---------- */
+const skills=[...new Set(QS.map(x=>x.skill))];
+$("#skill").innerHTML=`<option value="all">All skills</option>`+skills.map(s=>`<option value="${s}">${s}</option>`).join("");
+function chipRow(el,items,set){
+  el.innerHTML=items.map(i=>`<button type="button" class="chip" aria-pressed="false" data-v="${i}">${i}</button>`).join("");
+  el.addEventListener("click",e=>{const b=e.target.closest(".chip");if(!b)return;const v=b.dataset.v;
+    if(set.has(v)){set.delete(v);b.setAttribute("aria-pressed","false")}else{set.add(v);b.setAttribute("aria-pressed","true")}render()});
+}
+chipRow($("#levels"),LEVELS,state.levels);
+chipRow($("#types"),TYPES,state.types);
+$("#q").addEventListener("input",e=>{state.text=e.target.value.trim().toLowerCase();render()});
+$("#skill").addEventListener("change",e=>{state.skill=e.target.value;render()});
+$("#status").addEventListener("change",e=>{state.status=e.target.value;render()});
+let allOpen=false;
+$("#toggleAll").addEventListener("click",()=>{allOpen=!allOpen;
+  document.querySelectorAll("details.ans").forEach(d=>d.open=allOpen);
+  $("#toggleAll").textContent=allOpen?"Close all answers":"Open all answers"});
+
+/* ---------- stats ---------- */
+function count(key,vals){return vals.map(v=>`${v} <b>${QS.filter(x=>x[key]===v).length}</b>`).join(" · ")}
+$("#stats").innerHTML=`<span><b>${QS.length}</b> questions loaded</span><span>${count("level",LEVELS)}</span><span>${count("type",TYPES.filter(t=>t!=="Behavioral"))}</span><span>${PARTS}</span>`;
+
+/* ---------- render ---------- */
+const strip=h=>h.replace(/<[^>]+>/g," ");
+function matches(x){
+  if(state.skill!=="all"&&x.skill!==state.skill)return false;
+  if(state.levels.size&&!state.levels.has(x.level))return false;
+  if(state.types.size&&!state.types.has(x.type))return false;
+  if(state.status==="done"&&!reviewed[x.id])return false;
+  if(state.status==="todo"&&reviewed[x.id])return false;
+  if(state.text){const hay=(x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
+    if(!hay.includes(state.text))return false}
+  return true;
+}
+const ul=arr=>`<ul>${arr.map(i=>`<li>${i}</li>`).join("")}</ul>`;
+function item(x,i){
+  const done=!!reviewed[x.id];
+  return `<li class="q${done?" done":""}" id="${x.id}">
+    <div class="qhead"><span class="num">${x.id}</span><div>
+      <p class="qtext">${x.q}</p>
+      <div class="tags"><span class="tag">${x.skill}</span><span class="tag lv lv-${x.level}">${x.level}</span><span class="tag">${x.type}</span>${x.verify?`<span class="tag verify">VERIFY</span>`:""}
+        <label class="check"><input type="checkbox" data-id="${x.id}" ${done?"checked":""}> Reviewed</label></div>
+    </div></div>
+    <div class="body">
+      <details class="ans"><summary>Model answer, key points and red flags</summary><div class="dbody">
+        ${x.a}
+        ${x.tools?`<h4>Tools and metrics to check</h4>${ul(x.tools)}`:""}
+        <h4>What the interviewer listens for</h4>${ul(x.keys)}
+        ${x.trade?`<h4>Trade-offs and "it depends on"</h4>${ul(x.trade)}`:""}
+        <h4 class="rf">Red flags</h4>${ul(x.rf)}
+        ${x.verify?`<p class="note">[VERIFY] ${x.verify}</p>`:""}
+      </div></details>
+      ${(x.fu||[]).map(f=>`<details class="fu ans"><summary><span class="fl">FOLLOW-UP</span><span>${f.q}</span></summary><div class="dbody"><p>${f.a}</p></div></details>`).join("")}
+    </div></li>`;
+}
+function render(){
+  const list=QS.filter(matches);
+  $("#list").innerHTML=list.length?list.map(item).join(""):`<li class="empty">No questions match these filters.</li>`;
+  if(allOpen)document.querySelectorAll("details.ans").forEach(d=>d.open=true);
+  const n=QS.filter(x=>reviewed[x.id]).length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${list.length} shown`;
+  $("#pfill").style.width=(QS.length?n/QS.length*100:0)+"%";
+}
+$("#list").addEventListener("change",e=>{const c=e.target.closest("input[data-id]");if(!c)return;
+  const id=c.dataset.id;if(c.checked)reviewed[id]=1;else delete reviewed[id];save();
+  c.closest("li.q").classList.toggle("done",c.checked);
+  const n=QS.filter(x=>reviewed[x.id]).length;const shown=document.querySelectorAll("li.q").length;
+  $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${shown} shown`;$("#pfill").style.width=(n/QS.length*100)+"%";});
+render();
+</script>
+
+</html>
