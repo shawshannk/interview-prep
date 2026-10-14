@@ -1,0 +1,259 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>GenAI Fundamentals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: reading page with a sticky contents rail on wide screens (collapsible on phones); sections are long-form with tables, flow diagrams and 'interview angle' notes */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --code:#EEF1F7; --angle:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.65;padding-inline:16px;padding-block:0 64px}
+.page{max-width:1120px;margin:0 auto}
+.crumb{padding-block:18px 0;font-size:14px}
+header.top{padding-block:14px 26px;display:grid;gap:10px;max-width:760px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5.5vw,42px);line-height:1.05;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:66ch}
+.layout{display:grid;grid-template-columns:1fr;gap:28px}
+@media (min-width:980px){.layout{grid-template-columns:230px minmax(0,1fr)}}
+nav.toc{font-size:14px}
+@media (min-width:980px){nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto}}
+nav.toc details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+nav.toc summary{cursor:pointer;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+nav.toc ol{margin:8px 0 0;padding-left:20px;display:grid;gap:4px}
+nav.toc a{color:var(--ink);text-decoration:none}
+nav.toc a:hover{color:var(--accent);text-decoration:underline}
+main{min-width:0;display:grid;gap:40px}
+section{min-width:0;display:grid;gap:12px;scroll-margin-top:16px}
+section > h2{font-family:var(--f-display);font-weight:600;font-size:24px;line-height:1.2;margin:0;padding-top:4px;border-top:2px solid var(--ink);padding-block:12px 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:10px 0 0;text-wrap:balance}
+h4{font-size:15px;margin:6px 0 0;font-weight:600}
+p{margin:0;max-width:72ch}
+ul,ol{margin:0;padding-left:22px;max-width:72ch}
+li+li{margin-top:4px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:4px}
+pre{margin:0;background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55;max-width:100%}
+pre code{background:none;padding:0;font-size:inherit}
+.tw{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-weight:600;background:var(--soft);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{font-variant-numeric:tabular-nums}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13.5px}
+.flow .n{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-weight:500}
+.flow .n small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.flow .ar{color:var(--muted);font-family:var(--f-mono)}
+.angle{border-left:3px solid var(--angle);padding:6px 0 6px 12px;max-width:72ch}
+.angle b:first-child{color:var(--angle)}
+.warnbox{border-left:3px solid var(--warn);padding:6px 0 6px 12px;max-width:72ch}
+.verify{font-family:var(--f-mono);font-size:11px;color:var(--verify);border:1px solid currentColor;border-radius:4px;padding:0 4px;white-space:nowrap}
+.practice{font-size:14px;color:var(--muted)}
+.vnote{font-size:13px;color:var(--muted)}
+a.qid{font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+dl.gl{margin:0;max-width:80ch}
+dl.gl dt{font-weight:600;scroll-margin-top:16px;margin-top:14px}
+dl.gl dt:first-child{margin-top:0}
+dl.gl dd{margin:2px 0 0;color:var(--ink)}
+dl.gl dd .see{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.az{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--f-mono);font-size:14px}
+.az a{display:inline-block;min-width:30px;min-height:30px;line-height:30px;text-align:center;border:1px solid var(--line);border-radius:6px;background:var(--surface);text-decoration:none}
+.rev{columns:2 340px;column-gap:28px;max-width:none}
+.rev li{break-inside:avoid}
+@media print{nav.toc,.crumb{display:none}.layout{display:block}section{break-inside:avoid-page}body{font-size:12px}}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.grid2 > div{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:6px;align-content:start}
+.grid2 h4{margin:0}
+footer.foot{margin-top:48px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);max-width:760px}
+</style>
+<div class="page">
+<div class="crumb"><a href="index.html">&larr; All banks and fundamentals</a></div>
+<header class="top">
+<div class="eyebrow">Fundamentals · applied GenAI for engineers</div>
+<h1>GenAI Fundamentals</h1>
+<p class="lede">The concepts behind building LLM features in production: how models work at the level an engineer needs, prompting, embeddings, RAG, tool use and agents, evaluation, security, and cost/latency. Practise with the <a href="ai-genai.html">AI & GenAI bank</a>.</p>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="Contents"><details open id="toc-details"><summary>Contents</summary><ol>
+<li><a href="#llm">How LLMs work (the engineer's view)</a></li>
+<li><a href="#adapt">Ways to adapt a model</a></li>
+<li><a href="#prompt">Prompting fundamentals</a></li>
+<li><a href="#embeddings">Embeddings and vector search</a></li>
+<li><a href="#rag">RAG pipeline</a></li>
+<li><a href="#agents">Tool use and agents</a></li>
+<li><a href="#eval">Evaluation</a></li>
+<li><a href="#security">LLM security</a></li>
+<li><a href="#cost">Cost and latency</a></li>
+</ol></details></nav>
+<main>
+<section id="llm">
+<h2>How LLMs work (the engineer's view)</h2>
+
+<div class="tw"><table>
+<tr><th>Concept</th><th>What you need to know</th></tr>
+<tr><td>Tokens</td><td>Models read and write sub-word tokens. Roughly 1 token ≈ 4 characters ≈ 0.75 English words; other languages and code often use more tokens. Pricing, limits and latency are all per token.</td></tr>
+<tr><td>Next-token prediction</td><td>A transformer predicts a probability distribution over the next token, appends the chosen one and repeats. Output is generated one token at a time, which is why streaming helps perceived latency.</td></tr>
+<tr><td>Context window</td><td>Maximum tokens of input plus output per call. Larger windows cost more and quality can drop for facts buried in the middle of long contexts.</td></tr>
+<tr><td>Temperature / top-p</td><td>Sampling controls. Low temperature for extraction and classification (more deterministic), higher for creative text. Even temperature 0 isn't guaranteed to be perfectly deterministic.</td></tr>
+<tr><td>System / user / assistant messages</td><td>Roles in a chat request. The system prompt sets behaviour and constraints; it is not a security boundary.</td></tr>
+<tr><td>Hallucination</td><td>Fluent but unsupported output. Reduce with grounding (RAG), constrained output, asking for citations, allowing "I don't know", and evaluation — not with prompting alone.</td></tr>
+<tr><td>Knowledge cutoff</td><td>Models don't know events after training; supply current data in the context.</td></tr>
+<tr><td>Reasoning models</td><td>Spend extra tokens "thinking" before answering; better at multi-step problems, slower and more expensive.</td></tr>
+<tr><td>Multimodal</td><td>Many models accept images/documents as input; useful for document extraction.</td></tr>
+</table></div>
+
+</section>
+<section id="adapt">
+<h2>Ways to adapt a model</h2>
+
+<div class="tw"><table>
+<tr><th>Approach</th><th>Use when</th><th>Cost / effort</th></tr>
+<tr><td>Prompt engineering</td><td>Always the first step: clear instructions, examples, output format</td><td>Lowest</td></tr>
+<tr><td>RAG (retrieval-augmented generation)</td><td>Answers need private, large or changing knowledge, with citations</td><td>Medium: ingestion pipeline, vector store, evaluation</td></tr>
+<tr><td>Tool / function calling</td><td>The model must fetch live data or take actions (look up an order, create a ticket)</td><td>Medium: API design, permissions, validation</td></tr>
+<tr><td>Fine-tuning</td><td>Consistent style/format, narrow classification, or distilling to a smaller cheaper model, with good labelled data</td><td>High: data prep, training, re-evaluation on every base model change; poor way to add facts</td></tr>
+<tr><td>Training from scratch</td><td>Almost never for product teams</td><td>Very high</td></tr>
+</table></div>
+<p class="angle"><b>Interview angle:</b> "Facts → RAG; behaviour/format → prompting, then fine-tuning if needed; actions → tools." Mention that you'd measure with an eval set before and after each change.</p>
+
+</section>
+<section id="prompt">
+<h2>Prompting fundamentals</h2>
+
+<ul>
+<li><b>Be specific:</b> task, audience, constraints, what to do when information is missing.</li>
+<li><b>Give examples</b> (few-shot) of good input/output pairs, including edge cases.</li>
+<li><b>Structure input</b> with clear delimiters or XML-style tags separating instructions, context documents and user input.</li>
+<li><b>Ask for structured output</b> (JSON schema) and validate it in code; use the provider's structured-output or tool features where available.</li>
+<li><b>Let it think</b> for complex tasks (step-by-step reasoning or a reasoning model), but parse only the final answer.</li>
+<li><b>Version prompts</b> like code, with tests (eval sets) that run on every change.</li>
+<li><b>Keep stable content first</b> (system prompt, instructions, reference docs) so prompt caching can reuse it.</li>
+</ul>
+<pre><code>System: You answer questions about company HR policy using ONLY the documents provided.
+If the documents don't contain the answer, say "I couldn't find this in the policy" and suggest contacting HR.
+Cite the document title for every claim. Answer in at most 5 sentences.
+
+&amp;lt;documents&amp;gt;
+  &amp;lt;doc title="Leave Policy 2026"&amp;gt;...&amp;lt;/doc&amp;gt;
+&amp;lt;/documents&amp;gt;
+
+&amp;lt;question&amp;gt;How many casual leaves can I carry forward?&amp;lt;/question&amp;gt;</code></pre>
+
+</section>
+<section id="embeddings">
+<h2>Embeddings and vector search</h2>
+
+<ul>
+<li><b>Embedding:</b> a fixed-length vector (often 256–3,072 dimensions) representing the meaning of text; similar meaning → nearby vectors.</li>
+<li><b>Similarity:</b> cosine similarity (angle) or dot product; with normalised vectors they rank the same.</li>
+<li><b>Approximate nearest neighbour (ANN):</b> exact search is too slow at scale; indexes like HNSW (graph-based, fast, memory-hungry) or IVF (clustering) trade a little recall for speed.</li>
+<li><b>Vector stores:</b> pgvector (PostgreSQL), OpenSearch, Azure AI Search, Pinecone, Qdrant, Weaviate, S3 Vectors <span class="verify">VERIFY</span> <span class="vnote">(availability per region)</span>. Choose for filtering support, scale, operations and cost; pgvector is a strong default if you already run Postgres.</li>
+<li><b>Same model for indexing and queries;</b> changing the embedding model means re-embedding everything.</li>
+<li><b>Hybrid search:</b> combine keyword (BM25) and vector results (e.g. reciprocal rank fusion). Keywords catch exact IDs, codes and names that embeddings miss.</li>
+</ul>
+
+</section>
+<section id="rag">
+<h2>RAG pipeline</h2>
+
+<h3>Ingestion (offline)</h3>
+<div class="flow"><div class="n">Sources<small>PDFs, wiki, tickets, DB</small></div><div class="ar">→</div><div class="n">Extract &amp; clean<small>OCR, tables, boilerplate</small></div><div class="ar">→</div><div class="n">Chunk<small>by structure, with overlap</small></div><div class="ar">→</div><div class="n">Enrich<small>title, section, ACL, date</small></div><div class="ar">→</div><div class="n">Embed</div><div class="ar">→</div><div class="n">Index<small>vector + keyword</small></div></div>
+<h3>Query (online)</h3>
+<div class="flow"><div class="n">Question</div><div class="ar">→</div><div class="n">Rewrite / expand<small>optional</small></div><div class="ar">→</div><div class="n">Retrieve top-k<small>hybrid + permission filters</small></div><div class="ar">→</div><div class="n">Rerank<small>cross-encoder</small></div><div class="ar">→</div><div class="n">Prompt with context</div><div class="ar">→</div><div class="n">Answer + citations</div></div>
+<div class="tw"><table>
+<tr><th>Decision</th><th>Guidance</th></tr>
+<tr><td>Chunk size</td><td>Commonly a few hundred tokens with some overlap; split on headings/paragraphs, keep tables intact. Tune with evaluation, not intuition.</td></tr>
+<tr><td>Metadata</td><td>Store source, section, date, tenant and access-control fields with each chunk; filter at query time so users only retrieve what they may see.</td></tr>
+<tr><td>Top-k and reranking</td><td>Retrieve broadly (e.g. 20–50), rerank, then pass the best few to the model.</td></tr>
+<tr><td>Freshness</td><td>Incremental re-indexing on change events; delete chunks when sources are deleted.</td></tr>
+<tr><td>Failure modes</td><td>Wrong chunk retrieved, right chunk ranked low, answer not supported by context, stale content, permission leaks.</td></tr>
+</table></div>
+<p><b>Managed options:</b> Bedrock Knowledge Bases, Azure AI Search with integrated vectorisation. Faster to start; less control over chunking and ranking.</p>
+
+</section>
+<section id="agents">
+<h2>Tool use and agents</h2>
+
+<ul>
+<li><b>Tool calling:</b> you describe functions with a JSON schema; the model returns a structured call; <b>your code</b> validates arguments, checks permissions, executes, and returns the result for the next model turn.</li>
+<li><b>Agent loop:</b> model plans → calls tools → observes results → repeats until done. Set limits on steps, time and cost.</li>
+<li><b>Workflows vs agents:</b> prefer a fixed workflow (deterministic steps with LLM calls inside) when the path is known; use agents when the steps truly vary.</li>
+<li><b>Guardrails:</b> least-privilege tools, read-only by default, human approval for irreversible actions (payments, emails, deletes), idempotency, full audit logs.</li>
+<li><b>MCP (Model Context Protocol):</b> an open standard for connecting models to tools and data sources through servers, so integrations are reusable across clients.</li>
+</ul>
+
+</section>
+<section id="eval">
+<h2>Evaluation</h2>
+
+<p>Without evaluation, every prompt or model change is a guess. Build an eval set early (50–200 real, representative questions with expected answers or criteria) and run it in CI.</p>
+<div class="tw"><table>
+<tr><th>What to measure</th><th>Examples</th></tr>
+<tr><td>Retrieval quality</td><td>Recall@k (is the right chunk in the top k?), MRR / nDCG (is it ranked high?)</td></tr>
+<tr><td>Answer quality</td><td>Faithfulness/groundedness (claims supported by context), answer relevance, correctness vs reference, citation accuracy</td></tr>
+<tr><td>Safety</td><td>Prompt-injection resistance, PII leakage, refusal correctness, toxicity</td></tr>
+<tr><td>Operational</td><td>Latency (time to first token, total), cost per request, error/timeout rate</td></tr>
+<tr><td>Business</td><td>Task success, deflection rate, user ratings, escalation rate</td></tr>
+</table></div>
+<ul>
+<li><b>Methods:</b> exact/programmatic checks where possible; LLM-as-judge with a clear rubric (calibrate against human labels); human review of samples.</li>
+<li><b>Online:</b> log prompts, retrieved chunks, outputs and feedback (with privacy controls); A/B test changes.</li>
+<li><b>Frameworks:</b> RAGAS, DeepEval, promptfoo, Bedrock/Azure evaluation features, or a simple in-house harness.</li>
+</ul>
+
+</section>
+<section id="security">
+<h2>LLM security</h2>
+
+<div class="tw"><table>
+<tr><th>Risk</th><th>Mitigation</th></tr>
+<tr><td>Prompt injection (direct and indirect via retrieved documents, emails, web pages)</td><td>Treat all model input as untrusted; separate instructions from data; least-privilege tools; human approval for sensitive actions; output validation; never rely on the system prompt alone</td></tr>
+<tr><td>Sensitive data disclosure</td><td>Permission-aware retrieval, PII redaction, no secrets in prompts, data-handling terms with the provider, tenant isolation</td></tr>
+<tr><td>Insecure output handling</td><td>Encode output before rendering (XSS), never execute generated code/SQL without sandboxing and validation</td></tr>
+<tr><td>Excessive agency</td><td>Limit tools and scopes, rate limits, confirmation steps, audit logs</td></tr>
+<tr><td>Denial of wallet</td><td>Per-user quotas, max tokens, timeouts, cost alerts</td></tr>
+<tr><td>Supply chain / model risks</td><td>Vetted models and libraries, pinned versions, provider guardrails (Bedrock Guardrails, Azure AI Content Safety)</td></tr>
+</table></div>
+<p>Reference: OWASP Top 10 for LLM Applications (2025 edition) <span class="verify">VERIFY</span> <span class="vnote">(latest version)</span>.</p>
+
+</section>
+<section id="cost">
+<h2>Cost and latency</h2>
+
+<ul>
+<li><b>Cost = input tokens × input price + output tokens × output price</b> (output usually costs several times more). Example: 2,000 input + 300 output tokens per request × 100,000 requests/day = 230 million tokens/day; multiply by your model's prices.</li>
+<li><b>Levers:</b> right-size the model (route easy requests to a small model), trim context (fewer, better chunks), prompt caching for repeated prefixes, response caching for repeated questions, batch APIs for offline work, cap max output tokens.</li>
+<li><b>Latency:</b> stream responses; minimise sequential LLM calls; run retrieval and other lookups in parallel; smaller models for intermediate steps; set timeouts with fallbacks.</li>
+<li><b>Throughput limits:</b> providers enforce tokens/requests per minute; plan quotas, use retries with backoff, consider provisioned throughput for steady high volume.</li>
+<li><b>Bedrock specifics:</b> one API (Converse) across model families, Knowledge Bases, Guardrails, Agents, on-demand vs provisioned throughput, cross-region inference profiles <span class="verify">VERIFY</span> <span class="vnote">(current feature names)</span>.</li>
+</ul>
+<p class="practice">Practise: <a href="ai-genai.html">AI & GenAI bank</a> (RAG, agents, evaluation, security, cost questions) and <a href="system-design-toolkit.html">System Design Toolkit</a> (enterprise RAG design).</p>
+
+</section>
+</main>
+</div>
+<footer class="foot">Items marked <span class="verify">VERIFY</span> depend on versions, limits or rules that change; check current documentation before an interview. Drafted with help from Claude.</footer>
+</div>
+<script>(function(){try{var d=document.getElementById('toc-details');if(window.matchMedia('(max-width: 979px)').matches)d.removeAttribute('open');}catch(e){}})();</script>
+</html>

@@ -50,7 +50,7 @@ ol.order li{display:grid;grid-template-columns:2.2em 1fr;gap:12px;padding:12px 0
 .banks li{display:grid;grid-template-columns:1fr auto;gap:4px 16px;padding:12px 16px;border-bottom:1px solid var(--line);align-items:baseline}
 .banks li:last-child{border-bottom:0}
 .banks .name{min-width:0}
-.banks .count{font-family:var(--f-mono);font-size:13px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
+.banks .count{font-family:var(--f-mono);font-size:12px;color:var(--muted);font-variant-numeric:tabular-nums;white-space:nowrap}
 .banks .what{grid-column:1 / -1;color:var(--muted);font-size:14px;margin:0}
 a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
 a:focus-visible,input:focus-visible,button:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
@@ -74,9 +74,23 @@ code{font-family:var(--f-mono);font-size:.9em}
 <header>
   <div class="eyebrow">Senior Tech Lead / Engineering Manager</div>
   <h1>TL/EM Interview Prep</h1>
-  <p class="lede">Twelve question banks for Senior Tech Lead and Engineering Manager interviews, focused on .NET, Node, AWS and AI. Each bank has its own search, filters and "Mark as reviewed" progress, saved in the browser you study in. Start with the order below; it puts first what every interview loop asks.</p>
-  <div class="totals"><span><b>812</b>questions and cards</span><span><b>12</b>banks</span><span><b>8</b>steps in the study order</span></div>
+  <p class="lede">Twelve question banks for Senior Tech Lead and Engineering Manager interviews, focused on .NET, Node, AWS and AI. Each bank has its own search, filters and "Mark as reviewed" progress, saved in the browser you study in. Seven fundamentals pages cover the basics behind them. Then follow the study order; it puts first what every interview loop asks.</p>
+  <div class="totals"><span><b>812</b>questions and cards</span><span><b>12</b>banks</span><span><b>7</b>fundamentals pages</span><span><b>8</b>steps in the study order</span></div>
 </header>
+
+<section aria-labelledby="fund-h">
+  <h2 id="fund-h">Fundamentals</h2>
+  <p class="sub">Reading pages, not question banks: the basics each bank assumes, both technology-agnostic and specific to the .NET, Node, AWS and AI stack. Skim them first if a topic feels rusty, and keep the Quick-Revision Sheet for the night before.</p>
+  <ul class="banks">
+      <li><span class="name"><a href="fundamentals-cs-web.html">CS &amp; Web Fundamentals</a></span><span class="count">Tech-agnostic</span><p class="what">Request lifecycle, networking, HTTP, APIs, concurrency, memory, data, security and engineering basics.</p></li>
+      <li><span class="name"><a href="fundamentals-tech-stack.html">Tech Stack Fundamentals</a></span><span class="count">Stack-specific</span><p class="what">C#, .NET, ASP.NET Core, EF Core, Node/NestJS, SQL Server, PostgreSQL, Redis, DynamoDB, messaging, React/Next.js, Docker.</p></li>
+      <li><span class="name"><a href="system-design-toolkit.html">System Design Toolkit</a></span><span class="count">Tech-agnostic</span><p class="what">Interview framework, estimation with worked examples, latency numbers, building blocks, consistency, patterns, common designs.</p></li>
+      <li><span class="name"><a href="fundamentals-cloud-devops.html">Cloud &amp; DevOps Fundamentals</a></span><span class="count">AWS + Azure</span><p class="what">Service map, VPC, IAM, compute and storage choices, Terraform, containers, Kubernetes, CI/CD, cost.</p></li>
+      <li><span class="name"><a href="fundamentals-genai.html">GenAI Fundamentals</a></span><span class="count">Applied AI</span><p class="what">LLM basics, prompting, embeddings, RAG, tool use and agents, evaluation, LLM security, cost and latency.</p></li>
+      <li><span class="name"><a href="quick-revision.html">Quick-Revision Sheet</a></span><span class="count">Night before</span><p class="what">One-line facts and rules of thumb across every topic. Prints cleanly.</p></li>
+      <li><span class="name"><a href="glossary.html">Glossary</a></span><span class="count">108 terms</span><p class="what">A–Z definitions, each linked to practice questions by ID.</p></li>
+  </ul>
+</section>
 
 <section aria-labelledby="order-h">
   <h2 id="order-h">Study order</h2>

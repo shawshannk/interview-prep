@@ -1,0 +1,337 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>System Design Toolkit</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: reading page with a sticky contents rail on wide screens (collapsible on phones); sections are long-form with tables, flow diagrams and 'interview angle' notes */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --code:#EEF1F7; --angle:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.65;padding-inline:16px;padding-block:0 64px}
+.page{max-width:1120px;margin:0 auto}
+.crumb{padding-block:18px 0;font-size:14px}
+header.top{padding-block:14px 26px;display:grid;gap:10px;max-width:760px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5.5vw,42px);line-height:1.05;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:66ch}
+.layout{display:grid;grid-template-columns:1fr;gap:28px}
+@media (min-width:980px){.layout{grid-template-columns:230px minmax(0,1fr)}}
+nav.toc{font-size:14px}
+@media (min-width:980px){nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto}}
+nav.toc details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+nav.toc summary{cursor:pointer;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+nav.toc ol{margin:8px 0 0;padding-left:20px;display:grid;gap:4px}
+nav.toc a{color:var(--ink);text-decoration:none}
+nav.toc a:hover{color:var(--accent);text-decoration:underline}
+main{min-width:0;display:grid;gap:40px}
+section{min-width:0;display:grid;gap:12px;scroll-margin-top:16px}
+section > h2{font-family:var(--f-display);font-weight:600;font-size:24px;line-height:1.2;margin:0;padding-top:4px;border-top:2px solid var(--ink);padding-block:12px 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:10px 0 0;text-wrap:balance}
+h4{font-size:15px;margin:6px 0 0;font-weight:600}
+p{margin:0;max-width:72ch}
+ul,ol{margin:0;padding-left:22px;max-width:72ch}
+li+li{margin-top:4px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:4px}
+pre{margin:0;background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55;max-width:100%}
+pre code{background:none;padding:0;font-size:inherit}
+.tw{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-weight:600;background:var(--soft);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{font-variant-numeric:tabular-nums}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13.5px}
+.flow .n{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-weight:500}
+.flow .n small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.flow .ar{color:var(--muted);font-family:var(--f-mono)}
+.angle{border-left:3px solid var(--angle);padding:6px 0 6px 12px;max-width:72ch}
+.angle b:first-child{color:var(--angle)}
+.warnbox{border-left:3px solid var(--warn);padding:6px 0 6px 12px;max-width:72ch}
+.verify{font-family:var(--f-mono);font-size:11px;color:var(--verify);border:1px solid currentColor;border-radius:4px;padding:0 4px;white-space:nowrap}
+.practice{font-size:14px;color:var(--muted)}
+.vnote{font-size:13px;color:var(--muted)}
+a.qid{font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+dl.gl{margin:0;max-width:80ch}
+dl.gl dt{font-weight:600;scroll-margin-top:16px;margin-top:14px}
+dl.gl dt:first-child{margin-top:0}
+dl.gl dd{margin:2px 0 0;color:var(--ink)}
+dl.gl dd .see{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.az{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--f-mono);font-size:14px}
+.az a{display:inline-block;min-width:30px;min-height:30px;line-height:30px;text-align:center;border:1px solid var(--line);border-radius:6px;background:var(--surface);text-decoration:none}
+.rev{columns:2 340px;column-gap:28px;max-width:none}
+.rev li{break-inside:avoid}
+@media print{nav.toc,.crumb{display:none}.layout{display:block}section{break-inside:avoid-page}body{font-size:12px}}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.grid2 > div{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:6px;align-content:start}
+.grid2 h4{margin:0}
+footer.foot{margin-top:48px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);max-width:760px}
+</style>
+<div class="page">
+<div class="crumb"><a href="index.html">&larr; All banks and fundamentals</a></div>
+<header class="top">
+<div class="eyebrow">Fundamentals · technology-agnostic</div>
+<h1>System Design Toolkit</h1>
+<p class="lede">Everything you need before practising system design questions: a time-boxed interview framework, estimation with worked examples, latency and availability numbers, building blocks, consistency, scaling and reliability patterns, and a cheat sheet of common designs. Practise with the <a href="system-design.html">System Design Drills</a> and the <a href="architecture.html">Architecture bank</a>.</p>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="Contents"><details open id="toc-details"><summary>Contents</summary><ol>
+<li><a href="#framework">The interview framework</a></li>
+<li><a href="#nfr">Non-functional requirements and availability</a></li>
+<li><a href="#estimates">Back-of-envelope estimation</a></li>
+<li><a href="#latency">Latency numbers (orders of magnitude)</a></li>
+<li><a href="#blocks">Building blocks</a></li>
+<li><a href="#consistency">Consistency, CAP and PACELC</a></li>
+<li><a href="#scaling">Scaling and resilience patterns</a></li>
+<li><a href="#designs">Common designs cheat sheet</a></li>
+</ol></details></nav>
+<main>
+<section id="framework">
+<h2>The interview framework</h2>
+
+<p>Most system design rounds run 45–60 minutes. Interviewers score structure, trade-off reasoning and depth more than the final diagram. Use this order and say out loud which step you're on.</p>
+<div class="tw"><table>
+<tr><th>Step</th><th>Time (of 50 min)</th><th>What you do</th></tr>
+<tr><td>1. Clarify requirements</td><td>5–8</td><td>Functional scope (3–5 core features, what's out of scope); non-functional: scale, latency, availability, consistency, security/compliance, cost. Ask who the users are.</td></tr>
+<tr><td>2. Estimate</td><td>3–5</td><td>Requests per second (average and peak), read/write ratio, storage per year, bandwidth. Round aggressively; the goal is the order of magnitude.</td></tr>
+<tr><td>3. API</td><td>3–5</td><td>The main endpoints or events with key fields; idempotency for writes; pagination.</td></tr>
+<tr><td>4. Data model</td><td>5</td><td>Entities, keys, access patterns, which store fits (relational, key-value, search, object storage).</td></tr>
+<tr><td>5. High-level design</td><td>8–10</td><td>Clients, edge, services, data stores, queues; walk one request through the diagram.</td></tr>
+<tr><td>6. Deep dives</td><td>12–15</td><td>The 2–3 hardest parts: hot spots, consistency, fan-out, failure handling. Often the interviewer picks; offer options.</td></tr>
+<tr><td>7. Bottlenecks and trade-offs</td><td>5</td><td>What breaks first at 10×, single points of failure, monitoring, cost, what you'd do with more time.</td></tr>
+</table></div>
+<p class="angle"><b>Interview angle:</b> state assumptions explicitly ("I'll assume 10 million daily users and a 100:1 read/write ratio"), offer two options with trade-offs before choosing, and connect choices back to the requirements. For Lead/EM roles, also mention rollout, migration, team ownership and operational cost.</p>
+
+</section>
+<section id="nfr">
+<h2>Non-functional requirements and availability</h2>
+
+<div class="tw"><table>
+<tr><th>Availability</th><th>Downtime per year</th><th>Per 30-day month</th><th>Typical meaning</th></tr>
+<tr><td>99%</td><td>3.65 days</td><td>7.2 hours</td><td>Internal tools</td></tr>
+<tr><td>99.9%</td><td>8.76 hours</td><td>43.2 minutes</td><td>Many SaaS SLAs</td></tr>
+<tr><td>99.95%</td><td>4.38 hours</td><td>21.6 minutes</td><td>Common for multi-AZ services</td></tr>
+<tr><td>99.99%</td><td>52.6 minutes</td><td>4.3 minutes</td><td>Needs automated failover, careful deploys</td></tr>
+<tr><td>99.999%</td><td>5.3 minutes</td><td>26 seconds</td><td>Rare; multi-region active-active</td></tr>
+</table></div>
+<ul>
+<li><b>Serial dependencies multiply:</b> a service depending on three 99.9% components has at most about 99.7% availability. Redundancy (parallel copies) improves it.</li>
+<li><b>Latency targets</b> are percentiles (p95/p99), not averages.</li>
+<li><b>Durability</b> (data never lost) is different from availability (system answers); S3 is designed for 11 nines of durability.</li>
+<li><b>RPO</b> (how much data you can lose) and <b>RTO</b> (how long recovery may take) drive backup and DR design.</li>
+<li>Other requirements to ask about: consistency needs, data residency, compliance (GDPR, HIPAA, PCI), security, cost budget, team size.</li>
+</ul>
+
+</section>
+<section id="estimates">
+<h2>Back-of-envelope estimation</h2>
+
+<h3>Numbers to memorise</h3>
+<div class="tw"><table>
+<tr><th>Fact</th><th>Value</th><th>Shortcut</th></tr>
+<tr><td>Seconds per day</td><td>86,400</td><td>≈ 10^5</td></tr>
+<tr><td>1 million requests per day</td><td>≈ 12 per second</td><td>Divide daily count by 10^5</td></tr>
+<tr><td>1 billion per month</td><td>≈ 400 per second</td><td>Month ≈ 2.6 × 10^6 seconds</td></tr>
+<tr><td>Peak vs average</td><td>2–10×</td><td>Use 3× unless told otherwise</td></tr>
+<tr><td>Powers of two</td><td>2^10 ≈ 1 thousand (KB), 2^20 ≈ 1 million (MB), 2^30 ≈ 1 billion (GB), 2^40 ≈ 1 trillion (TB)</td><td></td></tr>
+<tr><td>Sizes</td><td>UUID 16 bytes (36 as text); timestamp 8 bytes; typical JSON event 0.5–2 KB; photo 1–5 MB; minute of HD video ~100 MB</td><td>Approximate</td></tr>
+</table></div>
+
+<h3>Worked example: URL shortener</h3>
+<ul>
+<li>100 million new URLs per month ÷ 2.6 million seconds ≈ <b>40 writes/second</b>.</li>
+<li>Reads at 100:1 → ≈ <b>4,000 reads/second</b> average, ~12,000 at peak (3×).</li>
+<li>Storage: 100M × 12 months × 5 years = 6 billion records × ~500 bytes ≈ <b>3 TB</b>.</li>
+<li>Keyspace: base62 with 7 characters = 62^7 ≈ 3.5 trillion codes, plenty for 6 billion.</li>
+<li>Conclusion: reads dominate → cache hot links; a key-value store handles the data comfortably.</li>
+</ul>
+
+<h3>Worked example: chat messages</h3>
+<ul>
+<li>10 million daily users × 40 messages = 400 million messages/day ÷ 86,400 ≈ <b>4,600/second</b>, ~14,000 at peak.</li>
+<li>400M × 200 bytes = <b>80 GB/day</b> ≈ 29 TB/year before replication and indexes.</li>
+<li>Conclusion: partition messages by conversation; plan retention or tiering; the real challenge is connection count and fan-out, not raw storage.</li>
+</ul>
+
+<h3>Worked example: photo uploads</h3>
+<ul>
+<li>1 million uploads/day × 2 MB = <b>2 TB/day</b> ≈ 730 TB/year → object storage with lifecycle tiers, CDN for reads.</li>
+<li>Ingress ≈ 2 TB ÷ 86,400 s ≈ 23 MB/s average; upload directly to object storage with pre-signed URLs to keep it off app servers.</li>
+</ul>
+<p class="angle"><b>Interview angle:</b> say what each number changes in the design ("4,000 reads per second is fine for a cache plus one database; 400,000 would push us to sharding").</p>
+
+</section>
+<section id="latency">
+<h2>Latency numbers (orders of magnitude)</h2>
+
+<div class="tw"><table>
+<tr><th>Operation</th><th>Approximate time</th></tr>
+<tr><td>CPU cache reference</td><td>~1 ns</td></tr>
+<tr><td>Main memory reference</td><td>~100 ns</td></tr>
+<tr><td>SSD random read</td><td>~10–100 µs</td></tr>
+<tr><td>Network round trip within an availability zone</td><td>~0.1–0.5 ms</td></tr>
+<tr><td>Redis / cache call in the same region</td><td>~0.5–1 ms</td></tr>
+<tr><td>Round trip between availability zones</td><td>~1–2 ms</td></tr>
+<tr><td>Indexed database query</td><td>~1–10 ms</td></tr>
+<tr><td>Hard disk seek</td><td>~10 ms</td></tr>
+<tr><td>Round trip India ↔ Europe / US</td><td>~120–250 ms</td></tr>
+<tr><td>LLM response (first token / full answer)</td><td>~0.3–2 s / 2–20 s</td></tr>
+</table></div>
+<p>Exact values vary by hardware and provider; the order of magnitude is what matters: memory is about 1,000× faster than SSD, which is about 10× faster than a cross-AZ call, and cross-continent calls cost hundreds of milliseconds. Avoid chatty cross-region calls on request paths.</p>
+
+</section>
+<section id="blocks">
+<h2>Building blocks</h2>
+
+<div class="tw"><table>
+<tr><th>Component</th><th>Purpose</th><th>Key decisions and trade-offs</th></tr>
+<tr><td>DNS / global routing</td><td>Map names to endpoints, route by latency or geography</td><td>TTL vs agility; health-checked failover</td></tr>
+<tr><td>CDN</td><td>Cache static and cacheable content near users</td><td>Cache keys, invalidation, TTLs; signed URLs for private content</td></tr>
+<tr><td>Load balancer</td><td>Spread traffic across healthy instances</td><td>L4 vs L7; health checks; sticky sessions (avoid when possible)</td></tr>
+<tr><td>API gateway</td><td>Auth, rate limits, routing, request validation at the edge</td><td>Extra hop and cost; don't put business logic there</td></tr>
+<tr><td>Stateless app tier</td><td>Business logic; scale horizontally</td><td>Keep session state in a store, not in memory</td></tr>
+<tr><td>Cache</td><td>Fast reads, offload databases</td><td>Cache-aside vs write-through; TTL and invalidation; stampedes; consistency</td></tr>
+<tr><td>Relational database</td><td>Transactions, constraints, flexible queries</td><td>Scale reads with replicas; writes with partitioning or a different store</td></tr>
+<tr><td>NoSQL store</td><td>Scale and predictable latency for known access patterns</td><td>Model per query; limited joins and ad-hoc queries</td></tr>
+<tr><td>Object storage</td><td>Files, media, backups, data lake</td><td>Cheap, durable; not for low-latency small records</td></tr>
+<tr><td>Queue</td><td>Decouple and smooth load, background work</td><td>At-least-once delivery; idempotent consumers; DLQs</td></tr>
+<tr><td>Event stream</td><td>Many consumers, replay, ordering per key</td><td>Partition count, retention, consumer lag</td></tr>
+<tr><td>Search index</td><td>Full-text, filters, relevance, vector search</td><td>Eventually consistent copy of source data; reindexing</td></tr>
+<tr><td>Rate limiter</td><td>Protect services, fairness</td><td>Algorithm (token bucket, sliding window); per user/key; distributed state</td></tr>
+<tr><td>Coordination service</td><td>Leader election, config, locks</td><td>etcd/ZooKeeper; use managed services where possible</td></tr>
+</table></div>
+
+<h3>Caching strategies</h3>
+<div class="tw"><table>
+<tr><th>Strategy</th><th>How</th><th>Trade-off</th></tr>
+<tr><td>Cache-aside</td><td>App reads cache; on miss reads DB and fills cache</td><td>Simple, common; stale until TTL or invalidation</td></tr>
+<tr><td>Read-through</td><td>Cache loads from DB itself</td><td>Cleaner app code; cache layer must know the source</td></tr>
+<tr><td>Write-through</td><td>Write to cache and DB together</td><td>Fresh cache; slower writes</td></tr>
+<tr><td>Write-behind</td><td>Write to cache, flush to DB later</td><td>Fast writes; risk of data loss</td></tr>
+</table></div>
+
+<h3>Partitioning (sharding)</h3>
+<ul>
+<li><b>Hash partitioning:</b> even spread; range queries become scatter-gather.</li>
+<li><b>Range partitioning:</b> efficient ranges; risk of hot ranges (e.g. recent timestamps).</li>
+<li><b>Directory/lookup:</b> flexible placement (tenant → shard map); the map is a dependency.</li>
+<li><b>Consistent hashing:</b> adding or removing a node moves only about 1/N of keys; virtual nodes even out load.</li>
+<li><b>Choose the key</b> from access patterns (tenant ID, user ID, conversation ID); avoid keys that create hot partitions.</li>
+</ul>
+
+<h3>Replication</h3>
+<ul>
+<li><b>Leader-follower:</b> writes to one leader, reads from replicas (replication lag → read-your-writes issues).</li>
+<li><b>Multi-leader:</b> writes in several regions; conflict resolution needed.</li>
+<li><b>Leaderless (quorum):</b> writes to W of N replicas, reads from R; R + W &gt; N gives overlap (Dynamo-style).</li>
+<li><b>Synchronous</b> replication protects data but adds latency; <b>asynchronous</b> is faster but can lose recent writes on failover.</li>
+</ul>
+
+</section>
+<section id="consistency">
+<h2>Consistency, CAP and PACELC</h2>
+
+<ul>
+<li><b>CAP:</b> during a network <b>partition</b>, a distributed system must choose between <b>consistency</b> (refuse or delay some requests) and <b>availability</b> (answer, possibly with stale data). Partitions aren't optional, so the real choice is CP vs AP behaviour during failures.</li>
+<li><b>PACELC:</b> if Partitioned, choose Availability or Consistency; Else (normal operation), choose Latency or Consistency. It explains why systems trade consistency for speed even without failures.</li>
+</ul>
+<div class="tw"><table>
+<tr><th>Model</th><th>Guarantee</th><th>Example need</th></tr>
+<tr><td>Strong / linearizable</td><td>Every read sees the latest write</td><td>Account balances, inventory reservation, unique usernames</td></tr>
+<tr><td>Read-your-writes</td><td>A user sees their own changes immediately</td><td>Profile edits, posting a comment</td></tr>
+<tr><td>Monotonic reads</td><td>A user never sees data go backwards</td><td>Feeds, chat history</td></tr>
+<tr><td>Causal</td><td>Cause before effect (reply after the message)</td><td>Comments, messaging</td></tr>
+<tr><td>Eventual</td><td>Replicas converge if writes stop</td><td>Like counts, search indexes, analytics</td></tr>
+</table></div>
+<p class="angle"><b>Interview angle:</b> pick consistency per feature, not per system ("payments strongly consistent; the feed eventually consistent with read-your-writes for the author").</p>
+<p class="practice">Practise: <a href="architecture.html">Architecture bank</a> (A072 quorums and more).</p>
+
+</section>
+<section id="scaling">
+<h2>Scaling and resilience patterns</h2>
+
+<div class="grid2">
+<div><h4>Scale out</h4><p>Stateless services behind a load balancer; autoscale on the right signal (CPU or requests for APIs, queue age for workers).</p></div>
+<div><h4>Read scaling</h4><p>Caches, read replicas, CDNs, denormalised read models (CQRS) for heavy read paths.</p></div>
+<div><h4>Write scaling</h4><p>Partitioning, batching, async processing via queues, append-only designs, write-optimised stores.</p></div>
+<div><h4>Async processing</h4><p>Return 202 and process in the background for slow work; notify on completion.</p></div>
+<div><h4>Timeouts</h4><p>Every remote call has one; deeper calls get shorter timeouts than their callers.</p></div>
+<div><h4>Retries</h4><p>Only for transient failures, with exponential backoff and jitter, capped, and only on idempotent operations (or with idempotency keys).</p></div>
+<div><h4>Circuit breakers</h4><p>Fail fast when a dependency is down; try again after a cool-down.</p></div>
+<div><h4>Bulkheads</h4><p>Separate pools (connections, threads, queues) per dependency or tenant so one failure doesn't drain everything.</p></div>
+<div><h4>Backpressure and load shedding</h4><p>Bounded queues, 429/503 with Retry-After, shed low-priority work under overload.</p></div>
+<div><h4>Graceful degradation</h4><p>Serve cached or partial results, disable non-critical features via flags.</p></div>
+</div>
+<h3>Data patterns across services</h3>
+<ul>
+<li><b>Database per service</b> for independent evolution; no shared tables between teams.</li>
+<li><b>Sagas</b> replace distributed transactions: a sequence of local transactions with compensating actions; <b>orchestration</b> (central coordinator, e.g. Step Functions) vs <b>choreography</b> (services react to events).</li>
+<li><b>Outbox</b> for reliable event publishing; <b>idempotent consumers</b> for duplicates.</li>
+<li><b>Avoid two-phase commit</b> across services (blocking, poor availability).</li>
+<li><b>Strangler fig</b> for migrating monoliths incrementally.</li>
+<li><b>Event sourcing</b> (store events as the source of truth) only when history and audit justify the complexity.</li>
+</ul>
+<h3>Disaster recovery strategies</h3>
+<div class="tw"><table>
+<tr><th>Strategy</th><th>RTO</th><th>RPO</th><th>Cost</th></tr>
+<tr><td>Backup and restore</td><td>Hours</td><td>Hours</td><td>Lowest</td></tr>
+<tr><td>Pilot light (core data replicated, compute off)</td><td>Tens of minutes</td><td>Minutes</td><td>Low</td></tr>
+<tr><td>Warm standby (scaled-down copy running)</td><td>Minutes</td><td>Seconds–minutes</td><td>Medium</td></tr>
+<tr><td>Active-active multi-region</td><td>Near zero</td><td>Near zero</td><td>Highest; hardest (data conflicts)</td></tr>
+</table></div>
+<p class="practice">Practise: <a href="architecture.html">Architecture bank</a> (resilience, sagas, outbox), <a href="system-design.html">System Design Drills</a> (incident drills).</p>
+
+</section>
+<section id="designs">
+<h2>Common designs cheat sheet</h2>
+
+<div class="tw"><table>
+<tr><th>System</th><th>Core challenge</th><th>Key decisions</th></tr>
+<tr><td>URL shortener</td><td>Unique short codes, read-heavy redirects</td><td>ID generation (counter ranges, base62), cache hot codes, 301 vs 302 for analytics</td></tr>
+<tr><td>Rate limiter</td><td>Accurate limits across instances</td><td>Token bucket vs sliding window; Redis with atomic scripts; fail-open vs fail-closed</td></tr>
+<tr><td>Chat / messaging</td><td>Persistent connections, ordering, offline delivery</td><td>WebSockets with pub/sub between servers; persist before deliver; sequence per conversation; push notifications when offline</td></tr>
+<tr><td>News feed</td><td>Fan-out to followers</td><td>Fan-out on write for most users, on read for celebrities (hybrid); cursor pagination; ranking</td></tr>
+<tr><td>Notification service</td><td>Many channels, preferences, retries</td><td>Queue per channel/priority, templates, idempotency, user preferences, provider failover</td></tr>
+<tr><td>File/media upload</td><td>Large files, processing</td><td>Pre-signed direct uploads, async processing pipeline, CDN delivery, lifecycle tiers</td></tr>
+<tr><td>Search / autocomplete</td><td>Low-latency prefix and relevance</td><td>Search index (inverted index), tries or edge n-grams for prefixes, caching top queries, async indexing</td></tr>
+<tr><td>Booking / reservations</td><td>No double booking under concurrency</td><td>Holds with expiry, conditional updates or constraints, idempotent confirmation, payment reconciliation</td></tr>
+<tr><td>Payments</td><td>Exactly-once effect, auditability</td><td>Idempotency keys, ledger (double-entry), provider webhooks as truth, reconciliation jobs</td></tr>
+<tr><td>Enterprise RAG assistant</td><td>Relevant, permission-aware answers</td><td>Ingestion pipeline, hybrid retrieval with ACL filters, grounded prompts with citations, evaluation, cost control</td></tr>
+</table></div>
+
+<h3>Trade-off phrases that help</h3>
+<ul>
+<li>"We trade some freshness for read latency here; a 60-second TTL is acceptable for this view."</li>
+<li>"This is the single point of failure; we mitigate with Multi-AZ failover, accepting about a minute of write unavailability."</li>
+<li>"I'd start with the simpler option and switch when we see metric X cross threshold Y."</li>
+<li>"This choice costs more to run but removes an operational burden the team can't staff."</li>
+</ul>
+<p class="practice">Practise: <a href="system-design.html">System Design Drills</a> (S026–S045 full designs).</p>
+
+</section>
+</main>
+</div>
+<footer class="foot">Items marked <span class="verify">VERIFY</span> depend on versions, limits or rules that change; check current documentation before an interview. Drafted with help from Claude.</footer>
+</div>
+<script>(function(){try{var d=document.getElementById('toc-details');if(window.matchMedia('(max-width: 979px)').matches)d.removeAttribute('open');}catch(e){}})();</script>
+</html>

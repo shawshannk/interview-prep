@@ -17,7 +17,23 @@ Twelve self-contained question banks for Senior Tech Lead and Engineering Manage
 | LLD & Machine Coding (C#) | `lld.html` | 30 |
 | DSA Refresher (C#) | `dsa.html` | 47 |
 
-Each page has search, filters by skill, level and type, collapsible answers and follow-ups, and a "Mark as reviewed" progress counter. Progress is stored in your browser's local storage only.
+## Fundamentals
+
+Reading pages covering the basics the banks assume.
+
+| Page | File |
+|---|---|
+| CS & Web Fundamentals | `fundamentals-cs-web.html` |
+| Tech Stack Fundamentals | `fundamentals-tech-stack.html` |
+| System Design Toolkit | `system-design-toolkit.html` |
+| Cloud & DevOps Fundamentals | `fundamentals-cloud-devops.html` |
+| GenAI Fundamentals | `fundamentals-genai.html` |
+| Quick-Revision Sheet | `quick-revision.html` |
+| Glossary (108 terms, linked to question IDs) | `glossary.html` |
+
+## Using the banks
+
+Each bank has search (including by question ID, e.g. `N013`; a link like `dotnet.html#q=N013` pre-fills it), filters by skill, level and type, collapsible answers and follow-ups, and a "Mark as reviewed" progress counter. Progress is stored in your browser's local storage only.
 
 ## Notes
 

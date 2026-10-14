@@ -1,0 +1,431 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>CS & Web Fundamentals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: reading page with a sticky contents rail on wide screens (collapsible on phones); sections are long-form with tables, flow diagrams and 'interview angle' notes */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --code:#EEF1F7; --angle:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.65;padding-inline:16px;padding-block:0 64px}
+.page{max-width:1120px;margin:0 auto}
+.crumb{padding-block:18px 0;font-size:14px}
+header.top{padding-block:14px 26px;display:grid;gap:10px;max-width:760px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5.5vw,42px);line-height:1.05;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:66ch}
+.layout{display:grid;grid-template-columns:1fr;gap:28px}
+@media (min-width:980px){.layout{grid-template-columns:230px minmax(0,1fr)}}
+nav.toc{font-size:14px}
+@media (min-width:980px){nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto}}
+nav.toc details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+nav.toc summary{cursor:pointer;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+nav.toc ol{margin:8px 0 0;padding-left:20px;display:grid;gap:4px}
+nav.toc a{color:var(--ink);text-decoration:none}
+nav.toc a:hover{color:var(--accent);text-decoration:underline}
+main{min-width:0;display:grid;gap:40px}
+section{min-width:0;display:grid;gap:12px;scroll-margin-top:16px}
+section > h2{font-family:var(--f-display);font-weight:600;font-size:24px;line-height:1.2;margin:0;padding-top:4px;border-top:2px solid var(--ink);padding-block:12px 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:10px 0 0;text-wrap:balance}
+h4{font-size:15px;margin:6px 0 0;font-weight:600}
+p{margin:0;max-width:72ch}
+ul,ol{margin:0;padding-left:22px;max-width:72ch}
+li+li{margin-top:4px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:4px}
+pre{margin:0;background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55;max-width:100%}
+pre code{background:none;padding:0;font-size:inherit}
+.tw{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-weight:600;background:var(--soft);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{font-variant-numeric:tabular-nums}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13.5px}
+.flow .n{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-weight:500}
+.flow .n small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.flow .ar{color:var(--muted);font-family:var(--f-mono)}
+.angle{border-left:3px solid var(--angle);padding:6px 0 6px 12px;max-width:72ch}
+.angle b:first-child{color:var(--angle)}
+.warnbox{border-left:3px solid var(--warn);padding:6px 0 6px 12px;max-width:72ch}
+.verify{font-family:var(--f-mono);font-size:11px;color:var(--verify);border:1px solid currentColor;border-radius:4px;padding:0 4px;white-space:nowrap}
+.practice{font-size:14px;color:var(--muted)}
+.vnote{font-size:13px;color:var(--muted)}
+a.qid{font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+dl.gl{margin:0;max-width:80ch}
+dl.gl dt{font-weight:600;scroll-margin-top:16px;margin-top:14px}
+dl.gl dt:first-child{margin-top:0}
+dl.gl dd{margin:2px 0 0;color:var(--ink)}
+dl.gl dd .see{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.az{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--f-mono);font-size:14px}
+.az a{display:inline-block;min-width:30px;min-height:30px;line-height:30px;text-align:center;border:1px solid var(--line);border-radius:6px;background:var(--surface);text-decoration:none}
+.rev{columns:2 340px;column-gap:28px;max-width:none}
+.rev li{break-inside:avoid}
+@media print{nav.toc,.crumb{display:none}.layout{display:block}section{break-inside:avoid-page}body{font-size:12px}}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.grid2 > div{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:6px;align-content:start}
+.grid2 h4{margin:0}
+footer.foot{margin-top:48px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);max-width:760px}
+</style>
+<div class="page">
+<div class="crumb"><a href="index.html">&larr; All banks and fundamentals</a></div>
+<header class="top">
+<div class="eyebrow">Fundamentals · technology-agnostic</div>
+<h1>CS &amp; Web Fundamentals</h1>
+<p class="lede">The concepts every senior engineer is expected to explain without notes: how a request travels, HTTP and API design, concurrency, storage, security primitives and engineering practice. Read it once end to end, then use the contents to revise. Practice questions are linked at the end of each section.</p>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="Contents"><details open id="toc-details"><summary>Contents</summary><ol>
+<li><a href="#request">How a web request travels</a></li>
+<li><a href="#network">Networking basics</a></li>
+<li><a href="#http">HTTP essentials</a></li>
+<li><a href="#api">API styles and design</a></li>
+<li><a href="#concurrency">Processes, threads and concurrency</a></li>
+<li><a href="#memory">Memory and runtimes</a></li>
+<li><a href="#data">Data and storage fundamentals</a></li>
+<li><a href="#security">Security fundamentals</a></li>
+<li><a href="#engineering">Software engineering fundamentals</a></li>
+<li><a href="#complexity">Complexity cheat sheet</a></li>
+</ol></details></nav>
+<main>
+<section id="request">
+<h2>How a web request travels</h2>
+
+<p>Interviewers often start with "what happens when you type a URL and press Enter?" because it touches every layer. A strong answer walks the path in order and names what can go wrong at each step.</p>
+<div class="flow">
+<span class="n">Browser<small>URL parsed, cache checked</small></span><span class="ar">→</span>
+<span class="n">DNS<small>name → IP</small></span><span class="ar">→</span>
+<span class="n">TCP / QUIC<small>connection</small></span><span class="ar">→</span>
+<span class="n">TLS<small>encryption, certificate</small></span><span class="ar">→</span>
+<span class="n">CDN / edge<small>cache, WAF</small></span><span class="ar">→</span>
+<span class="n">Load balancer<small>routing, health</small></span><span class="ar">→</span>
+<span class="n">App server<small>auth, logic</small></span><span class="ar">→</span>
+<span class="n">Cache / DB<small>data</small></span>
+</div>
+<ol>
+<li><b>Browser:</b> parses the URL, checks its HTTP cache (and HSTS list to force HTTPS).</li>
+<li><b>DNS resolution:</b> browser cache → OS cache → recursive resolver → root → TLD → authoritative server; answers are cached for their TTL.</li>
+<li><b>Connection:</b> TCP three-way handshake (SYN, SYN-ACK, ACK) or QUIC over UDP for HTTP/3.</li>
+<li><b>TLS handshake:</b> agree on keys, server proves identity with a certificate chained to a trusted CA. TLS 1.3 needs one round trip (0-RTT resumption possible, with replay risk).</li>
+<li><b>Edge:</b> a CDN may answer from cache; a WAF may block the request.</li>
+<li><b>Load balancer:</b> picks a healthy backend (round robin, least connections), may terminate TLS.</li>
+<li><b>Application:</b> middleware (logging, auth, rate limiting), business logic, calls to caches, databases and other services.</li>
+<li><b>Response:</b> status, headers (caching, cookies), body; the browser parses HTML, fetches CSS/JS/images (often in parallel over HTTP/2), runs scripts and renders.</li>
+</ol>
+<p class="angle"><b>Interview angle:</b> mention latency at each hop (DNS and handshakes cost round trips, which is why CDNs, connection reuse and HTTP/2/3 matter) and failure points (DNS misconfiguration, expired certificates, unhealthy targets, timeouts).</p>
+
+</section>
+<section id="network">
+<h2>Networking basics</h2>
+
+<h3>Layers (simplified TCP/IP model)</h3>
+<div class="tw"><table>
+<tr><th>Layer</th><th>Examples</th><th>What it gives you</th></tr>
+<tr><td>Application</td><td>HTTP, gRPC, DNS, SMTP, WebSocket</td><td>Meaningful messages between programs</td></tr>
+<tr><td>Transport</td><td>TCP, UDP, QUIC</td><td>Process-to-process delivery via ports; TCP adds reliability and ordering</td></tr>
+<tr><td>Network</td><td>IP (v4, v6), ICMP</td><td>Addressing and routing between networks</td></tr>
+<tr><td>Link</td><td>Ethernet, Wi-Fi</td><td>Delivery on the local network</td></tr>
+</table></div>
+<p>The OSI model splits these further (7 layers). Load balancers are often described as <b>Layer 4</b> (route by IP and port, e.g. AWS NLB) or <b>Layer 7</b> (route by HTTP path, host, headers, e.g. AWS ALB).</p>
+
+<h3>TCP vs UDP</h3>
+<div class="tw"><table>
+<tr><th></th><th>TCP</th><th>UDP</th></tr>
+<tr><td>Connection</td><td>Handshake, connection state</td><td>Connectionless</td></tr>
+<tr><td>Delivery</td><td>Reliable, ordered, retransmits, flow and congestion control</td><td>Best effort; may drop, duplicate or reorder</td></tr>
+<tr><td>Use for</td><td>HTTP/1.1 and HTTP/2, databases, most APIs</td><td>DNS, video/voice, gaming, QUIC (HTTP/3 builds reliability on top)</td></tr>
+</table></div>
+
+<h3>Addresses and routing</h3>
+<ul>
+<li><b>CIDR:</b> <code>10.0.0.0/16</code> means the first 16 bits are the network, leaving 2^16 = 65,536 addresses. <code>/24</code> = 256 addresses. Cloud providers reserve a few per subnet (AWS reserves 5).</li>
+<li><b>Private ranges:</b> 10.0.0.0/8, 172.16.0.0/12, 192.168.0.0/16. Not routable on the internet.</li>
+<li><b>NAT:</b> translates private addresses to a public one for outbound traffic.</li>
+<li><b>Ports:</b> 80 HTTP, 443 HTTPS, 22 SSH, 53 DNS, 5432 PostgreSQL, 1433 SQL Server, 6379 Redis, 9092 Kafka.</li>
+</ul>
+
+<h3>DNS records</h3>
+<div class="tw"><table>
+<tr><th>Record</th><th>Purpose</th></tr>
+<tr><td>A / AAAA</td><td>Name → IPv4 / IPv6 address</td></tr>
+<tr><td>CNAME</td><td>Alias to another name (not allowed at the zone apex; AWS Route 53 "alias" records work around this)</td></tr>
+<tr><td>MX</td><td>Mail servers for the domain</td></tr>
+<tr><td>TXT</td><td>Verification and email security (SPF, DKIM, DMARC)</td></tr>
+<tr><td>NS</td><td>Which name servers are authoritative</td></tr>
+</table></div>
+<p><b>TTL</b> controls how long resolvers cache an answer. Lower it before a migration so changes propagate quickly.</p>
+
+<h3>HTTP versions</h3>
+<div class="tw"><table>
+<tr><th>Version</th><th>Key traits</th><th>Limitation</th></tr>
+<tr><td>HTTP/1.1</td><td>Text protocol, keep-alive connections</td><td>One request at a time per connection (head-of-line blocking); browsers open ~6 connections per host</td></tr>
+<tr><td>HTTP/2</td><td>Binary framing, many streams multiplexed on one TCP connection, header compression</td><td>A lost TCP packet stalls all streams (TCP-level head-of-line blocking)</td></tr>
+<tr><td>HTTP/3</td><td>Runs on QUIC over UDP; independent streams, faster handshakes, survives network changes</td><td>Some networks block or throttle UDP; falls back to HTTP/2</td></tr>
+</table></div>
+<p class="practice">Practise: <a href="system-design.html">System Design Drills</a> (C002 on 502/504 errors), <a href="cloud.html">Cloud & DevOps bank</a> (networking questions).</p>
+
+</section>
+<section id="http">
+<h2>HTTP essentials</h2>
+
+<h3>Methods</h3>
+<div class="tw"><table>
+<tr><th>Method</th><th>Safe (no side effects)</th><th>Idempotent (same effect if repeated)</th><th>Typical use</th></tr>
+<tr><td>GET</td><td>Yes</td><td>Yes</td><td>Read a resource</td></tr>
+<tr><td>HEAD / OPTIONS</td><td>Yes</td><td>Yes</td><td>Metadata; CORS preflight</td></tr>
+<tr><td>PUT</td><td>No</td><td>Yes</td><td>Replace a resource at a known URL</td></tr>
+<tr><td>DELETE</td><td>No</td><td>Yes</td><td>Remove a resource</td></tr>
+<tr><td>POST</td><td>No</td><td>No</td><td>Create, or trigger an action</td></tr>
+<tr><td>PATCH</td><td>No</td><td>Not guaranteed</td><td>Partial update</td></tr>
+</table></div>
+<p>Idempotency matters because clients and proxies retry. For non-idempotent operations like payments, use an <b>idempotency key</b> header so a retried POST doesn't charge twice.</p>
+
+<h3>Status codes worth knowing</h3>
+<div class="tw"><table>
+<tr><th>Code</th><th>Meaning</th><th>When</th></tr>
+<tr><td>200 / 201 / 202 / 204</td><td>OK / Created / Accepted / No Content</td><td>201 with a Location header after creation; 202 when work is queued</td></tr>
+<tr><td>301 / 308</td><td>Permanent redirect</td><td>308 keeps the method and body</td></tr>
+<tr><td>302 / 307</td><td>Temporary redirect</td><td>307 keeps the method and body</td></tr>
+<tr><td>304</td><td>Not Modified</td><td>Conditional GET; client cache is still valid</td></tr>
+<tr><td>400 / 422</td><td>Bad Request / Unprocessable</td><td>Malformed input / valid shape but failed business validation</td></tr>
+<tr><td>401 / 403</td><td>Unauthenticated / Forbidden</td><td>No valid identity / identity known but not allowed</td></tr>
+<tr><td>404 / 405 / 409</td><td>Not Found / Method Not Allowed / Conflict</td><td>409 for version conflicts and duplicates</td></tr>
+<tr><td>412 / 429</td><td>Precondition Failed / Too Many Requests</td><td>412 with If-Match optimistic concurrency; 429 with Retry-After</td></tr>
+<tr><td>500 / 502 / 503 / 504</td><td>Server error / Bad Gateway / Unavailable / Gateway Timeout</td><td>502 and 504 come from a proxy or load balancer about the upstream</td></tr>
+</table></div>
+
+<h3>Headers that come up in interviews</h3>
+<ul>
+<li><b>Caching:</b> <code>Cache-Control</code> (<code>max-age</code>, <code>no-store</code>, <code>private</code>, <code>public</code>, <code>s-maxage</code> for shared caches), <code>ETag</code> + <code>If-None-Match</code> for revalidation (304), <code>Vary</code> to key caches by a header.</li>
+<li><b>Concurrency:</b> <code>ETag</code> + <code>If-Match</code> on updates; 412 if someone changed it first.</li>
+<li><b>Auth:</b> <code>Authorization: Bearer &lt;token&gt;</code>; cookies with <code>HttpOnly</code>, <code>Secure</code>, <code>SameSite</code>.</li>
+<li><b>CORS:</b> the browser sends <code>Origin</code>; the server answers with <code>Access-Control-Allow-Origin</code> (and methods/headers for preflights). CORS controls what browsers let scripts read; it is not server-side access control.</li>
+<li><b>Tracing:</b> <code>traceparent</code> (W3C Trace Context) propagates trace IDs between services.</li>
+</ul>
+<p class="practice">Practise: <a href="security-testing-observability.html">Security, Testing & Observability bank</a> (T015 CSRF and cookies, T047 headers and CORS), <a href="frontend.html">Frontend bank</a>.</p>
+
+</section>
+<section id="api">
+<h2>API styles and design</h2>
+
+<div class="tw"><table>
+<tr><th>Style</th><th>Strengths</th><th>Weaknesses</th><th>Good for</th></tr>
+<tr><td>REST over HTTP/JSON</td><td>Simple, cacheable, universal tooling</td><td>Over/under-fetching; loose contracts unless OpenAPI is used</td><td>Public and most internal APIs</td></tr>
+<tr><td>gRPC</td><td>Fast binary (Protobuf), strict contracts, streaming, code generation</td><td>Not browser-native (needs gRPC-Web), harder to debug by hand</td><td>Internal service-to-service calls</td></tr>
+<tr><td>GraphQL</td><td>Client chooses fields; one endpoint for many views</td><td>Caching and authorization per field are harder; expensive queries need limits</td><td>Many client types with different data needs</td></tr>
+<tr><td>WebSockets</td><td>Two-way, low latency, long-lived</td><td>Stateful connections complicate scaling and deploys</td><td>Chat, collaboration, live updates</td></tr>
+<tr><td>Server-Sent Events</td><td>One-way server push over plain HTTP, auto-reconnect</td><td>Server to client only</td><td>Notifications, feeds, streaming LLM tokens</td></tr>
+<tr><td>Webhooks</td><td>Push events to other systems</td><td>Receiver must be reachable; needs signing, retries, idempotency</td><td>Integrations with partners</td></tr>
+</table></div>
+
+<h3>REST design checklist</h3>
+<ul>
+<li>Resources as nouns (<code>/orders/{id}/items</code>), HTTP methods for actions; use sub-resources or explicit action endpoints (<code>POST /orders/{id}/cancel</code>) for state transitions.</li>
+<li><b>Pagination:</b> cursor-based (stable under inserts, fast) rather than offset for large or changing data.</li>
+<li><b>Errors:</b> consistent format, e.g. Problem Details (RFC 9457, which replaced RFC 7807) with type, title, status, detail.</li>
+<li><b>Versioning:</b> additive changes without a new version; breaking changes via a new version (URL or header) with a deprecation window.</li>
+<li><b>Idempotency keys</b> for POSTs that create or charge; <b>ETags</b> for optimistic concurrency.</li>
+<li><b>Limits:</b> maximum page size, rate limits per client, request size limits.</li>
+<li><b>Contracts:</b> OpenAPI spec as the source of truth; contract tests between consumers and providers.</li>
+</ul>
+<p class="practice">Practise: <a href="architecture.html">Architecture bank</a> (A042 contract changes, A090 API consistency), <a href="node.html">Node & NestJS bank</a> (WebSockets).</p>
+
+</section>
+<section id="concurrency">
+<h2>Processes, threads and concurrency</h2>
+
+<div class="tw"><table>
+<tr><th>Concept</th><th>Meaning</th></tr>
+<tr><td>Process</td><td>A running program with its own memory space; isolated from other processes</td></tr>
+<tr><td>Thread</td><td>A unit of execution inside a process; threads share the process's memory (heap) but each has its own stack</td></tr>
+<tr><td>Context switch</td><td>The OS saving one thread's state and loading another's; costs microseconds and cache warmth</td></tr>
+<tr><td>Concurrency vs parallelism</td><td>Concurrency: dealing with many tasks at once (interleaving). Parallelism: running tasks at the same instant on multiple cores</td></tr>
+<tr><td>CPU-bound vs I/O-bound</td><td>CPU-bound work needs cores (parallelism helps); I/O-bound work mostly waits (async I/O helps)</td></tr>
+</table></div>
+
+<h3>Asynchronous I/O</h3>
+<p>Instead of a thread blocking while waiting for a database or network call, the runtime registers a callback with the OS (epoll on Linux, IOCP on Windows) and frees the thread for other work. That's how one Node.js event loop or a small .NET thread pool serves thousands of concurrent requests. It does not make CPU-heavy work faster.</p>
+
+<h3>Synchronisation primitives</h3>
+<ul>
+<li><b>Mutex / lock:</b> one thread at a time in a critical section.</li>
+<li><b>Semaphore:</b> up to N threads at a time (connection limits, throttling).</li>
+<li><b>Read-write lock:</b> many readers or one writer.</li>
+<li><b>Atomic operations / compare-and-swap:</b> lock-free updates to a single value.</li>
+<li><b>Condition variables / monitors:</b> wait until a condition becomes true.</li>
+</ul>
+
+<h3>Concurrency bugs</h3>
+<div class="tw"><table>
+<tr><th>Bug</th><th>What happens</th><th>Typical fix</th></tr>
+<tr><td>Race condition</td><td>Result depends on timing (check-then-act, lost updates)</td><td>Atomic operations, locks, database constraints</td></tr>
+<tr><td>Deadlock</td><td>Threads wait on each other forever</td><td>Acquire locks in a consistent order; timeouts</td></tr>
+<tr><td>Livelock</td><td>Threads keep reacting to each other without progress</td><td>Randomised backoff</td></tr>
+<tr><td>Starvation</td><td>A thread never gets the resource</td><td>Fair locks, priority aging</td></tr>
+</table></div>
+<p>A deadlock needs all four <b>Coffman conditions</b>: mutual exclusion, hold and wait, no preemption, circular wait. Breaking any one prevents it; lock ordering breaks circular wait.</p>
+<p><b>Amdahl's law:</b> the serial part of a program limits speed-up from adding cores. If 10% must run serially, the maximum speed-up is 10×, no matter how many cores you add.</p>
+<p class="practice">Practise: <a href="dotnet.html">.NET Backend bank</a> (async internals, thread pool), <a href="lld.html">LLD & Machine Coding bank</a> (L029 concurrency toolkit), <a href="node.html">Node & NestJS bank</a> (event loop).</p>
+
+</section>
+<section id="memory">
+<h2>Memory and runtimes</h2>
+
+<ul>
+<li><b>Stack:</b> per-thread, holds call frames and local values; fast, limited size (deep recursion overflows it).</li>
+<li><b>Heap:</b> shared, holds objects with dynamic lifetimes; managed by a garbage collector in .NET, Java, JavaScript.</li>
+<li><b>Garbage collection:</b> tracing collectors find objects reachable from roots (stack variables, statics) and reclaim the rest. <b>Generational</b> GCs (.NET, V8, JVM) collect young objects often because most objects die young; long-lived objects are promoted and collected rarely.</li>
+<li><b>Memory leaks in managed languages</b> are references kept alive unintentionally: static collections that only grow, event handlers never unsubscribed, caches without limits, closures capturing large objects.</li>
+<li><b>Virtual memory:</b> each process sees its own address space; the OS maps pages to physical memory and can swap to disk (very slow when it happens).</li>
+<li><b>Allocation pressure</b> (many short-lived objects) increases GC work and pauses; reuse buffers, avoid needless allocations in hot paths.</li>
+</ul>
+<p class="practice">Practise: <a href="dotnet.html">.NET Backend bank</a> (GC, allocations, Span), <a href="node.html">Node & NestJS bank</a> (V8 memory).</p>
+
+</section>
+<section id="data">
+<h2>Data and storage fundamentals</h2>
+
+<h3>ACID transactions</h3>
+<div class="tw"><table>
+<tr><th>Property</th><th>Meaning</th></tr>
+<tr><td>Atomicity</td><td>All changes in a transaction happen, or none</td></tr>
+<tr><td>Consistency</td><td>Constraints (keys, checks) hold before and after</td></tr>
+<tr><td>Isolation</td><td>Concurrent transactions don't see each other's partial work (to a chosen degree)</td></tr>
+<tr><td>Durability</td><td>Committed data survives crashes (write-ahead log)</td></tr>
+</table></div>
+
+<h3>Isolation levels and anomalies</h3>
+<div class="tw"><table>
+<tr><th>Level</th><th>Dirty read</th><th>Non-repeatable read</th><th>Phantom read</th></tr>
+<tr><td>Read Uncommitted</td><td>Possible</td><td>Possible</td><td>Possible</td></tr>
+<tr><td>Read Committed</td><td>Prevented</td><td>Possible</td><td>Possible</td></tr>
+<tr><td>Repeatable Read</td><td>Prevented</td><td>Prevented</td><td>Possible (by the SQL standard)</td></tr>
+<tr><td>Serializable</td><td>Prevented</td><td>Prevented</td><td>Prevented</td></tr>
+</table></div>
+<p>Real databases differ from the standard: PostgreSQL's Repeatable Read is snapshot isolation (no phantoms, but <b>write skew</b> is possible); SQL Server and PostgreSQL default to Read Committed; SQL Server can use row versioning (RCSI/snapshot) to stop readers blocking writers. <b>Lost updates</b> (two read-modify-writes overwriting each other) need optimistic concurrency (version columns) or locking (<code>SELECT … FOR UPDATE</code>).</p>
+
+<h3>Indexes</h3>
+<ul>
+<li><b>B-tree</b> (default in relational databases): sorted, balanced tree; supports equality, ranges and ordering; O(log n) lookups.</li>
+<li><b>Composite indexes</b> follow the leftmost-prefix rule: an index on (customer_id, created_at) helps queries filtering by customer, or customer and date, not date alone.</li>
+<li><b>Covering index:</b> includes all columns a query needs, so the table isn't touched.</li>
+<li><b>Hash indexes:</b> equality only. <b>LSM trees</b> (Cassandra, RocksDB): fast writes via append-and-merge, reads may check several files.</li>
+<li><b>Cost:</b> every index slows writes and uses storage; index for real query patterns.</li>
+</ul>
+
+<h3>Modelling</h3>
+<ul>
+<li><b>Normalisation</b> (1NF–3NF) removes duplication so each fact lives in one place; good for write consistency.</li>
+<li><b>Denormalisation</b> duplicates data to make reads fast (read models, document stores, analytics); must be kept in sync.</li>
+<li><b>OLTP vs OLAP:</b> many small transactions (row stores, indexes) vs large scans and aggregations (column stores, warehouses).</li>
+</ul>
+
+<h3>Database families</h3>
+<div class="tw"><table>
+<tr><th>Family</th><th>Examples</th><th>Strength</th></tr>
+<tr><td>Relational</td><td>SQL Server, PostgreSQL, MySQL</td><td>Joins, constraints, transactions, flexible queries</td></tr>
+<tr><td>Key-value</td><td>Redis, DynamoDB</td><td>Very fast lookups by key, horizontal scale</td></tr>
+<tr><td>Document</td><td>MongoDB, Cosmos DB</td><td>Flexible nested records read as a unit</td></tr>
+<tr><td>Wide-column</td><td>Cassandra, Bigtable</td><td>Massive write throughput, time-series style access</td></tr>
+<tr><td>Search</td><td>OpenSearch, Elasticsearch</td><td>Full-text search, relevance, aggregations</td></tr>
+<tr><td>Graph</td><td>Neptune, Neo4j</td><td>Relationship traversal</td></tr>
+<tr><td>Vector</td><td>OpenSearch k-NN, pgvector</td><td>Similarity search over embeddings</td></tr>
+</table></div>
+<p class="practice">Practise: <a href="data.html">Data Layer bank</a> (indexes, isolation, DynamoDB modelling), <a href="system-design-toolkit.html">System Design Toolkit</a> (CAP and replication).</p>
+
+</section>
+<section id="security">
+<h2>Security fundamentals</h2>
+
+<h3>Words that get mixed up</h3>
+<div class="tw"><table>
+<tr><th>Term</th><th>Purpose</th><th>Reversible?</th><th>Example</th></tr>
+<tr><td>Encoding</td><td>Represent data in another format</td><td>Yes, by anyone</td><td>Base64, URL encoding (not security)</td></tr>
+<tr><td>Encryption</td><td>Confidentiality</td><td>Yes, with the key</td><td>AES (symmetric), RSA/ECC (asymmetric)</td></tr>
+<tr><td>Hashing</td><td>Integrity, fingerprints</td><td>No</td><td>SHA-256</td></tr>
+<tr><td>Password hashing</td><td>Store passwords safely</td><td>No, and deliberately slow</td><td>Argon2id, bcrypt, PBKDF2 with salt</td></tr>
+<tr><td>Signing / MAC</td><td>Authenticity and integrity</td><td>Verifiable</td><td>HMAC-SHA256, RSA/ECDSA signatures (JWT)</td></tr>
+</table></div>
+<ul>
+<li><b>Symmetric encryption</b> uses one shared key (fast; bulk data). <b>Asymmetric</b> uses a public/private key pair (key exchange, signatures). TLS uses asymmetric crypto to agree on a symmetric session key.</li>
+<li><b>Certificates (PKI):</b> a CA signs a certificate binding a domain to a public key; clients trust the chain up to a root CA.</li>
+<li><b>Authentication</b> proves who you are; <b>authorization</b> decides what you may do. Most API vulnerabilities are authorization failures (accessing someone else's object).</li>
+<li><b>Least privilege, defence in depth, secure defaults, fail closed.</b></li>
+<li><b>Secrets</b> live in a secrets manager or are replaced by workload identity (IAM roles, managed identities); never in code or logs.</li>
+<li><b>Classic attacks:</b> injection (SQL, command), XSS, CSRF, SSRF, broken access control (IDOR/BOLA), credential stuffing, supply-chain compromise.</li>
+</ul>
+<p class="practice">Practise: <a href="security-testing-observability.html">Security, Testing & Observability bank</a> (OWASP, OAuth/OIDC, data protection).</p>
+
+</section>
+<section id="engineering">
+<h2>Software engineering fundamentals</h2>
+
+<div class="grid2">
+<div><h4>Design principles</h4><p>SOLID; high cohesion, low coupling; DRY (but avoid the wrong abstraction); KISS; YAGNI; composition over inheritance; separate policy from details.</p></div>
+<div><h4>Testing</h4><p>Unit tests for logic, integration tests against real dependencies (containers), contract tests between services, a few end-to-end tests for critical journeys. Tests should fail for real bugs and survive refactors.</p></div>
+<div><h4>Version control</h4><p>Trunk-based development with short-lived branches and feature flags is the norm for continuous delivery; GitFlow suits scheduled releases. Small PRs, meaningful commit messages.</p></div>
+<div><h4>CI/CD</h4><p>Every change built and tested automatically; one immutable artefact promoted through environments; automated deploys with health checks and rollback.</p></div>
+<div><h4>Versioning</h4><p>Semantic versioning: MAJOR for breaking changes, MINOR for compatible features, PATCH for fixes. Lock files make builds reproducible.</p></div>
+<div><h4>Twelve-factor apps</h4><p>Config in the environment, stateless processes, backing services as attached resources, logs as event streams, disposable processes (fast start, graceful shutdown), dev/prod parity.</p></div>
+</div>
+<h3>Code review checklist</h3>
+<ul>
+<li>Does it solve the right problem, and is the design proportionate?</li>
+<li>Correctness: edge cases, concurrency, error handling, idempotency.</li>
+<li>Security: input validation, authorization, secrets, injection.</li>
+<li>Operability: logs, metrics, timeouts, retries, configuration.</li>
+<li>Tests that would catch a regression; readable names; no dead code.</li>
+</ul>
+<p class="practice">Practise: <a href="lld.html">LLD & Machine Coding bank</a> (principles and patterns), <a href="security-testing-observability.html">Security, Testing & Observability bank</a> (testing strategy), <a href="leadership.html">Leadership bank</a> (code review feedback).</p>
+
+</section>
+<section id="complexity">
+<h2>Complexity cheat sheet</h2>
+
+<div class="tw"><table>
+<tr><th>Structure</th><th>Access / search</th><th>Insert / delete</th><th>Notes</th></tr>
+<tr><td>Array / list</td><td>O(1) by index; O(n) search</td><td>O(n) in the middle; amortised O(1) append</td><td>Cache-friendly</td></tr>
+<tr><td>Linked list</td><td>O(n)</td><td>O(1) with a node reference</td><td>Rarely the fastest in practice</td></tr>
+<tr><td>Hash map / set</td><td>O(1) average</td><td>O(1) average</td><td>No ordering; worst case O(n)</td></tr>
+<tr><td>Balanced BST (sorted map)</td><td>O(log n)</td><td>O(log n)</td><td>Ordered iteration, ranges</td></tr>
+<tr><td>Binary heap</td><td>O(1) min/max peek</td><td>O(log n)</td><td>Priority queues, top-k</td></tr>
+<tr><td>Trie</td><td>O(length of key)</td><td>O(length of key)</td><td>Prefix search, autocomplete</td></tr>
+<tr><td>Graph (adjacency list)</td><td>BFS/DFS O(V + E)</td><td>O(1) add edge</td><td>Dijkstra O((V + E) log V)</td></tr>
+</table></div>
+<div class="tw"><table>
+<tr><th>Sort</th><th>Average</th><th>Worst</th><th>Space</th><th>Stable</th></tr>
+<tr><td>Quicksort</td><td>O(n log n)</td><td>O(n²)</td><td>O(log n)</td><td>No</td></tr>
+<tr><td>Merge sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(n)</td><td>Yes</td></tr>
+<tr><td>Heap sort</td><td>O(n log n)</td><td>O(n log n)</td><td>O(1)</td><td>No</td></tr>
+<tr><td>Counting / radix</td><td>O(n + k)</td><td>O(n + k)</td><td>O(n + k)</td><td>Yes</td></tr>
+</table></div>
+<p>.NET's <code>Array.Sort</code> uses introsort (quicksort that switches to heapsort, insertion sort for small ranges); it is not stable. LINQ <code>OrderBy</code> is stable.</p>
+<p class="practice">Practise: <a href="dsa.html">DSA Refresher</a>.</p>
+
+</section>
+</main>
+</div>
+<footer class="foot">Items marked <span class="verify">VERIFY</span> depend on versions, limits or rules that change; check current documentation before an interview. Drafted with help from Claude.</footer>
+</div>
+<script>(function(){try{var d=document.getElementById('toc-details');if(window.matchMedia('(max-width: 979px)').matches)d.removeAttribute('open');}catch(e){}})();</script>
+</html>

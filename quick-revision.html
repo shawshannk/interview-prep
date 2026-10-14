@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Quick-Revision Sheet</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: reading page with a sticky contents rail on wide screens (collapsible on phones); sections are long-form with tables, flow diagrams and 'interview angle' notes */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --code:#EEF1F7; --angle:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.65;padding-inline:16px;padding-block:0 64px}
+.page{max-width:1120px;margin:0 auto}
+.crumb{padding-block:18px 0;font-size:14px}
+header.top{padding-block:14px 26px;display:grid;gap:10px;max-width:760px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5.5vw,42px);line-height:1.05;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:66ch}
+.layout{display:grid;grid-template-columns:1fr;gap:28px}
+@media (min-width:980px){.layout{grid-template-columns:230px minmax(0,1fr)}}
+nav.toc{font-size:14px}
+@media (min-width:980px){nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto}}
+nav.toc details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+nav.toc summary{cursor:pointer;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+nav.toc ol{margin:8px 0 0;padding-left:20px;display:grid;gap:4px}
+nav.toc a{color:var(--ink);text-decoration:none}
+nav.toc a:hover{color:var(--accent);text-decoration:underline}
+main{min-width:0;display:grid;gap:40px}
+section{min-width:0;display:grid;gap:12px;scroll-margin-top:16px}
+section > h2{font-family:var(--f-display);font-weight:600;font-size:24px;line-height:1.2;margin:0;padding-top:4px;border-top:2px solid var(--ink);padding-block:12px 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:10px 0 0;text-wrap:balance}
+h4{font-size:15px;margin:6px 0 0;font-weight:600}
+p{margin:0;max-width:72ch}
+ul,ol{margin:0;padding-left:22px;max-width:72ch}
+li+li{margin-top:4px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:4px}
+pre{margin:0;background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55;max-width:100%}
+pre code{background:none;padding:0;font-size:inherit}
+.tw{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-weight:600;background:var(--soft);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{font-variant-numeric:tabular-nums}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13.5px}
+.flow .n{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-weight:500}
+.flow .n small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.flow .ar{color:var(--muted);font-family:var(--f-mono)}
+.angle{border-left:3px solid var(--angle);padding:6px 0 6px 12px;max-width:72ch}
+.angle b:first-child{color:var(--angle)}
+.warnbox{border-left:3px solid var(--warn);padding:6px 0 6px 12px;max-width:72ch}
+.verify{font-family:var(--f-mono);font-size:11px;color:var(--verify);border:1px solid currentColor;border-radius:4px;padding:0 4px;white-space:nowrap}
+.practice{font-size:14px;color:var(--muted)}
+.vnote{font-size:13px;color:var(--muted)}
+a.qid{font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+dl.gl{margin:0;max-width:80ch}
+dl.gl dt{font-weight:600;scroll-margin-top:16px;margin-top:14px}
+dl.gl dt:first-child{margin-top:0}
+dl.gl dd{margin:2px 0 0;color:var(--ink)}
+dl.gl dd .see{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.az{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--f-mono);font-size:14px}
+.az a{display:inline-block;min-width:30px;min-height:30px;line-height:30px;text-align:center;border:1px solid var(--line);border-radius:6px;background:var(--surface);text-decoration:none}
+.rev{columns:2 340px;column-gap:28px;max-width:none}
+.rev li{break-inside:avoid}
+@media print{nav.toc,.crumb{display:none}.layout{display:block}section{break-inside:avoid-page}body{font-size:12px}}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.grid2 > div{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:6px;align-content:start}
+.grid2 h4{margin:0}
+footer.foot{margin-top:48px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);max-width:760px}
+</style>
+<div class="page">
+<div class="crumb"><a href="index.html">&larr; All banks and fundamentals</a></div>
+<header class="top">
+<div class="eyebrow">Fundamentals · read the night before</div>
+<h1>Quick-Revision Sheet</h1>
+<p class="lede">One-line facts and rules of thumb across every topic, for a final pass before an interview. Each line is a hook; the reasoning is in the fundamentals pages (<a href="fundamentals-cs-web.html">CS & Web Fundamentals</a>, <a href="fundamentals-tech-stack.html">Tech Stack Fundamentals</a>, <a href="system-design-toolkit.html">System Design Toolkit</a>, <a href="fundamentals-cloud-devops.html">Cloud & DevOps Fundamentals</a>, <a href="fundamentals-genai.html">GenAI Fundamentals</a>) and the banks. Prints cleanly.</p>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="Contents"><details open id="toc-details"><summary>Contents</summary><ol>
+<li><a href="#csharp">C# and .NET</a></li>
+<li><a href="#aspnet">ASP.NET Core and EF Core</a></li>
+<li><a href="#node">Node.js, TypeScript and NestJS</a></li>
+<li><a href="#sql">SQL and relational databases</a></li>
+<li><a href="#nosql">NoSQL, caching and messaging</a></li>
+<li><a href="#web">HTTP, APIs and the web</a></li>
+<li><a href="#security">Security</a></li>
+<li><a href="#design">System design and architecture</a></li>
+<li><a href="#cloud">Cloud and DevOps</a></li>
+<li><a href="#obs">Observability, testing and reliability</a></li>
+<li><a href="#genai">GenAI</a></li>
+<li><a href="#dsa">DSA patterns</a></li>
+<li><a href="#lead">Leadership and behavioural</a></li>
+</ol></details></nav>
+<main>
+<section id="csharp">
+<h2>C# and .NET</h2>
+<ul class="rev"><li>Value types copy by value; reference types copy the reference. Where they live (stack/heap) is an implementation detail.</li><li><code>record</code> = value equality + <code>with</code> copies; <code>record struct</code> for small value-like data.</li><li><code>IEnumerable</code> runs in memory; <code>IQueryable</code> builds an expression tree translated by the provider (SQL).</li><li>Deferred execution: a LINQ query runs when enumerated — enumerate twice, query twice.</li><li><code>async</code> doesn't create threads; awaiting I/O frees the thread until completion.</li><li>Never <code>.Result</code>/<code>.Wait()</code> in request code (thread-pool starvation, deadlocks in old sync contexts); avoid <code>async void</code> except event handlers.</li><li>Pass <code>CancellationToken</code> end to end; <code>Task.WhenAll</code> for independent calls, <code>SemaphoreSlim</code> to cap concurrency.</li><li>GC: Gen 0/1/2 + LOH (≥85,000 bytes); most objects die young; avoid large short-lived allocations, use pooling/<code>ArrayPool</code>/streams.</li><li><code>Span&lt;T&gt;</code> is a stack-only ref struct; use <code>Memory&lt;T&gt;</code> across awaits.</li><li><code>IDisposable</code>/<code>using</code> for unmanaged resources; <code>IAsyncDisposable</code> for async cleanup.</li><li>Nullable reference types are compile-time warnings, not runtime guarantees.</li><li>Exceptions for exceptional cases; Result types for expected business outcomes is a valid team choice.</li><li>LTS releases (even numbers: .NET 8, 10) get 3 years support; STS (odd) 18 months, extended to 24 <span class="verify">VERIFY</span>.</li></ul>
+</section>
+<section id="aspnet">
+<h2>ASP.NET Core and EF Core</h2>
+<ul class="rev"><li>Middleware order matters: exception handling → HTTPS/HSTS → static files → routing → CORS → authentication → authorization → endpoints.</li><li>DI lifetimes: singleton (app), scoped (request), transient (each resolve). Never inject scoped into singleton (captive dependency).</li><li><code>DbContext</code> is scoped and not thread-safe; in background services create a scope per unit of work.</li><li>Use <code>IHttpClientFactory</code> (or a static client with <code>PooledConnectionLifetime</code>) to avoid socket exhaustion and stale DNS.</li><li>Options pattern: <code>IOptions</code> (singleton), <code>IOptionsSnapshot</code> (per request), <code>IOptionsMonitor</code> (change notifications).</li><li>Filters run inside MVC/endpoint context; middleware wraps everything.</li><li>Problem Details (RFC 9457) for consistent error responses.</li><li>EF Core: <code>AsNoTracking</code> for reads; project with <code>Select</code>; <code>Include</code> to avoid N+1; <code>AsSplitQuery</code> for cartesian explosion.</li><li><code>SaveChanges</code> is one transaction; use explicit transactions across multiple saves.</li><li>Optimistic concurrency: rowversion / concurrency token → <code>DbUpdateConcurrencyException</code>.</li><li>Migrations: review the SQL; expand → migrate data → contract for zero-downtime.</li><li>Health checks: liveness (process alive, no dependencies) vs readiness (can serve; check critical dependencies).</li></ul>
+</section>
+<section id="node">
+<h2>Node.js, TypeScript and NestJS</h2>
+<ul class="rev"><li>Node is single-threaded for JS; libuv thread pool (default 4) handles fs, DNS lookup, crypto, zlib.</li><li>Microtasks (promises, <code>process.nextTick</code> first) run before the next event-loop phase.</li><li>Block the event loop (sync crypto, big JSON, regex backtracking) → every request stalls. Offload with worker threads.</li><li>Streams + backpressure (<code>pipeline</code>) for large data; never buffer whole files in memory.</li><li>Unhandled promise rejections crash the process by default (Node 15+).</li><li>One process per container; let the orchestrator scale instead of the cluster module.</li><li>TypeScript: <code>unknown</code> over <code>any</code>; types vanish at runtime — validate input (zod/class-validator).</li><li>Discriminated unions + <code>never</code> for exhaustive state handling.</li><li>NestJS order: middleware → guards → interceptors (before) → pipes → handler → interceptors (after) → exception filters.</li><li>Nest providers are singletons by default; request scope propagates up the dependency chain and costs performance.</li></ul>
+</section>
+<section id="sql">
+<h2>SQL and relational databases</h2>
+<ul class="rev"><li>Clustered index = table order (one per table); nonclustered points to it. Covering index avoids key lookups.</li><li>Composite index order: equality columns first, then range/sort; leftmost prefix rule.</li><li>Functions on columns (<code>WHERE lower(email)=…</code>) prevent index seeks unless there's a matching expression index.</li><li>Isolation: read committed (default) → repeatable read → serializable; SQL Server RCSI/SNAPSHOT and PostgreSQL MVCC avoid reader-writer blocking.</li><li><code>NOLOCK</code> = dirty reads, missing or duplicate rows. Not a performance fix.</li><li>Parameter sniffing: plan compiled for the first value; fixes include <code>OPTION(RECOMPILE)</code>, optimize-for, or splitting queries.</li><li>Deadlocks: access tables in a consistent order, keep transactions short, index foreign keys, retry the victim.</li><li>Keyset (cursor) pagination over OFFSET for deep pages.</li><li>PostgreSQL: VACUUM reclaims dead tuples; long transactions block it; JSONB + GIN for semi-structured data.</li><li>Big-table changes: batch deletes, online index builds, partition for retention.</li><li>Read replicas lag: route read-your-writes to the primary.</li></ul>
+</section>
+<section id="nosql">
+<h2>NoSQL, caching and messaging</h2>
+<ul class="rev"><li>DynamoDB: design from access patterns; partition key spreads load, sort key enables ranges; GSIs are eventually consistent.</li><li>DynamoDB item max 400 KB; transactions up to 100 items <span class="verify">VERIFY</span>; conditional writes for uniqueness/optimistic locking.</li><li>Hot partitions come from skewed keys, not total capacity; add write sharding or better keys.</li><li>Redis is single-threaded per shard for commands; avoid <code>KEYS</code>, big keys and long Lua scripts.</li><li>Cache-aside + TTL is the default; protect against stampedes (locks, early refresh, jitter).</li><li>Redis Cluster: multi-key operations need the same hash slot (<code>{tag}</code>).</li><li>Queues are at-least-once: make consumers idempotent; use DLQs; set visibility timeout &gt; processing time.</li><li>Kafka: ordering only within a partition; key by entity; consumer group parallelism ≤ partitions.</li><li>Outbox pattern: write the event in the same DB transaction, publish asynchronously.</li><li>SNS/EventBridge = fan-out; SQS = work queue; Kafka/Kinesis = replayable stream.</li></ul>
+</section>
+<section id="web">
+<h2>HTTP, APIs and the web</h2>
+<ul class="rev"><li>Safe: GET, HEAD, OPTIONS. Idempotent: plus PUT, DELETE. POST and PATCH are neither by default — use idempotency keys.</li><li>401 = not authenticated; 403 = authenticated but not allowed; 409 conflict; 422 validation; 429 rate limited; 503 unavailable.</li><li>Cache-Control: <code>no-cache</code> = revalidate; <code>no-store</code> = never store; hashed assets get <code>immutable</code> with a long max-age.</li><li>CORS is a browser policy enforced by the client; it doesn't protect the server from non-browser callers.</li><li>Cookies for browsers: <code>HttpOnly; Secure; SameSite=Lax</code> (or Strict).</li><li>TLS 1.3 handshake is 1 round trip; HTTP/2 multiplexes over one TCP connection; HTTP/3 runs over QUIC (UDP).</li><li>REST for resources and public APIs; gRPC for internal low-latency typed calls; GraphQL for flexible client-driven reads; WebSockets/SSE for push.</li><li>API versioning: additive changes don't need a version; breaking changes do.</li><li>React re-renders when state, props or context change; keys preserve identity in lists.</li><li>Next.js App Router: Server Components by default; add <code>'use client'</code> for interactivity; mismatched server/client output breaks hydration.</li></ul>
+</section>
+<section id="security">
+<h2>Security</h2>
+<ul class="rev"><li>AuthN = who you are; AuthZ = what you may do. Check authorisation on every request, at the resource level (prevents IDOR/BOLA).</li><li>OAuth 2.0 = delegated authorisation (access tokens); OIDC adds identity (ID tokens). SPAs and mobile use Authorization Code + PKCE.</li><li>JWT validation: signature, issuer, audience, expiry, not-before, algorithm allow-list. Keep access tokens short-lived.</li><li>Hash passwords with Argon2id, scrypt or bcrypt (salted, slow) — never plain SHA-256.</li><li>SQL injection → parameterise; XSS → encode output, avoid <code>dangerouslySetInnerHTML</code>, add CSP; CSRF → SameSite + anti-forgery tokens.</li><li>Secrets live in a secret manager with rotation; never in code, images, logs or front-end bundles.</li><li>Encrypt in transit (TLS) and at rest (KMS); envelope encryption for app-level crypto.</li><li>Least privilege for people, services and pipelines; OIDC federation instead of long-lived CI keys.</li><li>Dependency and container scanning in CI; SBOMs for supply-chain visibility.</li><li>Log security events, not secrets or personal data.</li></ul>
+</section>
+<section id="design">
+<h2>System design and architecture</h2>
+<ul class="rev"><li>1 million requests/day ≈ 12/second; peak ≈ 3× average.</li><li>99.9% = 43 minutes down per month; 99.99% = 4.3 minutes.</li><li>Memory ~100 ns, SSD ~100 µs, same-AZ round trip ~0.5 ms, cross-continent ~150 ms.</li><li>CAP: during a partition choose consistency or availability; PACELC: otherwise trade latency vs consistency.</li><li>Quorum: R + W &gt; N for overlapping reads and writes.</li><li>Scale reads with caches and replicas; scale writes with partitioning, batching and async processing.</li><li>Every remote call: timeout + bounded retries with exponential backoff and jitter + circuit breaker.</li><li>Sagas instead of distributed transactions; compensations must be idempotent.</li><li>Fan-out on write for normal users, on read for celebrities.</li><li>Modular monolith first; split services when team or scaling boundaries demand it.</li><li>Strangler fig for migrations; dual-run and compare before cutting over.</li><li>Choose consistency per feature, and state what you'd monitor.</li></ul>
+</section>
+<section id="cloud">
+<h2>Cloud and DevOps</h2>
+<ul class="rev"><li>Shared responsibility: provider secures the cloud; you secure what's in it.</li><li>Multi-AZ for availability; multi-region for disaster recovery or latency (much harder and more expensive).</li><li>Private subnets for apps and data; NAT for outbound; VPC endpoints for S3/DynamoDB to cut NAT cost.</li><li>Security groups are stateful; NACLs are stateless.</li><li>IAM: default deny, explicit deny wins; roles over users; resource policies for cross-account access.</li><li>Lambda: 15-minute max, cold starts, concurrency limits; watch DB connections (use RDS Proxy).</li><li>Fargate for containers without nodes; EKS when you need Kubernetes features and have a platform team.</li><li>Terraform state: remote, locked, encrypted, access-controlled; review plans in PRs.</li><li>Build once, deploy many; tag images with the commit SHA.</li><li>Canary + automated rollback on SLO metrics; feature flags separate deploy from release.</li><li>K8s probes: liveness restarts, readiness gates traffic; set requests/limits; memory over limit = OOMKilled.</li><li>Cost: tag everything, set budgets, rightsize, Savings Plans for baseline, Spot for batch, watch egress and log volume.</li></ul>
+</section>
+<section id="obs">
+<h2>Observability, testing and reliability</h2>
+<ul class="rev"><li>Logs (events), metrics (aggregates), traces (request paths); correlate with a trace ID.</li><li>OpenTelemetry: API + SDK + collector; vendor-neutral.</li><li>RED for services (rate, errors, duration); USE for resources (utilisation, saturation, errors).</li><li>SLI → SLO → error budget; alert on burn rate, not individual errors.</li><li>Watch p95/p99, not averages.</li><li>Test pyramid: many unit, some integration (Testcontainers), few end-to-end; contract tests between services.</li><li>Coverage measures executed lines, not correctness; mutation testing checks test strength.</li><li>Incidents: mitigate first (rollback, flag off), then find root cause; blameless postmortems with owned actions.</li></ul>
+</section>
+<section id="genai">
+<h2>GenAI</h2>
+<ul class="rev"><li>1 token ≈ 4 characters of English; you pay per input and output token; output costs more.</li><li>Low temperature for extraction/classification; temperature 0 isn't perfectly deterministic.</li><li>Facts → RAG; behaviour/format → prompting then fine-tuning; actions → tool calling.</li><li>RAG: chunk → embed → index; query → hybrid retrieve with ACL filters → rerank → grounded prompt with citations.</li><li>Same embedding model for indexing and queries; changing it means re-embedding.</li><li>Evaluate retrieval (recall@k) separately from generation (faithfulness, relevance).</li><li>Build a golden dataset early; run evals on every prompt/model change.</li><li>Prompt injection can come through retrieved documents; the system prompt is not a security boundary.</li><li>Tools: validate arguments in code, least privilege, human approval for irreversible actions.</li><li>Cut cost: smaller models for easy tasks, fewer chunks, prompt caching, response caching, max-token caps, batch APIs.</li><li>Stream responses for perceived latency; parallelise retrieval and lookups.</li></ul>
+</section>
+<section id="dsa">
+<h2>DSA patterns</h2>
+<ul class="rev"><li>Hash map/set: O(1) average lookups — pairs, counts, seen-before.</li><li>Two pointers: sorted arrays, palindromes, pair sums. Sliding window: longest/shortest subarray with a condition.</li><li>Binary search: sorted data or monotonic answer space ("minimum capacity that works").</li><li>BFS for shortest path in unweighted graphs; DFS for connectivity, cycles, backtracking.</li><li>Heap (<code>PriorityQueue&lt;TElement,TPriority&gt;</code>): top-k, merge k sorted, scheduling.</li><li>Topological sort for dependencies; Dijkstra for non-negative weighted shortest paths.</li><li>Dynamic programming: define the state, the transition, the base case; memoise then tabulate.</li><li>Prefix sums for range sums; monotonic stack for next greater element.</li><li>Say the brute force first, then optimise; state time and space complexity.</li><li>Constraints hint the target: n ≤ 10^5 → O(n log n) or better; n ≤ 20 → exponential is fine.</li></ul>
+</section>
+<section id="lead">
+<h2>Leadership and behavioural</h2>
+<ul class="rev"><li>STAR: Situation and Task short (20%), Action detailed with "I" (60%), Result with numbers and learning (20%).</li><li>Have 8–10 stories ready that each cover several themes (conflict, failure, influence, delivery, mentoring, ambiguity).</li><li>Disagree with data, propose alternatives, then commit once decided.</li><li>Underperformance: clear expectations, specific feedback, support plan, documented follow-up.</li><li>Estimates: ranges with assumptions; re-plan early when scope or risk changes.</li><li>Technical debt: tie it to business impact (incidents, lead time), budget it continuously.</li><li>Hiring: structured interviews with rubrics; calibrate interviewers.</li><li>Delegation: match task to growth goals; agree on outcome and check-ins, not method.</li><li>Stakeholders: no surprises — communicate risks early with options.</li></ul>
+</section>
+</main>
+</div>
+<footer class="foot">Items marked <span class="verify">VERIFY</span> depend on versions, limits or rules that change; check current documentation before an interview. Drafted with help from Claude.</footer>
+</div>
+<script>(function(){try{var d=document.getElementById('toc-details');if(window.matchMedia('(max-width: 979px)').matches)d.removeAttribute('open');}catch(e){}})();</script>
+</html>

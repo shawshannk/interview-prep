@@ -1071,7 +1071,7 @@ function matches(x){
   if(state.types.size&&!state.types.has(x.type))return false;
   if(state.status==="done"&&!reviewed[x.id])return false;
   if(state.status==="todo"&&reviewed[x.id])return false;
-  if(state.text){const hay=(x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
+  if(state.text){const hay=(x.id+" "+x.q+" "+x.skill+" "+strip(x.a)+" "+(x.keys||[]).join(" ")+" "+(x.fu||[]).map(f=>f.q+" "+f.a).join(" ")).toLowerCase();
     if(!hay.includes(state.text))return false}
   return true;
 }
@@ -1109,6 +1109,7 @@ $("#list").addEventListener("change",e=>{const c=e.target.closest("input[data-id
   c.closest("li.q").classList.toggle("done",c.checked);
   const n=QS.filter(x=>reviewed[x.id]).length;const shown=document.querySelectorAll("li.q").length;
   $("#ptext").textContent=`${n} / ${QS.length} reviewed · ${shown} shown`;$("#pfill").style.width=(n/QS.length*100)+"%";});
+try{const m=location.hash.match(/^#q=([^&]+)/);if(m){const v=decodeURIComponent(m[1]);$("#q").value=v;state.text=v.trim().toLowerCase();}}catch(e){}
 render();
 </script>
 

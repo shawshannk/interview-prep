@@ -1,0 +1,318 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Cloud & DevOps Fundamentals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: reading page with a sticky contents rail on wide screens (collapsible on phones); sections are long-form with tables, flow diagrams and 'interview angle' notes */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --code:#EEF1F7; --angle:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.65;padding-inline:16px;padding-block:0 64px}
+.page{max-width:1120px;margin:0 auto}
+.crumb{padding-block:18px 0;font-size:14px}
+header.top{padding-block:14px 26px;display:grid;gap:10px;max-width:760px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5.5vw,42px);line-height:1.05;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:66ch}
+.layout{display:grid;grid-template-columns:1fr;gap:28px}
+@media (min-width:980px){.layout{grid-template-columns:230px minmax(0,1fr)}}
+nav.toc{font-size:14px}
+@media (min-width:980px){nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto}}
+nav.toc details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+nav.toc summary{cursor:pointer;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+nav.toc ol{margin:8px 0 0;padding-left:20px;display:grid;gap:4px}
+nav.toc a{color:var(--ink);text-decoration:none}
+nav.toc a:hover{color:var(--accent);text-decoration:underline}
+main{min-width:0;display:grid;gap:40px}
+section{min-width:0;display:grid;gap:12px;scroll-margin-top:16px}
+section > h2{font-family:var(--f-display);font-weight:600;font-size:24px;line-height:1.2;margin:0;padding-top:4px;border-top:2px solid var(--ink);padding-block:12px 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:10px 0 0;text-wrap:balance}
+h4{font-size:15px;margin:6px 0 0;font-weight:600}
+p{margin:0;max-width:72ch}
+ul,ol{margin:0;padding-left:22px;max-width:72ch}
+li+li{margin-top:4px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:4px}
+pre{margin:0;background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55;max-width:100%}
+pre code{background:none;padding:0;font-size:inherit}
+.tw{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-weight:600;background:var(--soft);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{font-variant-numeric:tabular-nums}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13.5px}
+.flow .n{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-weight:500}
+.flow .n small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.flow .ar{color:var(--muted);font-family:var(--f-mono)}
+.angle{border-left:3px solid var(--angle);padding:6px 0 6px 12px;max-width:72ch}
+.angle b:first-child{color:var(--angle)}
+.warnbox{border-left:3px solid var(--warn);padding:6px 0 6px 12px;max-width:72ch}
+.verify{font-family:var(--f-mono);font-size:11px;color:var(--verify);border:1px solid currentColor;border-radius:4px;padding:0 4px;white-space:nowrap}
+.practice{font-size:14px;color:var(--muted)}
+.vnote{font-size:13px;color:var(--muted)}
+a.qid{font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+dl.gl{margin:0;max-width:80ch}
+dl.gl dt{font-weight:600;scroll-margin-top:16px;margin-top:14px}
+dl.gl dt:first-child{margin-top:0}
+dl.gl dd{margin:2px 0 0;color:var(--ink)}
+dl.gl dd .see{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.az{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--f-mono);font-size:14px}
+.az a{display:inline-block;min-width:30px;min-height:30px;line-height:30px;text-align:center;border:1px solid var(--line);border-radius:6px;background:var(--surface);text-decoration:none}
+.rev{columns:2 340px;column-gap:28px;max-width:none}
+.rev li{break-inside:avoid}
+@media print{nav.toc,.crumb{display:none}.layout{display:block}section{break-inside:avoid-page}body{font-size:12px}}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.grid2 > div{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:6px;align-content:start}
+.grid2 h4{margin:0}
+footer.foot{margin-top:48px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);max-width:760px}
+</style>
+<div class="page">
+<div class="crumb"><a href="index.html">&larr; All banks and fundamentals</a></div>
+<header class="top">
+<div class="eyebrow">Fundamentals · AWS-first, Azure equivalents</div>
+<h1>Cloud & DevOps Fundamentals</h1>
+<p class="lede">The cloud and delivery basics a senior engineer is expected to explain without notes: the shared responsibility model, networking, identity, compute and storage choices, Infrastructure as Code, containers, Kubernetes, CI/CD, deployment strategies, and cost. Practise with the <a href="cloud.html">Cloud & DevOps bank</a>.</p>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="Contents"><details open id="toc-details"><summary>Contents</summary><ol>
+<li><a href="#model">Cloud basics</a></li>
+<li><a href="#map">AWS service map with Azure equivalents</a></li>
+<li><a href="#network">Networking: VPC fundamentals</a></li>
+<li><a href="#iam">Identity and access (IAM)</a></li>
+<li><a href="#compute">Choosing compute</a></li>
+<li><a href="#storage">Storage and databases in the cloud</a></li>
+<li><a href="#iac">Infrastructure as Code (Terraform)</a></li>
+<li><a href="#containers">Containers and Kubernetes basics</a></li>
+<li><a href="#cicd">CI/CD and deployment strategies</a></li>
+<li><a href="#ops">Operations: observability, security, cost</a></li>
+</ol></details></nav>
+<main>
+<section id="model">
+<h2>Cloud basics</h2>
+
+<div class="tw"><table>
+<tr><th>Concept</th><th>What it means</th></tr>
+<tr><td>Region</td><td>A geographic area (e.g. ap-south-1 Mumbai) with independent infrastructure. Choose for latency, data residency, service availability and price.</td></tr>
+<tr><td>Availability Zone (AZ)</td><td>One or more isolated data centres inside a region with separate power and networking. Spread production across at least two AZs.</td></tr>
+<tr><td>Edge locations</td><td>CDN and DNS points of presence (CloudFront, Route 53) closer to users.</td></tr>
+<tr><td>IaaS / PaaS / SaaS / FaaS</td><td>You manage less as you move right: VMs (EC2) → managed platforms (Elastic Beanstalk, App Service) → finished software → functions (Lambda).</td></tr>
+<tr><td>Shared responsibility</td><td>The provider secures the cloud (hardware, facilities, managed-service internals); you secure what you put in it (IAM, data, network rules, patching your OS and code, encryption settings). The split moves toward the provider for managed services.</td></tr>
+<tr><td>Well-Architected pillars</td><td>Operational excellence, security, reliability, performance efficiency, cost optimisation, sustainability.</td></tr>
+</table></div>
+
+</section>
+<section id="map">
+<h2>AWS service map with Azure equivalents</h2>
+
+<div class="tw"><table>
+<tr><th>Need</th><th>AWS</th><th>Azure</th></tr>
+<tr><td>Virtual machines</td><td>EC2 (+ Auto Scaling groups)</td><td>Virtual Machines (+ Scale Sets)</td></tr>
+<tr><td>Serverless functions</td><td>Lambda</td><td>Azure Functions</td></tr>
+<tr><td>Containers without managing servers</td><td>ECS on Fargate, App Runner</td><td>Container Apps, Container Instances</td></tr>
+<tr><td>Managed Kubernetes</td><td>EKS</td><td>AKS</td></tr>
+<tr><td>Web app platform</td><td>Elastic Beanstalk, App Runner</td><td>App Service</td></tr>
+<tr><td>Object storage</td><td>S3</td><td>Blob Storage</td></tr>
+<tr><td>Block / file storage</td><td>EBS / EFS</td><td>Managed Disks / Azure Files</td></tr>
+<tr><td>Relational database</td><td>RDS, Aurora</td><td>Azure SQL Database, Azure Database for PostgreSQL/MySQL</td></tr>
+<tr><td>Key-value / document</td><td>DynamoDB, DocumentDB</td><td>Cosmos DB</td></tr>
+<tr><td>Cache</td><td>ElastiCache (Redis/Valkey)</td><td>Azure Cache for Redis <span class="verify">VERIFY</span> <span class="vnote">(Azure Managed Redis is the newer offering)</span></td></tr>
+<tr><td>Queue</td><td>SQS</td><td>Storage Queues, Service Bus queues</td></tr>
+<tr><td>Pub/sub</td><td>SNS, EventBridge</td><td>Service Bus topics, Event Grid</td></tr>
+<tr><td>Streaming</td><td>Kinesis, MSK (Kafka)</td><td>Event Hubs</td></tr>
+<tr><td>Workflow orchestration</td><td>Step Functions</td><td>Logic Apps, Durable Functions</td></tr>
+<tr><td>API front door</td><td>API Gateway</td><td>API Management</td></tr>
+<tr><td>Load balancing</td><td>ALB (L7), NLB (L4)</td><td>Application Gateway (L7), Load Balancer (L4), Front Door (global)</td></tr>
+<tr><td>CDN</td><td>CloudFront</td><td>Front Door / Azure CDN</td></tr>
+<tr><td>DNS</td><td>Route 53</td><td>Azure DNS, Traffic Manager</td></tr>
+<tr><td>Identity for workloads and people</td><td>IAM, IAM Identity Center</td><td>Microsoft Entra ID, managed identities, Azure RBAC</td></tr>
+<tr><td>User sign-in for apps</td><td>Cognito</td><td>Entra External ID (formerly Azure AD B2C)</td></tr>
+<tr><td>Secrets and keys</td><td>Secrets Manager, Parameter Store, KMS</td><td>Key Vault</td></tr>
+<tr><td>Monitoring and logs</td><td>CloudWatch, X-Ray</td><td>Azure Monitor, Application Insights, Log Analytics</td></tr>
+<tr><td>Audit</td><td>CloudTrail</td><td>Activity Log</td></tr>
+<tr><td>Infrastructure as Code (native)</td><td>CloudFormation, CDK</td><td>ARM templates, Bicep</td></tr>
+<tr><td>Generative AI platform</td><td>Bedrock</td><td>Azure OpenAI / Azure AI Foundry</td></tr>
+</table></div>
+<p class="angle"><b>Interview angle:</b> name the managed option first and justify self-managing only for a specific reason (control, cost at scale, a feature gap).</p>
+
+</section>
+<section id="network">
+<h2>Networking: VPC fundamentals</h2>
+
+<div class="flow"><div class="n">Internet</div><div class="ar">→</div><div class="n">Internet Gateway</div><div class="ar">→</div><div class="n">Public subnets<small>ALB, NAT Gateway</small></div><div class="ar">→</div><div class="n">Private subnets<small>app tasks, Lambda in VPC</small></div><div class="ar">→</div><div class="n">Isolated subnets<small>databases</small></div></div>
+<div class="tw"><table>
+<tr><th>Component</th><th>Purpose</th></tr>
+<tr><td>VPC</td><td>Your private network in a region, defined by a CIDR block (e.g. 10.0.0.0/16 = 65,536 addresses).</td></tr>
+<tr><td>Subnet</td><td>A slice of the VPC in one AZ. "Public" means its route table sends 0.0.0.0/0 to an Internet Gateway.</td></tr>
+<tr><td>Route table</td><td>Decides where traffic from a subnet goes.</td></tr>
+<tr><td>Internet Gateway</td><td>Two-way internet access for resources with public IPs.</td></tr>
+<tr><td>NAT Gateway</td><td>Outbound-only internet access for private subnets (pulling packages, calling APIs). Charged per hour and per GB; one per AZ for resilience.</td></tr>
+<tr><td>Security group</td><td>Stateful, instance/ENI-level allow rules. Reference other security groups instead of IP ranges ("app SG can reach DB SG on 5432").</td></tr>
+<tr><td>Network ACL</td><td>Stateless subnet-level allow/deny rules; rarely the main control.</td></tr>
+<tr><td>VPC endpoints</td><td>Private access to AWS services: gateway endpoints for S3 and DynamoDB (free), interface endpoints (PrivateLink) for others. Reduce NAT cost and keep traffic off the internet.</td></tr>
+<tr><td>Peering / Transit Gateway</td><td>Connect VPCs: peering is point-to-point and non-transitive; Transit Gateway is a hub for many VPCs and on-premises links.</td></tr>
+<tr><td>VPN / Direct Connect</td><td>Encrypted tunnel over the internet / dedicated private line to on-premises.</td></tr>
+</table></div>
+<p><b>CIDR quick math:</b> /16 = 65,536 addresses, /24 = 256, /28 = 16. AWS reserves 5 addresses in each subnet.</p>
+
+</section>
+<section id="iam">
+<h2>Identity and access (IAM)</h2>
+
+<ul>
+<li><b>Principals:</b> users (avoid long-lived ones), roles (temporary credentials, assumed by services, people via SSO, CI pipelines via OIDC), and service principals.</li>
+<li><b>Policies:</b> JSON documents with Effect, Action, Resource and optional Condition. Identity-based policies attach to principals; resource-based policies (S3 bucket policy, KMS key policy, SQS policy) attach to resources and can grant cross-account access.</li>
+<li><b>Evaluation:</b> everything is denied by default; an explicit Deny anywhere wins; otherwise an Allow is needed, and organisation guardrails (SCPs) and permission boundaries cap what can be allowed.</li>
+<li><b>Least privilege:</b> one role per workload; scope actions and resources; use conditions (source VPC, tags, MFA).</li>
+<li><b>No secrets in code:</b> workloads use roles; CI uses OIDC federation (e.g. GitHub Actions assuming a role) instead of access keys.</li>
+<li><b>Multi-account setup:</b> separate accounts per environment or team under AWS Organizations, with central logging and SSO.</li>
+</ul>
+<pre><code>{
+  "Effect": "Allow",
+  "Action": ["s3:GetObject"],
+  "Resource": "arn:aws:s3:::reports-bucket/tenant-42/*",
+  "Condition": { "Bool": { "aws:SecureTransport": "true" } }
+}</code></pre>
+
+</section>
+<section id="compute">
+<h2>Choosing compute</h2>
+
+<div class="tw"><table>
+<tr><th>Option</th><th>Best for</th><th>Watch out for</th></tr>
+<tr><td>Lambda / Functions</td><td>Event-driven, spiky or low traffic, glue code, scheduled jobs</td><td>Cold starts, 15-minute limit, concurrency limits and downstream DB connections, cost at steady high load</td></tr>
+<tr><td>ECS Fargate / Container Apps</td><td>Long-running APIs and workers in containers without managing nodes</td><td>Per-task pricing higher than raw EC2; still need autoscaling and health checks</td></tr>
+<tr><td>EKS / AKS</td><td>Many services, platform team, portability, advanced scheduling</td><td>Significant operational overhead; upgrades, add-ons, security</td></tr>
+<tr><td>EC2 / VMs</td><td>Special hardware, licensing, legacy software, full control</td><td>Patching and scaling are yours</td></tr>
+<tr><td>App Runner / App Service</td><td>Simple web apps and APIs with minimal setup</td><td>Fewer knobs; check networking features</td></tr>
+</table></div>
+<p><b>Pricing models:</b> on-demand; Savings Plans / Reserved Instances for steady baseline (big discounts for 1–3 year commitments); Spot for interruptible work (batch, CI runners) at large discounts.</p>
+<p><b>Autoscaling signals:</b> CPU or request count per target for APIs; queue depth or age for workers; scheduled scaling for known peaks.</p>
+
+</section>
+<section id="storage">
+<h2>Storage and databases in the cloud</h2>
+
+<ul>
+<li><b>S3 storage classes:</b> Standard → Standard-IA / One Zone-IA → Glacier Instant/Flexible/Deep Archive; Intelligent-Tiering moves objects automatically. Use lifecycle rules.</li>
+<li><b>S3 essentials:</b> Block Public Access on; encryption on by default (SSE-S3; use SSE-KMS for key control); versioning for protection; pre-signed URLs for direct upload/download; event notifications to trigger processing.</li>
+<li><b>RDS / Aurora:</b> Multi-AZ for high availability (standby failover, about a minute or two); read replicas for read scaling; automated backups with point-in-time restore; RDS Proxy to pool connections (useful with Lambda).</li>
+<li><b>DynamoDB:</b> on-demand vs provisioned capacity; design keys for access patterns; TTL for expiry; Streams for change events; global tables for multi-region.</li>
+<li><b>Backups:</b> AWS Backup for policies across services; test restores regularly.</li>
+</ul>
+
+</section>
+<section id="iac">
+<h2>Infrastructure as Code (Terraform)</h2>
+
+<p>IaC makes environments reproducible, reviewable and auditable. Terraform (or OpenTofu) is cloud-agnostic; CloudFormation/CDK and Bicep are native options.</p>
+<div class="tw"><table>
+<tr><th>Concept</th><th>Meaning</th></tr>
+<tr><td>Provider</td><td>Plugin that talks to an API (aws, azurerm, github).</td></tr>
+<tr><td>Resource / data source</td><td>Something Terraform manages / something it only reads.</td></tr>
+<tr><td>State</td><td>Terraform's record of what exists. Store remotely (S3 with locking, or Terraform Cloud), encrypted, never edited by hand. Contains secrets in plain text, so restrict access.</td></tr>
+<tr><td>Plan / apply</td><td>Preview the diff, then make changes. Review plans in pull requests.</td></tr>
+<tr><td>Modules</td><td>Reusable building blocks (a standard service, VPC). Version them.</td></tr>
+<tr><td>Variables / outputs / locals</td><td>Inputs, exported values, computed names.</td></tr>
+<tr><td>Drift</td><td>Changes made outside Terraform; detect with scheduled plans.</td></tr>
+<tr><td>Environments</td><td>Separate state per environment (directories or workspaces); same modules, different variables.</td></tr>
+</table></div>
+<pre><code>resource "aws_sqs_queue" "orders_dlq" {
+  name                      = "orders-dlq"
+  message_retention_seconds = 1209600   # 14 days
+}
+
+resource "aws_sqs_queue" "orders" {
+  name                       = "orders"
+  visibility_timeout_seconds = 60
+  redrive_policy = jsonencode({
+    deadLetterTargetArn = aws_sqs_queue.orders_dlq.arn
+    maxReceiveCount     = 5
+  })
+}</code></pre>
+
+</section>
+<section id="containers">
+<h2>Containers and Kubernetes basics</h2>
+
+<h3>Containers</h3>
+<ul>
+<li><b>Image vs container:</b> an image is an immutable, layered filesystem plus metadata; a container is a running instance with its own process space and network namespace sharing the host kernel.</li>
+<li><b>Good images:</b> multi-stage builds, small base images, non-root user, pinned versions, no secrets baked in, one main process, logs to stdout.</li>
+<li><b>Registries:</b> ECR / ACR; scan images for vulnerabilities; tag immutably (commit SHA), not just <code>latest</code>.</li>
+</ul>
+<h3>Kubernetes objects to know</h3>
+<div class="tw"><table>
+<tr><th>Object</th><th>Purpose</th></tr>
+<tr><td>Pod</td><td>Smallest unit: one or more containers sharing network and storage.</td></tr>
+<tr><td>Deployment / ReplicaSet</td><td>Desired number of identical pods; rolling updates and rollbacks.</td></tr>
+<tr><td>Service</td><td>Stable virtual IP and DNS name for a set of pods (ClusterIP, NodePort, LoadBalancer).</td></tr>
+<tr><td>Ingress / Gateway API</td><td>HTTP routing from outside into services.</td></tr>
+<tr><td>ConfigMap / Secret</td><td>Configuration and sensitive values injected as env vars or files (Secrets are only base64 by default; use encryption or external secret stores).</td></tr>
+<tr><td>Probes</td><td>Liveness (restart if stuck), readiness (receive traffic only when ready), startup (slow starters).</td></tr>
+<tr><td>Requests / limits</td><td>Scheduler reservation and hard caps for CPU and memory; exceeding memory limits gets the container OOM-killed.</td></tr>
+<tr><td>HPA</td><td>Horizontal Pod Autoscaler scales replicas on metrics.</td></tr>
+<tr><td>Namespace / RBAC</td><td>Grouping and access control.</td></tr>
+<tr><td>StatefulSet / DaemonSet / Job / CronJob</td><td>Stable identity and storage / one pod per node / run to completion / scheduled.</td></tr>
+</table></div>
+
+</section>
+<section id="cicd">
+<h2>CI/CD and deployment strategies</h2>
+
+<div class="flow"><div class="n">Commit / PR</div><div class="ar">→</div><div class="n">Build + unit tests<small>lint, SAST, dependency scan</small></div><div class="ar">→</div><div class="n">Package<small>image tagged with SHA</small></div><div class="ar">→</div><div class="n">Deploy to staging<small>integration, contract, smoke</small></div><div class="ar">→</div><div class="n">Approve / auto-promote</div><div class="ar">→</div><div class="n">Production<small>canary, monitor, rollback</small></div></div>
+<ul>
+<li><b>Continuous integration:</b> small, frequent merges to main with a fast, reliable pipeline.</li>
+<li><b>Continuous delivery</b> keeps main always deployable (manual approval to release); <b>continuous deployment</b> releases every passing change automatically.</li>
+<li><b>Build once, deploy many:</b> the same artifact goes to every environment; configuration differs.</li>
+<li><b>Pipeline security:</b> OIDC to the cloud, least-privilege deploy roles, protected branches, required reviews, signed artifacts where needed.</li>
+<li><b>Database migrations:</b> backward-compatible (expand → migrate → contract) so app and schema can roll independently.</li>
+</ul>
+<div class="tw"><table>
+<tr><th>Strategy</th><th>How</th><th>Pros</th><th>Cons</th></tr>
+<tr><td>Rolling</td><td>Replace instances gradually</td><td>No extra capacity, default in ECS/K8s</td><td>Mixed versions during rollout; slower rollback</td></tr>
+<tr><td>Blue-green</td><td>Run the new version alongside, switch traffic</td><td>Instant switch and rollback</td><td>Double capacity briefly; shared DB must work for both</td></tr>
+<tr><td>Canary</td><td>Send a small percentage first, watch metrics, increase</td><td>Limits blast radius; data-driven</td><td>Needs good metrics and automation</td></tr>
+<tr><td>Feature flags</td><td>Deploy dark, enable per user/tenant</td><td>Separates deploy from release; instant off switch</td><td>Flag debt; test combinations</td></tr>
+</table></div>
+<p><b>DORA metrics:</b> deployment frequency, lead time for changes, change failure rate, time to restore service (and, more recently, rework rate <span class="verify">VERIFY</span>).</p>
+
+</section>
+<section id="ops">
+<h2>Operations: observability, security, cost</h2>
+
+<div class="grid2">
+<div><h4>Observability</h4><p>Structured logs with correlation IDs; metrics (RED for services: rate, errors, duration; USE for resources: utilisation, saturation, errors); distributed traces (OpenTelemetry). Alert on symptoms tied to SLOs, not every cause.</p></div>
+<div><h4>Security baseline</h4><p>MFA and SSO, no root usage, CloudTrail everywhere, GuardDuty/Security Hub, encryption at rest and in transit, private subnets for data, WAF on public endpoints, secrets in a manager with rotation.</p></div>
+<div><h4>Cost drivers</h4><p>Idle compute, oversized instances, NAT data processing, cross-AZ and internet egress, log ingestion volume, unattached volumes and old snapshots, unbounded LLM usage.</p></div>
+<div><h4>Cost controls</h4><p>Tags for ownership, budgets and anomaly alerts, rightsizing, Savings Plans for baseline, Spot for batch, lifecycle rules, VPC endpoints, per-team cost visibility (FinOps).</p></div>
+</div>
+<p class="practice">Practise: <a href="cloud.html">Cloud & DevOps bank</a>, <a href="security-testing-observability.html">Security, Testing & Observability bank</a> (observability and security), and <a href="system-design-toolkit.html">System Design Toolkit</a> for DR strategies.</p>
+
+</section>
+</main>
+</div>
+<footer class="foot">Items marked <span class="verify">VERIFY</span> depend on versions, limits or rules that change; check current documentation before an interview. Drafted with help from Claude.</footer>
+</div>
+<script>(function(){try{var d=document.getElementById('toc-details');if(window.matchMedia('(max-width: 979px)').matches)d.removeAttribute('open');}catch(e){}})();</script>
+</html>

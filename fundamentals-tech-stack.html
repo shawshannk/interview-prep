@@ -1,0 +1,375 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<style>body{margin:0}img{max-width:100%}[hidden]{display:none!important}</style>
+<title>Tech Stack Fundamentals</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,600;12..96,700&family=IBM+Plex+Sans:ital,wght@0,400;0,500;0,600;1,400&family=IBM+Plex+Mono:wght@400;500&display=swap">
+<style>
+/* Layout: reading page with a sticky contents rail on wide screens (collapsible on phones); sections are long-form with tables, flow diagrams and 'interview angle' notes */
+:root{
+  --bg:#F4F5F8; --surface:#FFFFFF; --ink:#141922; --muted:#586172; --line:#DCE0E8; --soft:#EBEEF4;
+  --accent:#2A4BD7; --code:#EEF1F7; --angle:#2B7A57; --warn:#A6400F; --verify:#9A6A00;
+  --f-display:"Bricolage Grotesque", "Segoe UI", system-ui, sans-serif;
+  --f-body:"IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+  --f-mono:"IBM Plex Mono", ui-monospace, Consolas, monospace;
+}
+@media (prefers-color-scheme: dark){ :root:not([data-theme="light"]){
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }}
+:root[data-theme="dark"]{
+  --bg:#0E1117; --surface:#161A22; --ink:#E5E8EE; --muted:#9AA2B1; --line:#2A303C; --soft:#1E232D;
+  --accent:#8099FF; --code:#1C212B; --angle:#5FC79A; --warn:#F08A5D; --verify:#E8C15A; color-scheme:dark }
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+@media (prefers-reduced-motion: reduce){html{scroll-behavior:auto}}
+body{background:var(--bg);color:var(--ink);font-family:var(--f-body);font-size:15.5px;line-height:1.65;padding-inline:16px;padding-block:0 64px}
+.page{max-width:1120px;margin:0 auto}
+.crumb{padding-block:18px 0;font-size:14px}
+header.top{padding-block:14px 26px;display:grid;gap:10px;max-width:760px}
+.eyebrow{font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+h1{font-family:var(--f-display);font-weight:700;font-size:clamp(28px,5.5vw,42px);line-height:1.05;margin:0;text-wrap:balance}
+.lede{color:var(--muted);margin:0;max-width:66ch}
+.layout{display:grid;grid-template-columns:1fr;gap:28px}
+@media (min-width:980px){.layout{grid-template-columns:230px minmax(0,1fr)}}
+nav.toc{font-size:14px}
+@media (min-width:980px){nav.toc{position:sticky;top:calc(env(safe-area-inset-top,0px) + 16px);align-self:start;max-height:calc(100vh - 32px);overflow:auto}}
+nav.toc details{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:10px 14px}
+nav.toc summary{cursor:pointer;font-family:var(--f-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+nav.toc ol{margin:8px 0 0;padding-left:20px;display:grid;gap:4px}
+nav.toc a{color:var(--ink);text-decoration:none}
+nav.toc a:hover{color:var(--accent);text-decoration:underline}
+main{min-width:0;display:grid;gap:40px}
+section{min-width:0;display:grid;gap:12px;scroll-margin-top:16px}
+section > h2{font-family:var(--f-display);font-weight:600;font-size:24px;line-height:1.2;margin:0;padding-top:4px;border-top:2px solid var(--ink);padding-block:12px 0;text-wrap:balance}
+h3{font-family:var(--f-display);font-weight:600;font-size:18px;margin:10px 0 0;text-wrap:balance}
+h4{font-size:15px;margin:6px 0 0;font-weight:600}
+p{margin:0;max-width:72ch}
+ul,ol{margin:0;padding-left:22px;max-width:72ch}
+li+li{margin-top:4px}
+a{color:var(--accent);text-decoration-thickness:1px;text-underline-offset:3px}
+a:focus-visible,summary:focus-visible{outline:2px solid var(--accent);outline-offset:2px;border-radius:3px}
+code{font-family:var(--f-mono);font-size:.88em;background:var(--code);padding:1px 4px;border-radius:4px}
+pre{margin:0;background:var(--code);padding:12px 14px;border-radius:8px;overflow-x:auto;font-size:13px;line-height:1.55;max-width:100%}
+pre code{background:none;padding:0;font-size:inherit}
+.tw{overflow-x:auto;max-width:100%;border:1px solid var(--line);border-radius:8px;background:var(--surface)}
+table{border-collapse:collapse;width:100%;font-size:14px}
+th,td{padding:8px 10px;text-align:left;vertical-align:top;border-bottom:1px solid var(--line)}
+th{font-weight:600;background:var(--soft);white-space:nowrap}
+tr:last-child td{border-bottom:0}
+td{font-variant-numeric:tabular-nums}
+.flow{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:13.5px}
+.flow .n{background:var(--surface);border:1px solid var(--line);border-radius:6px;padding:6px 10px;font-weight:500}
+.flow .n small{display:block;font-weight:400;color:var(--muted);font-size:12px}
+.flow .ar{color:var(--muted);font-family:var(--f-mono)}
+.angle{border-left:3px solid var(--angle);padding:6px 0 6px 12px;max-width:72ch}
+.angle b:first-child{color:var(--angle)}
+.warnbox{border-left:3px solid var(--warn);padding:6px 0 6px 12px;max-width:72ch}
+.verify{font-family:var(--f-mono);font-size:11px;color:var(--verify);border:1px solid currentColor;border-radius:4px;padding:0 4px;white-space:nowrap}
+.practice{font-size:14px;color:var(--muted)}
+.vnote{font-size:13px;color:var(--muted)}
+a.qid{font-family:var(--f-mono);font-size:12.5px;white-space:nowrap}
+dl.gl{margin:0;max-width:80ch}
+dl.gl dt{font-weight:600;scroll-margin-top:16px;margin-top:14px}
+dl.gl dt:first-child{margin-top:0}
+dl.gl dd{margin:2px 0 0;color:var(--ink)}
+dl.gl dd .see{display:block;font-size:13px;color:var(--muted);margin-top:2px}
+.az{display:flex;flex-wrap:wrap;gap:6px;font-family:var(--f-mono);font-size:14px}
+.az a{display:inline-block;min-width:30px;min-height:30px;line-height:30px;text-align:center;border:1px solid var(--line);border-radius:6px;background:var(--surface);text-decoration:none}
+.rev{columns:2 340px;column-gap:28px;max-width:none}
+.rev li{break-inside:avoid}
+@media print{nav.toc,.crumb{display:none}.layout{display:block}section{break-inside:avoid-page}body{font-size:12px}}
+.grid2{display:grid;grid-template-columns:repeat(auto-fit,minmax(260px,1fr));gap:12px}
+.grid2 > div{min-width:0;background:var(--surface);border:1px solid var(--line);border-radius:8px;padding:12px 14px;display:grid;gap:6px;align-content:start}
+.grid2 h4{margin:0}
+footer.foot{margin-top:48px;padding-top:14px;border-top:1px solid var(--line);font-size:13px;color:var(--muted);max-width:760px}
+</style>
+<div class="page">
+<div class="crumb"><a href="index.html">&larr; All banks and fundamentals</a></div>
+<header class="top">
+<div class="eyebrow">Fundamentals · technology-specific</div>
+<h1>Tech Stack Fundamentals</h1>
+<p class="lede">The core facts for each technology on your resume: C# and .NET, ASP.NET Core, EF Core, Node.js, TypeScript, NestJS, SQL Server, PostgreSQL, Redis, DynamoDB, messaging, React, Next.js and Docker. Each section covers what interviewers assume you know before they ask the hard questions.</p>
+</header>
+<div class="layout">
+<nav class="toc" aria-label="Contents"><details open id="toc-details"><summary>Contents</summary><ol>
+<li><a href="#csharp">C# language essentials</a></li>
+<li><a href="#dotnet">.NET runtime and versions</a></li>
+<li><a href="#aspnet">ASP.NET Core</a></li>
+<li><a href="#efcore">EF Core and data access</a></li>
+<li><a href="#node">Node.js and TypeScript</a></li>
+<li><a href="#nest">NestJS</a></li>
+<li><a href="#sqlserver">SQL Server</a></li>
+<li><a href="#postgres">PostgreSQL</a></li>
+<li><a href="#redis">Redis</a></li>
+<li><a href="#dynamo">DynamoDB</a></li>
+<li><a href="#messaging">Messaging: queues and streams</a></li>
+<li><a href="#react">React and Next.js</a></li>
+<li><a href="#docker">Docker and containers</a></li>
+</ol></details></nav>
+<main>
+<section id="csharp">
+<h2>C# language essentials</h2>
+
+<div class="tw"><table>
+<tr><th>Topic</th><th>What to know</th></tr>
+<tr><td>Value vs reference types</td><td><code>struct</code>, <code>enum</code>, primitives are value types (copied on assignment, live inline); <code>class</code>, arrays, strings, delegates are reference types (variables hold references to heap objects). Boxing wraps a value type in an object (allocation).</td></tr>
+<tr><td>record / record struct</td><td>Value-based equality, immutable-friendly (<code>init</code>, <code>with</code> expressions). Good for DTOs and value objects.</td></tr>
+<tr><td>Nullable reference types</td><td>Compile-time warnings for possible nulls (<code>string?</code> vs <code>string</code>); not enforced at runtime.</td></tr>
+<tr><td>Strings</td><td>Immutable; use <code>StringBuilder</code> in loops; compare with <code>StringComparison.Ordinal</code> or <code>OrdinalIgnoreCase</code> for identifiers.</td></tr>
+<tr><td>Generics</td><td>Type-safe reuse without boxing; constraints (<code>where T : class, new()</code>); variance (<code>IEnumerable&lt;out T&gt;</code>).</td></tr>
+<tr><td>Delegates, lambdas, events</td><td><code>Func</code>/<code>Action</code>; closures capture variables (not values); unsubscribed event handlers keep objects alive.</td></tr>
+<tr><td>LINQ</td><td>Deferred execution: queries run when enumerated (watch multiple enumeration). <code>IEnumerable</code> runs in memory; <code>IQueryable</code> builds an expression tree translated by a provider (EF Core → SQL).</td></tr>
+<tr><td>Exceptions</td><td>For exceptional cases, not control flow; <code>throw;</code> preserves the stack trace (<code>throw ex;</code> resets it); exception filters (<code>when</code>).</td></tr>
+<tr><td>IDisposable</td><td>Deterministic cleanup of unmanaged resources (connections, streams); <code>using</code> / <code>await using</code>.</td></tr>
+<tr><td>Pattern matching</td><td><code>switch</code> expressions, property and relational patterns, <code>is not null</code>.</td></tr>
+</table></div>
+
+<h3>async / await in one paragraph</h3>
+<p>An <code>async</code> method is compiled into a state machine. At an <code>await</code> on an incomplete task, the method returns to its caller and the rest runs later as a continuation; no thread is blocked while waiting for I/O. <code>Task</code> represents the operation; <code>ValueTask</code> avoids allocation when results are often synchronous (await it once only). <code>ConfigureAwait(false)</code> skips resuming on the captured synchronisation context (mainly relevant in libraries and UI apps; ASP.NET Core has no synchronisation context). Pass <code>CancellationToken</code>s through. Never block on async code with <code>.Result</code> or <code>.Wait()</code> (thread-pool starvation, deadlocks in UI contexts), and avoid <code>async void</code> except for event handlers.</p>
+<p class="practice">Practise: <a href="dotnet.html">.NET Backend bank</a> (N001–N020 for basics, async internals throughout).</p>
+
+</section>
+<section id="dotnet">
+<h2>.NET runtime and versions</h2>
+
+<ul>
+<li><b>CLR:</b> runs IL code; the <b>JIT</b> compiles methods to machine code at first call; <b>tiered compilation</b> starts with quick code and recompiles hot methods with optimisations (dynamic PGO uses runtime data). <b>ReadyToRun</b> precompiles to cut start-up; <b>Native AOT</b> compiles ahead of time (fast start, smaller memory, but no runtime code generation and limited reflection).</li>
+<li><b>Garbage collector:</b> generations 0, 1, 2; objects of 85,000 bytes or more go to the <b>Large Object Heap</b> (collected with gen 2); server GC (per-core heaps, throughput) vs workstation GC; <code>Span&lt;T&gt;</code>, <code>ArrayPool</code> and <code>stackalloc</code> reduce allocations.</li>
+<li><b>Thread pool:</b> grows gradually when work is blocked; blocking calls in async code cause starvation (rising latency with low CPU).</li>
+<li><b>Release cadence:</b> a new major version every November; even numbers are LTS (3 years), odd numbers are STS. .NET 8 (LTS) and .NET 9 (STS) both reach end of support in November 2026; .NET 10 (LTS, November 2025) is the upgrade target <span class="verify">VERIFY</span>.</li>
+<li><b>Diagnostics:</b> <code>dotnet-counters</code> (live metrics), <code>dotnet-trace</code> (profiling), <code>dotnet-dump</code> (memory/threads), EventPipe, OpenTelemetry via <code>ActivitySource</code> and <code>Meter</code>.</li>
+</ul>
+
+</section>
+<section id="aspnet">
+<h2>ASP.NET Core</h2>
+
+<h3>Request pipeline</h3>
+<div class="flow">
+<span class="n">Kestrel</span><span class="ar">→</span><span class="n">Exception handling</span><span class="ar">→</span><span class="n">HTTPS / HSTS</span><span class="ar">→</span><span class="n">Static files</span><span class="ar">→</span><span class="n">Routing</span><span class="ar">→</span><span class="n">CORS</span><span class="ar">→</span><span class="n">Authentication</span><span class="ar">→</span><span class="n">Authorization</span><span class="ar">→</span><span class="n">Rate limiting</span><span class="ar">→</span><span class="n">Endpoint</span>
+</div>
+<p>Middleware runs in registration order on the way in and reverse order on the way out; order matters (authentication before authorization, CORS before auth for preflights, exception handling first).</p>
+
+<h3>Dependency injection lifetimes</h3>
+<div class="tw"><table>
+<tr><th>Lifetime</th><th>One instance per</th><th>Use for</th><th>Trap</th></tr>
+<tr><td>Singleton</td><td>Application</td><td>Stateless or thread-safe shared services, caches, clients</td><td>Must be thread-safe; must not depend on scoped services (captive dependency)</td></tr>
+<tr><td>Scoped</td><td>Request (scope)</td><td>DbContext, unit of work, per-request context</td><td>Not available in singletons or background threads without creating a scope</td></tr>
+<tr><td>Transient</td><td>Resolution</td><td>Lightweight stateless services</td><td>Disposable transients are tracked until the scope ends</td></tr>
+</table></div>
+
+<h3>Other essentials</h3>
+<ul>
+<li><b>Configuration:</b> layered providers (appsettings.json, environment-specific files, environment variables, secrets); bind to classes with the Options pattern (<code>IOptions</code> fixed, <code>IOptionsSnapshot</code> per request, <code>IOptionsMonitor</code> live changes).</li>
+<li><b>Minimal APIs vs controllers:</b> minimal APIs are lighter and fast; controllers suit large APIs with filters and conventions. Both share routing, DI, auth.</li>
+<li><b>Validation:</b> model binding plus validation attributes or FluentValidation; return 400/422 with Problem Details.</li>
+<li><b>AuthN/AuthZ:</b> JWT bearer or cookie schemes; policies and requirements; resource-based authorization for object ownership.</li>
+<li><b>HttpClient:</b> use <code>IHttpClientFactory</code> (handler pooling, DNS refresh) with resilience handlers (timeouts, retries, circuit breaker).</li>
+<li><b>Background work:</b> <code>BackgroundService</code>/<code>IHostedService</code>; create scopes for scoped services; handle shutdown via cancellation tokens.</li>
+<li><b>Health checks:</b> liveness (process alive) vs readiness (dependencies reachable) endpoints.</li>
+</ul>
+<p class="practice">Practise: <a href="dotnet.html">.NET Backend bank</a> (DI, configuration, auth, middleware).</p>
+
+</section>
+<section id="efcore">
+<h2>EF Core and data access</h2>
+
+<ul>
+<li><b>DbContext</b> is a unit of work with a change tracker; register it as <b>scoped</b>; it is <b>not thread-safe</b> (no parallel queries on one context).</li>
+<li><b>Tracking:</b> loaded entities are tracked for updates; use <code>AsNoTracking()</code> for read-only queries (faster, less memory).</li>
+<li><b>Loading related data:</b> eager (<code>Include</code>), explicit, or lazy (proxies; risks N+1 queries). Watch for <b>N+1</b>: loading a list then querying per item.</li>
+<li><b>Cartesian explosion:</b> multiple collection <code>Include</code>s multiply rows; use <code>AsSplitQuery()</code> or projections.</li>
+<li><b>Projections</b> (<code>Select</code> into DTOs) fetch only needed columns and skip tracking.</li>
+<li><b>Raw SQL:</b> <code>FromSql</code>/<code>FromSqlInterpolated</code> parameterise; <code>FromSqlRaw</code> with concatenation is an injection risk.</li>
+<li><b>Concurrency:</b> concurrency tokens (rowversion) → <code>DbUpdateConcurrencyException</code> on conflicting updates.</li>
+<li><b>Migrations:</b> generated from model changes; review the SQL; for large tables use expand/contract steps and batched backfills.</li>
+<li><b>Bulk operations:</b> <code>ExecuteUpdate</code>/<code>ExecuteDelete</code> (EF Core 7+) run set-based SQL without loading entities.</li>
+<li><b>Dapper vs EF Core:</b> Dapper is a thin mapper for hand-written SQL (full control, fast); EF Core gives modelling, change tracking and migrations. Many teams use both.</li>
+</ul>
+<p class="practice">Practise: <a href="dotnet.html">.NET Backend bank</a> (EF Core questions), <a href="data.html">Data Layer bank</a>.</p>
+
+</section>
+<section id="node">
+<h2>Node.js and TypeScript</h2>
+
+<h3>Event loop</h3>
+<p>Node runs JavaScript on <b>one main thread</b>. I/O is handed to the OS or to <b>libuv's thread pool</b> (default 4 threads; used for file system, DNS lookup, crypto, compression). Completed work queues callbacks that run on the main thread.</p>
+<div class="flow"><span class="n">timers<small>setTimeout</small></span><span class="ar">→</span><span class="n">pending callbacks</span><span class="ar">→</span><span class="n">poll<small>I/O callbacks</small></span><span class="ar">→</span><span class="n">check<small>setImmediate</small></span><span class="ar">→</span><span class="n">close callbacks</span></div>
+<p>Between callbacks, <code>process.nextTick</code> callbacks run first, then promise microtasks. A long synchronous task (big JSON parse, a CPU loop, a sync regex) <b>blocks every request</b>. Fixes: break work up, use <b>worker threads</b>, or move it to another service.</p>
+<ul>
+<li><b>Streams</b> process data in chunks with <b>backpressure</b> (<code>pipeline()</code> handles errors and cleanup).</li>
+<li><b>Errors:</b> unhandled promise rejections crash the process in modern Node; always handle async errors; graceful shutdown on SIGTERM.</li>
+<li><b>Modules:</b> CommonJS (<code>require</code>) vs ES modules (<code>import</code>); ESM is the standard direction.</li>
+<li><b>Scaling:</b> one process per core (cluster, PM2, or several containers); state goes in external stores.</li>
+</ul>
+<h3>TypeScript</h3>
+<ul>
+<li><b>Structural typing:</b> compatibility by shape, not by declared name.</li>
+<li><b>Types are erased at runtime:</b> validate external input (zod, class-validator) because types don't check data from the network.</li>
+<li><code>unknown</code> over <code>any</code>; <code>strict</code> mode on; discriminated unions for state; generics and utility types (<code>Partial</code>, <code>Pick</code>, <code>Omit</code>, <code>Record</code>).</li>
+</ul>
+<p class="practice">Practise: <a href="node.html">Node & NestJS bank</a>.</p>
+
+</section>
+<section id="nest">
+<h2>NestJS</h2>
+
+<ul>
+<li><b>Modules</b> group providers and controllers; <b>providers</b> are injectable services; DI scopes: default singleton, request-scoped (propagates up the chain, slower), transient.</li>
+<li><b>Request lifecycle order:</b></li>
+</ul>
+<div class="flow"><span class="n">Middleware</span><span class="ar">→</span><span class="n">Guards<small>authN/authZ</small></span><span class="ar">→</span><span class="n">Interceptors (before)</span><span class="ar">→</span><span class="n">Pipes<small>validation, transform</small></span><span class="ar">→</span><span class="n">Handler</span><span class="ar">→</span><span class="n">Interceptors (after)</span><span class="ar">→</span><span class="n">Exception filters<small>on errors</small></span></div>
+<ul>
+<li>Use a global <code>ValidationPipe</code> with <code>whitelist</code> and <code>forbidNonWhitelisted</code> to block mass assignment.</li>
+<li>Make routes secure by default with a global guard and an explicit <code>@Public()</code> decorator.</li>
+<li>Express is the default HTTP adapter; Fastify is faster for raw throughput but has a different plugin ecosystem.</li>
+</ul>
+<p class="practice">Practise: <a href="node.html">Node & NestJS bank</a>.</p>
+
+</section>
+<section id="sqlserver">
+<h2>SQL Server</h2>
+
+<ul>
+<li><b>Clustered index</b> = the table's physical order (one per table, usually the primary key). <b>Nonclustered</b> indexes point to the clustered key; <b>INCLUDE</b> columns make them covering and avoid key lookups.</li>
+<li><b>SARGable predicates</b> let the optimiser seek an index: avoid functions on indexed columns (<code>WHERE YEAR(CreatedAt) = 2025</code> → use a date range), implicit conversions, leading wildcards.</li>
+<li><b>Execution plans:</b> look for scans on large tables, key lookups, big estimate vs actual gaps (stale statistics), sorts and spills, parallelism.</li>
+<li><b>Statistics</b> drive cardinality estimates; out-of-date stats cause bad plans.</li>
+<li><b>Parameter sniffing:</b> a plan compiled for one parameter value is reused for very different values; fixes include <code>OPTION (RECOMPILE)</code>, <code>OPTIMIZE FOR</code>, or query redesign.</li>
+<li><b>Locking:</b> shared/exclusive locks, lock escalation, blocking chains, deadlocks (one victim chosen); <b>RCSI</b> (read committed snapshot) uses row versions in tempdb so readers don't block writers.</li>
+<li><b>Query Store</b> keeps plan and runtime history; force a known good plan after a regression.</li>
+<li><b>Transaction log:</b> every change is logged; long transactions and missing log backups (full recovery model) grow the log.</li>
+</ul>
+<p class="practice">Practise: <a href="data.html">Data Layer bank</a> (Q001–Q030 for basics).</p>
+
+</section>
+<section id="postgres">
+<h2>PostgreSQL</h2>
+
+<ul>
+<li><b>MVCC:</b> updates create new row versions; old versions are cleaned by <b>VACUUM</b> (autovacuum). Long-running transactions prevent cleanup and cause <b>bloat</b>.</li>
+<li><b>Index types:</b> B-tree (default), GIN (jsonb, arrays, full-text), GiST (geometric, ranges, exclusion constraints), BRIN (huge naturally ordered tables), hash; partial and expression indexes.</li>
+<li><b>EXPLAIN (ANALYZE, BUFFERS)</b> shows actual timings and I/O.</li>
+<li><b>jsonb</b> stores binary JSON that can be indexed with GIN; good for flexible attributes alongside relational columns.</li>
+<li><b>Connections</b> are processes (each uses memory); use a pooler (PgBouncer, RDS Proxy) when many clients or Lambdas connect.</li>
+<li><b>Extensions:</b> pgvector (vector search), PostGIS (geospatial), pg_stat_statements (query statistics).</li>
+<li><b>Replication:</b> streaming (physical) replicas for reads and failover; logical replication for selective tables and upgrades.</li>
+<li>Default isolation is Read Committed; Serializable uses SSI and can abort transactions that would conflict (retry them).</li>
+</ul>
+<p class="practice">Practise: <a href="data.html">Data Layer bank</a>.</p>
+
+</section>
+<section id="redis">
+<h2>Redis</h2>
+
+<ul>
+<li><b>In-memory data structures:</b> strings, hashes, lists, sets, sorted sets (leaderboards, rate limit windows), streams, plus geo and probabilistic types.</li>
+<li><b>Commands run one at a time</b> on the main thread (I/O threads exist in newer versions), so each command is atomic; slow commands (<code>KEYS *</code>, huge values) block everyone.</li>
+<li><b>Expiry</b> with TTLs; <b>eviction policies</b> when memory is full (default <code>noeviction</code> returns errors; caches usually use <code>allkeys-lru</code> or <code>allkeys-lfu</code>).</li>
+<li><b>Persistence:</b> RDB snapshots and/or AOF log; as a cache, plan for data loss.</li>
+<li><b>Patterns:</b> cache-aside, rate limiting (INCR + EXPIRE, Lua for atomic logic), sessions, pub/sub (fire and forget), distributed locks (be careful: need fencing tokens for correctness).</li>
+<li><b>Cluster mode:</b> keys spread across 16,384 hash slots; multi-key operations need keys in the same slot (hash tags <code>{user:1}</code>).</li>
+<li><b>Cache problems:</b> stampede (many misses at once → lock or early refresh), stale data (TTL plus invalidation on writes), hot keys.</li>
+</ul>
+<p class="practice">Practise: <a href="data.html">Data Layer bank</a> (Redis questions, Q090 caching culture).</p>
+
+</section>
+<section id="dynamo">
+<h2>DynamoDB</h2>
+
+<ul>
+<li><b>Keys:</b> partition key (hash, spreads data) + optional sort key (range queries within a partition). Design keys from <b>access patterns</b> first.</li>
+<li><b>Query</b> reads one partition key (efficient); <b>Scan</b> reads the whole table (avoid in request paths).</li>
+<li><b>Secondary indexes:</b> GSIs (different keys, eventually consistent, own capacity); LSIs (same partition key, different sort key; defined at table creation).</li>
+<li><b>Limits:</b> item size 400 KB; per-partition throughput limits (roughly 3,000 read and 1,000 write units per second), so avoid hot keys <span class="verify">VERIFY</span>.</li>
+<li><b>Capacity:</b> on-demand (pay per request) or provisioned with auto scaling.</li>
+<li><b>Consistency:</b> eventually consistent reads by default; strongly consistent reads available on the table and LSIs, not GSIs.</li>
+<li><b>Transactions</b> across up to 100 items <span class="verify">VERIFY</span>; conditional writes for optimistic concurrency and uniqueness.</li>
+<li><b>Streams</b> capture changes for event processing; <b>TTL</b> deletes expired items in the background (not immediately).</li>
+<li><b>Single-table design</b> stores several entity types with generic keys (PK/SK) to serve many access patterns with few queries; powerful but harder to evolve.</li>
+</ul>
+<p class="practice">Practise: <a href="data.html">Data Layer bank</a> (DynamoDB modelling).</p>
+
+</section>
+<section id="messaging">
+<h2>Messaging: queues and streams</h2>
+
+<div class="tw"><table>
+<tr><th></th><th>Queue (SQS, Service Bus queues, RabbitMQ)</th><th>Log / stream (Kafka, Kinesis, Event Hubs)</th></tr>
+<tr><td>Consumption</td><td>Each message processed by one consumer, then deleted</td><td>Messages retained; each consumer group reads independently with its own offset</td></tr>
+<tr><td>Replay</td><td>No (except dead-letter redrive)</td><td>Yes, within retention</td></tr>
+<tr><td>Ordering</td><td>Best effort (SQS standard); FIFO queues with message groups</td><td>Per partition (key decides the partition)</td></tr>
+<tr><td>Scaling</td><td>Add consumers freely</td><td>Parallelism limited by partition count per group</td></tr>
+<tr><td>Typical use</td><td>Work queues, background jobs</td><td>Event streaming, multiple subscribers, event sourcing, analytics</td></tr>
+</table></div>
+<ul>
+<li><b>SQS:</b> visibility timeout (message hidden while processed; reappears if not deleted), dead-letter queue after N receives, long polling, at-least-once delivery (standard), FIFO with deduplication and message groups <span class="verify">VERIFY</span> <span class="vnote">(current throughput limits)</span>.</li>
+<li><b>SNS</b> fans out one message to many subscribers; <b>EventBridge</b> routes events by rules and integrates SaaS/AWS sources.</li>
+<li><b>Kafka:</b> topics split into partitions; producers choose partition by key; consumers in a group share partitions (one consumer per partition); commit offsets after processing for at-least-once.</li>
+<li><b>Delivery semantics:</b> at-most-once (may lose), at-least-once (may duplicate, the common choice), exactly-once (only within specific boundaries); design <b>idempotent consumers</b>.</li>
+<li><b>Outbox pattern:</b> write the event to a table in the same transaction as the data change, then publish from the table, so you never save without publishing (or publish without saving).</li>
+</ul>
+<p class="practice">Practise: <a href="architecture.html">Architecture bank</a> (outbox, sagas, Kafka), <a href="cloud.html">Cloud & DevOps bank</a> (SQS, EventBridge).</p>
+
+</section>
+<section id="react">
+<h2>React and Next.js</h2>
+
+<h3>React</h3>
+<ul>
+<li><b>Components</b> are functions of props and state returning UI. State changes trigger a re-render of that component and its children; React <b>reconciles</b> the new tree with the old and updates the DOM minimally.</li>
+<li><b>Keys</b> identify list items across renders; use stable IDs, not array indexes, for dynamic lists.</li>
+<li><b>Hooks rules:</b> call at the top level, same order every render. <code>useState</code>, <code>useEffect</code> (synchronise with external systems; not for deriving data), <code>useMemo</code>/<code>useCallback</code> (memoise when it measurably helps), <code>useRef</code>, context.</li>
+<li><b>Common bugs:</b> missing effect dependencies (stale values), effects that set state on every render (loops), defining components inside components (remounts), mutating state directly.</li>
+<li><b>React 18/19:</b> concurrent rendering, automatic batching, transitions (<code>useTransition</code>), Suspense for data; React 19 adds Actions, <code>useActionState</code>, <code>useOptimistic</code>, and the React Compiler can auto-memoise <span class="verify">VERIFY</span>.</li>
+</ul>
+<h3>Next.js App Router</h3>
+<ul>
+<li><b>Server Components</b> (default) render on the server, can access data directly, ship no JS for themselves; <b>Client Components</b> (<code>"use client"</code>) handle interactivity and state.</li>
+<li><b>Rendering:</b> static (build time), dynamic (per request), streaming with Suspense; revalidation for incremental static regeneration.</li>
+<li><b>Caching layers</b> (request memoisation, data cache, full route cache, router cache) changed between versions; know how to opt out and revalidate <span class="verify">VERIFY</span> <span class="vnote">(behaviour for your version)</span>.</li>
+<li><b>Server Actions</b> are public HTTP endpoints: authenticate and authorise inside every action; validate input.</li>
+<li><b>Middleware</b> runs at the edge for redirects and light checks; never rely on it as the only authorization (see CVE-2025-29927).</li>
+</ul>
+<p class="practice">Practise: <a href="frontend.html">Frontend bank</a>.</p>
+
+</section>
+<section id="docker">
+<h2>Docker and containers</h2>
+
+<ul>
+<li><b>Image</b> = read-only layers built from a Dockerfile; <b>container</b> = a running instance with a writable layer. Containers share the host kernel (namespaces and cgroups isolate them); they are not VMs.</li>
+<li><b>Layer caching:</b> order instructions from least to most frequently changing (copy dependency manifests and restore before copying source).</li>
+<li><b>Multi-stage builds:</b> build with the SDK image, copy only the output into a small runtime image (smaller, fewer vulnerabilities).</li>
+<li><b>Security:</b> run as non-root, read-only filesystem where possible, minimal base images (distroless, chiseled .NET images, alpine/slim), scan images, pin base image digests.</li>
+<li><b>Signals:</b> the main process is PID 1 and must handle SIGTERM for graceful shutdown (exec-form <code>ENTRYPOINT</code>, or an init like tini).</li>
+<li><b>Config:</b> environment variables and mounted secrets, not baked into images; <code>.dockerignore</code> keeps secrets and build junk out of the context.</li>
+<li><b>Health checks</b> in the orchestrator (ECS, Kubernetes) rather than only Docker's <code>HEALTHCHECK</code>.</li>
+</ul>
+<pre><code># .NET multi-stage example
+FROM mcr.microsoft.com/dotnet/sdk:8.0 AS build
+WORKDIR /src
+COPY *.csproj ./
+RUN dotnet restore
+COPY . .
+RUN dotnet publish -c Release -o /app
+
+FROM mcr.microsoft.com/dotnet/aspnet:8.0
+WORKDIR /app
+COPY --from=build /app .
+USER app
+ENTRYPOINT ["dotnet", "Api.dll"]</code></pre>
+<p>Note: the official .NET 8+ images include a non-root <code>app</code> user <span class="verify">VERIFY</span> <span class="vnote">(for your base image)</span>.</p>
+<p class="practice">Practise: <a href="cloud.html">Cloud & DevOps bank</a> (Docker and ECS questions).</p>
+
+</section>
+</main>
+</div>
+<footer class="foot">Items marked <span class="verify">VERIFY</span> depend on versions, limits or rules that change; check current documentation before an interview. Drafted with help from Claude.</footer>
+</div>
+<script>(function(){try{var d=document.getElementById('toc-details');if(window.matchMedia('(max-width: 979px)').matches)d.removeAttribute('open');}catch(e){}})();</script>
+</html>
